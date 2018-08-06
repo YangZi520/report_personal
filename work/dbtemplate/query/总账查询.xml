@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--总账查询-->
+<mapper namespace="总账查询">
+ <select id="查询科目组合-公司段" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"system",
+	"desc":"查询科目组合-公司段",
+	"in":[],
+	"out":[
+		{
+			"id":"flex_value",
+			"name":"flex_value",
+			"datatype":"varchar"
+		},
+		{
+			"id":"description",
+			"name":"description",
+			"datatype":"varchar"
+		}
+	]
+}-->select ffv.flex_value,
+       ffvt.description
+ from fnd_id_flex_segments fifs,
+       gl_sets_of_books     gsob,
+       fnd_flex_values      ffv,
+       fnd_flex_values_tl   ffvt
+ where gsob.chart_of_accounts_id = fifs.id_flex_num
+   and id_flex_code = 'GL#'
+   and ffv.flex_value_id = ffvt.flex_value_id
+   and ffvt.language = 'ZHS'
+   and ffv.flex_value_set_id = fifs.flex_value_set_id
+   and ffv.enabled_flag = 'Y'
+   and ffv.end_date_active is null
+   and gsob.set_of_books_id = 2
+   and fifs.application_column_name = 'SEGMENT1'
+ order by ffv.flex_value
+</select>
+ <select id="查询科目组合-成本中心段" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"system",
+	"desc":"查询科目组合-成本中心段",
+	"in":[
+		{
+			"id":"begin_value",
+			"name":"开始值",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"mut":"",
+			"auth":""
+		},
+		{
+			"id":"end_value",
+			"name":"结束值",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"mut":"",
+			"auth":""
+		},
+		{
+			"id":"name",
+			"name":"名称",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"mut":"",
+			"auth":""
+		},
+		{
+			"id":"code_length",
+			"name":"长度",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"mut":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"flex_value",
+			"name":"代码",
+			"datatype":"varchar"
+		},
+		{
+			"id":"description",
+			"name":"名称",
+			"datatype":"varchar"
+		}
+	]
+}-->select ffv.flex_value,
+       ffvt.description
+ from fnd_id_flex_segments fifs,
+       gl_sets_of_books     gsob,
+       fnd_flex_values      ffv,
+       fnd_flex_values_tl   ffvt
+ where gsob.chart_of_accounts_id = fifs.id_flex_num
+   and id_flex_code = 'GL#'
+   and ffv.flex_value_id = ffvt.flex_value_id
+   and ffvt.language = 'ZHS'
+   and ffv.flex_value_set_id = fifs.flex_value_set_id
+   and ffv.enabled_flag = 'Y'
+   and ffv.end_date_active is null
+   and gsob.set_of_books_id = 2
+   and fifs.application_column_name = 'SEGMENT2'
+<if test="begin_value!=''">
+ and ffv.flex_value&gt;=#{begin_value}
+</if>
+ <if test="end_value!=''">
+and ffv.flex_value&lt;=#{end_value}
+</if>
+ <if test="name!=''">
+   and ffvt.description like '${name}%'
+</if>
+ <if test="code_length!=''">
+ and length(ffv.flex_value)=${code_length}
+ </if>
+ order by ffv.flex_value
+</select>
+ <select id="查询科目组合-会计科目段" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"system",
+	"desc":"查询科目组合-会计科目段",
+	"in":[
+		{
+			"id":"begin_value",
+			"name":"开始",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"数据字典/会计科目字典",
+			"mut":"True",
+			"auth":""
+		},
+		{
+			"id":"end_value",
+			"name":"结束",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"数据字典/会计科目字典",
+			"mut":"True",
+			"auth":""
+		},
+		{
+			"id":"name",
+			"name":"名字",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"mut":"False",
+			"auth":""
+		},
+		{
+			"id":"code_length",
+			"name":"代码长度",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"mut":"False",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"flex_value",
+			"name":"科目代码",
+			"datatype":"varchar"
+		},
+		{
+			"id":"description",
+			"name":"科目名称",
+			"datatype":"varchar"
+		}
+	]
+}-->select ffv.flex_value,
+       ffvt.description
+ from fnd_id_flex_segments fifs,
+       gl_sets_of_books     gsob,
+       fnd_flex_values      ffv,
+       fnd_flex_values_tl   ffvt
+ where gsob.chart_of_accounts_id = fifs.id_flex_num
+   and id_flex_code = 'GL#'
+   and ffv.flex_value_id = ffvt.flex_value_id
+   and ffvt.language = 'ZHS'
+   and ffv.flex_value_set_id = fifs.flex_value_set_id
+   and ffv.enabled_flag = 'Y'
+   and ffv.end_date_active is null
+   and gsob.set_of_books_id = 2
+   and fifs.application_column_name = 'SEGMENT3'
+<if test="begin_value!=''">
+ and ffv.flex_value&gt;=#{begin_value}
+</if>
+ <if test="end_value!=''">
+and ffv.flex_value&lt;=#{end_value}
+</if>
+ <if test="name!=''">
+   and ffvt.description like '${name}%'
+</if>
+ <if test="code_length!=''">
+ and length(ffv.flex_value)=${code_length}
+ </if>
+ order by ffv.flex_value
+</select>
+ <select id="查询科目组合-品牌段" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"system",
+	"desc":"查询科目组合-品牌段",
+	"in":[],
+	"out":[
+		{
+			"id":"flex_value",
+			"name":"flex_value",
+			"datatype":"varchar"
+		},
+		{
+			"id":"description",
+			"name":"description",
+			"datatype":"varchar"
+		}
+	]
+}-->select ffv.flex_value,
+       ffvt.description
+ from fnd_id_flex_segments fifs,
+       gl_sets_of_books     gsob,
+       fnd_flex_values      ffv,
+       fnd_flex_values_tl   ffvt
+ where gsob.chart_of_accounts_id = fifs.id_flex_num
+   and id_flex_code = 'GL#'
+   and ffv.flex_value_id = ffvt.flex_value_id
+   and ffvt.language = 'ZHS'
+   and ffv.flex_value_set_id = fifs.flex_value_set_id
+   and ffv.enabled_flag = 'Y'
+   and ffv.end_date_active is null
+   and gsob.set_of_books_id = 2
+   and fifs.application_column_name = 'SEGMENT4'
+ order by ffv.flex_value
+</select>
+ <select id="查询科目组合-项目段" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"system",
+	"desc":"查询科目组合-项目段",
+	"in":[
+		{
+			"id":"begin_value",
+			"name":"begin_value",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"mut":"",
+			"auth":""
+		},
+		{
+			"id":"end_value",
+			"name":"end_value",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"mut":"",
+			"auth":""
+		},
+		{
+			"id":"name",
+			"name":"name",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"mut":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"flex_value",
+			"name":"flex_value",
+			"datatype":"varchar"
+		},
+		{
+			"id":"description",
+			"name":"description",
+			"datatype":"varchar"
+		}
+	]
+}-->select ffv.flex_value,
+       ffvt.description
+ from fnd_id_flex_segments fifs,
+       gl_sets_of_books     gsob,
+       fnd_flex_values      ffv,
+       fnd_flex_values_tl   ffvt
+ where gsob.chart_of_accounts_id = fifs.id_flex_num
+   and id_flex_code = 'GL#'
+   and ffv.flex_value_id = ffvt.flex_value_id
+   and ffvt.language = 'ZHS'
+   and ffv.flex_value_set_id = fifs.flex_value_set_id
+   and ffv.enabled_flag = 'Y'
+   and ffv.end_date_active is null
+   and gsob.set_of_books_id = 2
+   and fifs.application_column_name = 'SEGMENT5'
+<if test="begin_value!=''">
+   and ffv.flex_value
+&gt;
+= #{begin_value}
+</if>
+ <if test="end_value!=''">
+   and ffv.flex_value
+&lt;
+= #{end_value}
+</if>
+ <if test="name!=''">
+   and ffvt.description like '${name}%'
+</if>
+ order by ffv.flex_value
+</select>
+ <select id="查询科目组合-往来段" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"system",
+	"desc":"查询科目组合-往来段",
+	"in":[
+		{
+			"id":"begin_value",
+			"name":"begin_value",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"mut":"",
+			"auth":""
+		},
+		{
+			"id":"end_value",
+			"name":"end_value",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"mut":"",
+			"auth":""
+		},
+		{
+			"id":"name",
+			"name":"name",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"mut":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"flex_value",
+			"name":"flex_value",
+			"datatype":"varchar"
+		},
+		{
+			"id":"description",
+			"name":"description",
+			"datatype":"varchar"
+		}
+	]
+}-->select ffv.flex_value,
+       ffvt.description
+ from fnd_id_flex_segments fifs,
+       gl_sets_of_books     gsob,
+       fnd_flex_values      ffv,
+       fnd_flex_values_tl   ffvt
+ where gsob.chart_of_accounts_id = fifs.id_flex_num
+   and id_flex_code = 'GL#'
+   and ffv.flex_value_id = ffvt.flex_value_id
+   and ffvt.language = 'ZHS'
+   and ffv.flex_value_set_id = fifs.flex_value_set_id
+   and ffv.enabled_flag = 'Y'
+   and ffv.end_date_active is null
+   and gsob.set_of_books_id = 2
+   and fifs.application_column_name = 'SEGMENT' || '6'
+   and ffv.flex_value &gt;= nvl(#{begin_value}, ffv.flex_value)
+   and ffv.flex_value &lt;= nvl(#{end_value}, ffv.flex_value)
+   and ffvt.description like nvl('%'||#{name}||'%', ffvt.description)
+ order by ffv.flex_value
+</select>
+ <select id="查询科目组合-备用段" resultType="Map" parameterType="Map">
+<!--{
+	"db":"system",
+	"desc":"查询科目组合-备用段",
+	"in":[
+		{
+			"id":"begin_value",
+			"name":"begin_value",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"mut":"",
+			"auth":""
+		},
+		{
+			"id":"end_value",
+			"name":"end_value",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"mut":"",
+			"auth":""
+		},
+		{
+			"id":"name",
+			"name":"name",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"mut":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"flex_value",
+			"name":"flex_value",
+			"datatype":"varchar"
+		},
+		{
+			"id":"description",
+			"name":"description",
+			"datatype":"varchar"
+		}
+	]
+}-->select ffv.flex_value,
+       ffvt.description
+ from fnd_id_flex_segments fifs,
+       gl_sets_of_books     gsob,
+       fnd_flex_values      ffv,
+       fnd_flex_values_tl   ffvt
+ where gsob.chart_of_accounts_id = fifs.id_flex_num
+   and id_flex_code = 'GL#'
+   and ffv.flex_value_id = ffvt.flex_value_id
+   and ffvt.language = 'ZHS'
+   and ffv.flex_value_set_id = fifs.flex_value_set_id
+   and ffv.enabled_flag = 'Y'
+   and ffv.end_date_active is null
+   and gsob.set_of_books_id = 2
+   and fifs.application_column_name = 'SEGMENT' || '7'
+   and ffv.flex_value &gt;= nvl(#{begin_value}, ffv.flex_value)
+   and ffv.flex_value &lt;= nvl(#{end_value}, ffv.flex_value)
+   and ffvt.description like nvl('%'||#{name}||'%', ffvt.description)
+ order by ffv.flex_value
+</select>
+ <select id="查询总账-mysql" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"system",
+	"desc":"",
+	"in":[
+		{
+			"id":"period_name",
+			"name":"期间名称",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"set_of_books_id",
+			"name":"账套",
+			"datatype":"varchar"
+		},
+		{
+			"id":"code_combination_id",
+			"name":"科目",
+			"datatype":"varchar"
+		},
+		{
+			"id":"period_net_dr",
+			"name":"借方",
+			"datatype":"varchar"
+		},
+		{
+			"id":"period_net_cr",
+			"name":"贷方",
+			"datatype":"varchar"
+		}
+	]
+}
+--><![CDATA[SELECT
+	gb.SET_OF_BOOKS_ID ,
+	gb.CODE_COMBINATION_ID ,
+	gb.PERIOD_NET_DR ,
+	gb.PERIOD_NET_CR
+FROM
+	GL_BALANCES gb
+WHERE
+	gb.PERIOD_NAME = #{period_name}]]>
+</select>
+ <select id="查询公司段信息" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"system",
+	"desc":"查询公司段信息",
+	"in":[
+		{
+			"id":"begin_value",
+			"name":"开始值",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"end_value",
+			"name":"结束值",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"name",
+			"name":"名称",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"flex_value",
+			"name":"编码",
+			"datatype":"varchar"
+		},
+		{
+			"id":"description",
+			"name":"名称",
+			"datatype":"varchar"
+		}
+	]
+}
+--><![CDATA[select ffv.flex_value,
+       ffvt.description
+ from fnd_id_flex_segments fifs,
+       gl_sets_of_books     gsob,
+       fnd_flex_values      ffv,
+       fnd_flex_values_tl   ffvt
+ where gsob.chart_of_accounts_id = fifs.id_flex_num
+   and id_flex_code = 'GL#'
+   and ffv.flex_value_id = ffvt.flex_value_id
+   and ffvt.language = 'ZHS'
+   and ffv.flex_value_set_id = fifs.flex_value_set_id
+   and ffv.enabled_flag = 'Y'
+   and ffv.end_date_active is null
+   and gsob.set_of_books_id = 2
+   and fifs.application_column_name = 'SEGMENT' || '1'
+   and ffv.flex_value >= nvl(#{begin_value}, ffv.flex_value)
+   and ffv.flex_value <= nvl(#{end_value}, ffv.flex_value)]]> and ffvt.description like nvl('%'||#{name}||'%', ffvt.description) order by ffv.flex_value
+</select>
+ <select id="查询会计期间" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"system",
+	"desc":"查询会计期间",
+	"in":[
+		{
+			"id":"period_name",
+			"name":"period_name",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"period_set_name",
+			"name":"period_set_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"period_name",
+			"name":"period_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"start_date",
+			"name":"start_date",
+			"datatype":"varchar"
+		},
+		{
+			"id":"end_date",
+			"name":"end_date",
+			"datatype":"varchar"
+		}
+	]
+}-->SELECT
+	gp.PERIOD_SET_NAME ,
+	gp.PERIOD_NAME ,
+	gp.START_DATE ,
+	gp.END_DATE
+FROM
+	gl_periods gp
+where 1=1
+ <if test="period_name!=''">
+   and gp.period_name=#{period_name}
+</if>
+</select>
+ <select id="查询会计期间无参数" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"system",
+	"desc":"",
+	"in":[],
+	"out":[
+		{
+			"id":"period_set_name",
+			"name":"period_set_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"period_name",
+			"name":"period_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"start_date",
+			"name":"start_date",
+			"datatype":"varchar"
+		},
+		{
+			"id":"end_date",
+			"name":"end_date",
+			"datatype":"varchar"
+		}
+	]
+}
+-->SELECT
+	gp.PERIOD_SET_NAME ,
+	gp.PERIOD_NAME ,
+	gp.START_DATE ,
+	gp.END_DATE
+FROM
+	gl_periods gp
+</select>
+ <select id="hello" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"system",
+	"desc":"hello",
+	"in":[
+		{
+			"id":"begin_value",
+			"name":"begin_value",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"end_value",
+			"name":"end_value",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"name",
+			"name":"name",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"flex_value",
+			"name":"flex_value",
+			"datatype":"varchar"
+		},
+		{
+			"id":"description",
+			"name":"description",
+			"datatype":"varchar"
+		}
+	]
+}
+--><![CDATA[select ffv.flex_value,
+       ffvt.description
+ from fnd_id_flex_segments fifs,
+       gl_sets_of_books     gsob,
+       fnd_flex_values      ffv,
+       fnd_flex_values_tl   ffvt
+ where gsob.chart_of_accounts_id = fifs.id_flex_num
+   and id_flex_code = 'GL#'
+   and ffv.flex_value_id = ffvt.flex_value_id
+   and ffvt.language = 'ZHS'
+   and ffv.flex_value_set_id = fifs.flex_value_set_id
+   and ffv.enabled_flag = 'Y'
+   and ffv.end_date_active is null
+   and gsob.set_of_books_id = 2
+   and fifs.application_column_name = 'SEGMENT' || '1'
+   and ffv.flex_value >= nvl(#{begin_value}, ffv.flex_value)
+   and ffv.flex_value <= nvl(#{end_value}, ffv.flex_value)
+   and ffvt.description like nvl('%'||#{name}||'%', ffvt.description)
+ order by ffv.flex_value
+]]>
+</select></mapper>

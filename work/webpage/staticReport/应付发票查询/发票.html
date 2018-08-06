@@ -1,0 +1,783 @@
+<html xmlns:v="urn:schemas-microsoft-com:vml"
+xmlns:o="urn:schemas-microsoft-com:office:office"
+xmlns:x="urn:schemas-microsoft-com:office:excel"
+xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=utf-8">
+<meta name=ProgId content=Excel.Sheet>
+<meta name=Generator content="Microsoft Excel 14">
+<link rel=File-List href="发票.files/filelist.xml">
+<!--[if !mso]>
+<style>
+v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+x\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style>
+<![endif]-->
+<style id="应付发票查询模板_16630_Styles">
+<!--table
+	{mso-displayed-decimal-separator:"\.";
+	mso-displayed-thousand-separator:"\,";}
+.font516630
+	{color:windowtext;
+	font-size:9.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:宋体;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;}
+.font616630
+	{color:black;
+	font-size:9.0pt;
+	font-weight:700;
+	font-style:normal;
+	text-decoration:none;
+	font-family:宋体;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;}
+.xl1516630
+	{padding:0px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:宋体;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:middle;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl6316630
+	{padding:0px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:宋体;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:"Short Date";
+	text-align:general;
+	vertical-align:middle;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl6416630
+	{padding:0px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:宋体;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:middle;
+	border:.5pt solid windowtext;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl6516630
+	{padding:0px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:700;
+	font-style:normal;
+	text-decoration:none;
+	font-family:宋体;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid windowtext;
+	background:#F2F2F2;
+	mso-pattern:black none;
+	white-space:nowrap;}
+.xl6616630
+	{padding:0px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:宋体;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:right;
+	vertical-align:middle;
+	border:.5pt solid windowtext;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl6716630
+	{padding:0px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:700;
+	font-style:normal;
+	text-decoration:none;
+	font-family:宋体;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:general;
+	vertical-align:middle;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl6816630
+	{padding:0px;
+	mso-ignore:padding;
+	color:black;
+	font-size:18.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:黑体, monospace;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:center;
+	vertical-align:middle;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl6916630
+	{padding:0px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:宋体;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:General;
+	text-align:right;
+	vertical-align:middle;
+	border-top:none;
+	border-right:none;
+	border-bottom:.5pt solid windowtext;
+	border-left:none;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+.xl7016630
+	{padding:0px;
+	mso-ignore:padding;
+	color:black;
+	font-size:11.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:宋体;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-number-format:"Short Date";
+	text-align:center;
+	vertical-align:middle;
+	border:.5pt solid windowtext;
+	mso-background-source:auto;
+	mso-pattern:auto;
+	white-space:nowrap;}
+ruby
+	{ruby-align:left;}
+rt
+	{color:windowtext;
+	font-size:9.0pt;
+	font-weight:400;
+	font-style:normal;
+	text-decoration:none;
+	font-family:宋体;
+	mso-generic-font-family:auto;
+	mso-font-charset:134;
+	mso-char-type:none;}
+-->
+</style>
+</head>
+
+<body>
+<!--[if !excel]>　　<![endif]-->
+<!--下列信息由 Microsoft Excel 的发布为网页向导生成。-->
+<!--如果同一条目从 Excel 中重新发布，则所有位于 DIV 标记之间的信息均将被替换。-->
+<!----------------------------->
+<!--“从 EXCEL 发布网页”向导开始-->
+<!----------------------------->
+
+<div id="应付发票查询模板_16630" align=center x:publishsource="Excel">
+
+<table border=0 cellpadding=0 cellspacing=0 width=4421 style='border-collapse:
+ collapse;table-layout:fixed;width:3320pt'>
+ <col width=114 style='mso-width-source:userset;mso-width-alt:3648;width:86pt'>
+ <col width=133 style='mso-width-source:userset;mso-width-alt:4256;width:100pt'>
+ <col width=190 style='mso-width-source:userset;mso-width-alt:6080;width:143pt'>
+ <col width=157 style='mso-width-source:userset;mso-width-alt:5024;width:118pt'>
+ <col width=153 style='mso-width-source:userset;mso-width-alt:4896;width:115pt'>
+ <col width=182 style='mso-width-source:userset;mso-width-alt:5824;width:137pt'>
+ <col width=157 style='mso-width-source:userset;mso-width-alt:5024;width:118pt'>
+ <col width=93 style='mso-width-source:userset;mso-width-alt:2976;width:70pt'>
+ <col width=301 style='mso-width-source:userset;mso-width-alt:9632;width:226pt'>
+ <col width=36 style='mso-width-source:userset;mso-width-alt:1152;width:27pt'>
+ <col width=76 style='mso-width-source:userset;mso-width-alt:2432;width:57pt'>
+ <col width=448 style='mso-width-source:userset;mso-width-alt:14336;width:336pt'>
+ <col width=693 style='mso-width-source:userset;mso-width-alt:22176;width:520pt'>
+ <col width=20 style='mso-width-source:userset;mso-width-alt:640;width:15pt'>
+ <col width=76 style='mso-width-source:userset;mso-width-alt:2432;width:57pt'>
+ <col width=72 span=3 style='width:54pt'>
+ <col width=93 style='mso-width-source:userset;mso-width-alt:2976;width:70pt'>
+ <col width=448 style='mso-width-source:userset;mso-width-alt:14336;width:336pt'>
+ <col width=534 style='mso-width-source:userset;mso-width-alt:17088;width:401pt'>
+ <col width=301 style='mso-width-source:userset;mso-width-alt:9632;width:226pt'>
+ <tr height=39 style='mso-height-source:userset;height:29.25pt'>
+  <td height=39 class=xl1516630 width=114 style='height:29.25pt;width:86pt'></td>
+  <td colspan=6 class=xl6816630 width=972 style='width:731pt'>应付发票查询</td>
+  <td class=xl6316630 width=93 style='width:70pt'></td>
+  <td class=xl1516630 width=301 style='width:226pt'></td>
+  <td class=xl1516630 width=36 style='width:27pt'></td>
+  <td class=xl1516630 width=76 style='width:57pt'></td>
+  <td class=xl1516630 width=448 style='width:336pt'></td>
+  <td class=xl1516630 width=693 style='width:520pt'></td>
+  <td class=xl1516630 width=20 style='width:15pt'></td>
+  <td class=xl1516630 width=76 style='width:57pt'></td>
+  <td class=xl1516630 width=72 style='width:54pt'></td>
+  <td class=xl1516630 width=72 style='width:54pt'></td>
+  <td class=xl1516630 width=72 style='width:54pt'></td>
+  <td class=xl6316630 align=right width=93 style='width:70pt'>2003/10/31</td>
+  <td class=xl1516630 width=448 style='width:336pt'>3533.000000.6131010101.000000.00000000.0000.000000</td>
+  <td class=xl1516630 width=534 style='width:401pt'>鄂州分公司.缺省.应收应付对冲.无.缺省.无.缺省</td>
+  <td class=xl1516630 width=301 style='width:226pt'>应付购手机款</td>
+ </tr>
+ <tr height=28 style='mso-height-source:userset;height:21.0pt'>
+  <td height=28 class=xl1516630 style='height:21.0pt'></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl6316630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl6316630 align=right>2003/10/31</td>
+  <td class=xl1516630>3531.000000.6131010101.000000.00000000.0000.000000</td>
+  <td class=xl1516630>恩施分公司.缺省.应收应付对冲.无.缺省.无.缺省</td>
+  <td class=xl1516630>应付建始公司报GSM四期工程施工费</td>
+ </tr>
+ <tr height=26 style='mso-height-source:userset;height:19.5pt'>
+  <td height=26 class=xl1516630 style='height:19.5pt'></td>
+  <td class=xl6716630>发票编号:</td>
+  <td colspan=2 class=xl6916630>QC031031002</td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl6316630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl6316630 align=right>2003/10/31</td>
+  <td class=xl1516630>3510.000000.6131010101.000000.00000000.0000.000000</td>
+  <td class=xl1516630>湖北移动本部.缺省.应收应付对冲.无.缺省.无.缺省</td>
+  <td class=xl1516630>G7（省内）</td>
+ </tr>
+ <tr height=18 style='height:13.5pt'>
+  <td height=18 class=xl1516630 style='height:13.5pt'></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl6316630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl6316630 align=right>2003/10/31</td>
+  <td class=xl1516630>3529.000000.6131010101.000000.00000000.0000.000000</td>
+  <td class=xl1516630>黄石分公司.缺省.应收应付对冲.无.缺省.无.缺省</td>
+  <td class=xl1516630><span style='mso-spacerun:yes'>    </span>手机</td>
+ </tr>
+ <tr height=34 style='mso-height-source:userset;height:25.5pt'>
+  <td height=34 class=xl1516630 style='height:25.5pt'></td>
+  <td class=xl6516630>公司</td>
+  <td class=xl6516630 style='border-left:none'>供应商名称</td>
+  <td class=xl6516630 style='border-left:none'>发票编号</td>
+  <td class=xl6516630 style='border-left:none'>发票日期</td>
+  <td class=xl6516630 style='border-left:none'>发票金额</td>
+  <td class=xl6516630 style='border-left:none'>行金额</td>
+  <td class=xl6316630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl6316630 align=right>2003/10/31</td>
+  <td class=xl1516630>3527.000000.6131010101.000000.00000000.0000.000000</td>
+  <td class=xl1516630>江汉分公司.缺省.应收应付对冲.无.缺省.无.缺省</td>
+  <td class=xl1516630>应付桩基工程款</td>
+ </tr>
+ <tr height=43 style='mso-height-source:userset;height:32.25pt'>
+  <td height=43 class=xl1516630 style='height:32.25pt'></td>
+  <td class=xl6416630 style='border-top:none'>OU_鄂州分公司</td>
+  <td class=xl6416630 align=right style='border-top:none;border-left:none'>35002808</td>
+  <td class=xl6416630 style='border-top:none;border-left:none'>QC031031002</td>
+  <td class=xl7016630 style='border-top:none;border-left:none'>2003/10/31</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>-77441.8</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>-77441.8</td>
+  <td class=xl6316630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl6316630 align=right>2003/10/31</td>
+  <td class=xl1516630>3528.000000.6131010101.000000.00000000.0000.000000</td>
+  <td class=xl1516630>荆门分公司.缺省.应收应付对冲.无.缺省.无.缺省</td>
+  <td class=xl1516630></td>
+ </tr>
+ <tr height=43 style='mso-height-source:userset;height:32.25pt'>
+  <td height=43 class=xl1516630 style='height:32.25pt'></td>
+  <td class=xl6416630 style='border-top:none'>OU_恩施分公司</td>
+  <td class=xl6416630 align=right style='border-top:none;border-left:none'>35005988</td>
+  <td class=xl6416630 style='border-top:none;border-left:none'>QC031031002</td>
+  <td class=xl7016630 style='border-top:none;border-left:none'>2003/10/31</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>718419.15</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>718419.15</td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+ </tr>
+ <tr height=43 style='mso-height-source:userset;height:32.25pt'>
+  <td height=43 class=xl1516630 style='height:32.25pt'></td>
+  <td class=xl6416630 style='border-top:none'>OU_湖北省本部</td>
+  <td class=xl6416630 align=right style='border-top:none;border-left:none'>35002814</td>
+  <td class=xl6416630 style='border-top:none;border-left:none'>QC031031002</td>
+  <td class=xl7016630 style='border-top:none;border-left:none'>2003/10/31</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>3204373.81</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>3204373.81</td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+ </tr>
+ <tr height=43 style='mso-height-source:userset;height:32.25pt'>
+  <td height=43 class=xl1516630 style='height:32.25pt'></td>
+  <td class=xl6416630 style='border-top:none'>OU_黄冈分公司</td>
+  <td class=xl6416630 align=right style='border-top:none;border-left:none'>35002814</td>
+  <td class=xl6416630 style='border-top:none;border-left:none'>QC031031002</td>
+  <td class=xl7016630 style='border-top:none;border-left:none'>2003/10/31</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>2363019.07</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>2363019.07</td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+ </tr>
+ <tr height=43 style='mso-height-source:userset;height:32.25pt'>
+  <td height=43 class=xl1516630 style='height:32.25pt'></td>
+  <td class=xl6416630 style='border-top:none'>OU_黄石分公司</td>
+  <td class=xl6416630 align=right style='border-top:none;border-left:none'>35002808</td>
+  <td class=xl6416630 style='border-top:none;border-left:none'>QC031031002</td>
+  <td class=xl7016630 style='border-top:none;border-left:none'>2003/10/31</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>-74211.43</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>-74211.43</td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+ </tr>
+ <tr height=43 style='mso-height-source:userset;height:32.25pt'>
+  <td height=43 class=xl1516630 style='height:32.25pt'></td>
+  <td class=xl6416630 style='border-top:none'>OU_荆门分公司</td>
+  <td class=xl6416630 align=right style='border-top:none;border-left:none'>35002876</td>
+  <td class=xl6416630 style='border-top:none;border-left:none'>QC031031002</td>
+  <td class=xl7016630 style='border-top:none;border-left:none'>2003/10/31</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>0</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>-300000</td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+ </tr>
+ <tr height=43 style='mso-height-source:userset;height:32.25pt'>
+  <td height=43 class=xl1516630 style='height:32.25pt'></td>
+  <td class=xl6416630 style='border-top:none'>OU_荆门分公司</td>
+  <td class=xl6416630 align=right style='border-top:none;border-left:none'>35002876</td>
+  <td class=xl6416630 style='border-top:none;border-left:none'>QC031031002</td>
+  <td class=xl7016630 style='border-top:none;border-left:none'>2003/10/31</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>0</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>300000</td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+ </tr>
+ <tr height=43 style='mso-height-source:userset;height:32.25pt'>
+  <td height=43 class=xl1516630 style='height:32.25pt'></td>
+  <td class=xl6416630 style='border-top:none'>OU_荆州分公司</td>
+  <td class=xl6416630 align=right style='border-top:none;border-left:none'>35006121</td>
+  <td class=xl6416630 style='border-top:none;border-left:none'>QC031031002</td>
+  <td class=xl7016630 style='border-top:none;border-left:none'>2003/10/31</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>1341000</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>1341000</td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+ </tr>
+ <tr height=43 style='mso-height-source:userset;height:32.25pt'>
+  <td height=43 class=xl1516630 style='height:32.25pt'></td>
+  <td class=xl6416630 style='border-top:none'>OU_十堰分公司</td>
+  <td class=xl6416630 align=right style='border-top:none;border-left:none'>35005692</td>
+  <td class=xl6416630 style='border-top:none;border-left:none'>QC031031002</td>
+  <td class=xl7016630 style='border-top:none;border-left:none'>2003/10/31</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>9613.5</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>9613.5</td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+ </tr>
+ <tr height=43 style='mso-height-source:userset;height:32.25pt'>
+  <td height=43 class=xl1516630 style='height:32.25pt'></td>
+  <td class=xl6416630 style='border-top:none'>OU_随州分公司</td>
+  <td class=xl6416630 align=right style='border-top:none;border-left:none'>35002817</td>
+  <td class=xl6416630 style='border-top:none;border-left:none'>QC031031002</td>
+  <td class=xl7016630 style='border-top:none;border-left:none'>2003/10/31</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>109795</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>109795</td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+ </tr>
+ <tr height=43 style='mso-height-source:userset;height:32.25pt'>
+  <td height=43 class=xl1516630 style='height:32.25pt'></td>
+  <td class=xl6416630 style='border-top:none'>OU_武汉分公司</td>
+  <td class=xl6416630 align=right style='border-top:none;border-left:none'>35005575</td>
+  <td class=xl6416630 style='border-top:none;border-left:none'>QC031031002</td>
+  <td class=xl7016630 style='border-top:none;border-left:none'>2003/10/31</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>400000</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>400000</td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+ </tr>
+ <tr height=43 style='mso-height-source:userset;height:32.25pt'>
+  <td height=43 class=xl1516630 style='height:32.25pt'></td>
+  <td class=xl6416630 style='border-top:none'>OU_咸宁分公司</td>
+  <td class=xl6416630 align=right style='border-top:none;border-left:none'>35002888</td>
+  <td class=xl6416630 style='border-top:none;border-left:none'>QC031031002</td>
+  <td class=xl7016630 style='border-top:none;border-left:none'>2003/10/31</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>108000</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>108000</td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+ </tr>
+ <tr height=43 style='mso-height-source:userset;height:32.25pt'>
+  <td height=43 class=xl1516630 style='height:32.25pt'></td>
+  <td class=xl6416630 style='border-top:none'>OU_现业</td>
+  <td class=xl6416630 align=right style='border-top:none;border-left:none'>35005122</td>
+  <td class=xl6416630 style='border-top:none;border-left:none'>QC031031002</td>
+  <td class=xl7016630 style='border-top:none;border-left:none'>2003/10/31</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>19500</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>19500</td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+ </tr>
+ <tr height=43 style='mso-height-source:userset;height:32.25pt'>
+  <td height=43 class=xl1516630 style='height:32.25pt'></td>
+  <td class=xl6416630 style='border-top:none'>OU_襄阳分公司</td>
+  <td class=xl6416630 align=right style='border-top:none;border-left:none'>35005972</td>
+  <td class=xl6416630 style='border-top:none;border-left:none'>QC031031002</td>
+  <td class=xl7016630 style='border-top:none;border-left:none'>2003/10/31</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>281594.18</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>281594.18</td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+ </tr>
+ <tr height=43 style='mso-height-source:userset;height:32.25pt'>
+  <td height=43 class=xl1516630 style='height:32.25pt'></td>
+  <td class=xl6416630 style='border-top:none'>OU_孝感分公司</td>
+  <td class=xl6416630 align=right style='border-top:none;border-left:none'>35005690</td>
+  <td class=xl6416630 style='border-top:none;border-left:none'>QC031031002</td>
+  <td class=xl7016630 style='border-top:none;border-left:none'>2003/10/31</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>16625</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>16625</td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+ </tr>
+ <tr height=43 style='mso-height-source:userset;height:32.25pt'>
+  <td height=43 class=xl1516630 style='height:32.25pt'></td>
+  <td class=xl6416630 style='border-top:none'>OU_宜昌分公司</td>
+  <td class=xl6416630 align=right style='border-top:none;border-left:none'>35005526</td>
+  <td class=xl6416630 style='border-top:none;border-left:none'>QC031031002</td>
+  <td class=xl7016630 style='border-top:none;border-left:none'>2003/10/31</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>249152.3</td>
+  <td class=xl6616630 style='border-top:none;border-left:none'>249152.3</td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+  <td class=xl1516630></td>
+ </tr>
+ <![if supportMisalignedColumns]>
+ <tr height=0 style='display:none'>
+  <td width=114 style='width:86pt'></td>
+  <td width=133 style='width:100pt'></td>
+  <td width=190 style='width:143pt'></td>
+  <td width=157 style='width:118pt'></td>
+  <td width=153 style='width:115pt'></td>
+  <td width=182 style='width:137pt'></td>
+  <td width=157 style='width:118pt'></td>
+  <td width=93 style='width:70pt'></td>
+  <td width=301 style='width:226pt'></td>
+  <td width=36 style='width:27pt'></td>
+  <td width=76 style='width:57pt'></td>
+  <td width=448 style='width:336pt'></td>
+  <td width=693 style='width:520pt'></td>
+  <td width=20 style='width:15pt'></td>
+  <td width=76 style='width:57pt'></td>
+  <td width=72 style='width:54pt'></td>
+  <td width=72 style='width:54pt'></td>
+  <td width=72 style='width:54pt'></td>
+  <td width=93 style='width:70pt'></td>
+  <td width=448 style='width:336pt'></td>
+  <td width=534 style='width:401pt'></td>
+  <td width=301 style='width:226pt'></td>
+ </tr>
+ <![endif]>
+</table>
+
+</div>
+
+
+<!----------------------------->
+<!--“从 EXCEL 发布网页”向导结束-->
+<!----------------------------->
+</body>
+
+</html>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!--库存查询-->
+<mapper namespace="库存查询">
+	<select id="查询物料信息" parameterType="Map" resultType="Map" >
+	  <!--{
+		 "db":"system",
+		 desc:"查询物料信息",
+		 in:[
+		        {id:"items_code",name:"物料编码",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"NAME",name:"组织",datatype:"varchar"},
+		     {id:"segment1",name:"物料编码",datatype:"varchar"},
+			 {id:"description",name:"物料描述",datatype:"varchar"},
+		     {id:"unit_of_measure",name:"单位",datatype:"varchar"},
+			 {id:"item_status_code",name:"状态",datatype:"varchar"},
+		     {id:"tax_code",name:"税码",datatype:"varchar"}
+		       ]
+	    }
+	 -->
+	  
+	  <![CDATA[
+	  SELECT hou.NAME NAME,
+       mis.segment1 segment1,
+       mis.description description,
+       mis.primary_unit_of_measure unit_of_measure,
+       mis.inventory_item_status_code item_status_code,
+       mis.tax_code
+FROM   MTL_system_ITEMS_B mis, hr_organization_units hou
+WHERE  mis.segment1 = #{items_code}
+AND    mis.organization_id = hou.organization_id
+	 ]]>
+	</select>
+		
+
+</mapper>
+

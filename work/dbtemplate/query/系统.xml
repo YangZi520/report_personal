@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--系统查询-->
+<mapper namespace="系统"> 
+  <select id="查询公司信息1" parameterType="Map" resultType="Map"> 
+    <!--{
+	"db":"SYSTEM",
+	"desc":"查询公司信息1",
+	"in":[
+		{
+			"id":"value_code",
+			"name":"公司编码",
+			"datatype":"varchar",
+			"default":""
+		},
+		{
+			"id":"value_name",
+			"name":"公司名称",
+			"datatype":"varchar",
+			"default":""
+		}
+	],
+	"out":[
+		{
+			"id":"address_line",
+			"name":"公司编码",
+			"datatype":"varchar"
+		},
+		{
+			"id":"name",
+			"name":"公司名称",
+			"datatype":"varchar"
+		},
+		{
+			"id":"date_from",
+			"name":"创建日期",
+			"datatype":"varchar"
+		}
+	]
+}
+--><![CDATA[SELECT hou.internal_address_line address_line, hou.name name,to_char(hou.date_from,'yyyy-mm-dd') date_from
+		FROM   hr_organization_units hou
+		WHERE  1 = 1
+		AND    hou.name LIKE 'OU%'
+		and  hou.internal_address_line = nvl(#{value_code},hou.internal_address_line)
+		and  sysdate between nvl(hou.date_from,sysdate) and nvl(hou.date_to,sysdate + 1) 
+		ORDER  BY hou.internal_address_line]]> 
+  </select>  
+  <select id="查询公司信息2" parameterType="Map" resultType="Map"> 
+    <!--{
+    "db": "SYSTEM",
+	"desc":"查询公司信息1",
+	"in":[
+		{
+			"id":"value_code",
+			"name":"公司编码",
+			"datatype":"varchar",
+			"default":""
+		},
+		{
+			"id":"value_name",
+			"name":"公司名称",
+			"datatype":"varchar",
+			"default":""
+		}
+	],
+	"out":[
+		{
+			"id":"address_line",
+			"name":"公司编码",
+			"datatype":"varchar"
+		},
+		{
+			"id":"name",
+			"name":"公司名称",
+			"datatype":"varchar"
+		},
+		{
+			"id":"date_from",
+			"name":"创建日期",
+			"datatype":"varchar"
+		}
+	]
+}
+--><![CDATA[SELECT hou.internal_address_line address_line, hou.name name,to_char(hou.date_from,'yyyy-mm-dd') date_from
+		FROM   hr_organization_units hou
+		WHERE  1 = 1
+		AND    hou.name LIKE 'OU%'
+		and  hou.internal_address_line = nvl(#{value_code},hou.internal_address_line)
+		and  sysdate between nvl(hou.date_from,sysdate) and nvl(hou.date_to,sysdate + 1) 
+		ORDER  BY hou.internal_address_line]]> 
+  </select> 
+</mapper>

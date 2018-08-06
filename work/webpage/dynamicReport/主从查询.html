@@ -1,0 +1,210 @@
+<html>
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+  <style type="text/css">.b1{white-space-collapsing:preserve;}
+.t1{border-collapse:collapse;border-spacing:0;}
+.r1{height:19.5pt;}
+.r2{height:18.0pt;}
+.r3{height:14.25pt;}
+.r4{height:24.75pt;}
+.r5{height:24.0pt;}
+.r6{height:27.75pt;}
+.r7{height:22.5pt;}
+.r8{height:21.75pt;}
+.c1{white-space:pre-wrap;text-align:center;font-weight:bold;color: black; font-size:24pt;}
+.c2{white-space:pre-wrap;color: black; font-size:11pt;}
+.c3{white-space:pre-wrap;text-align:center;background-color:#ffffcc;border-top:thin solid black;border-bottom:thin solid black;border-left:thin solid black;color: black; font-size:11pt;}
+.c4{white-space:pre-wrap;text-align:center;border-top:thin solid black;border-bottom:thin solid black;border-left:thin solid black;color: black; font-size:11pt;}
+.c5{white-space:pre-wrap;text-align:center;background-color:#f79646;border-top:thin solid black;border-bottom:thin solid black;border-left:thin solid black;color: black; font-size:11pt;}
+.c6{white-space:pre-wrap;text-align:center;background-color:white;border-top:thin solid black;border-bottom:thin solid black;border-left:thin solid black;color: black; font-size:11pt;}
+.c7{white-space:pre-wrap;text-align:center;background-color:#f79646;border-top:thin solid black;border-left:thin solid black;color: black; font-size:11pt;}
+.c8{white-space:pre-wrap;text-align:center;background-color:#ffffcc;border-top:thin solid black;border-right:thin solid black;border-bottom:thin solid black;border-left:thin solid black;color: black; font-size:11pt;}
+.c9{white-space:pre-wrap;border-top:thin solid black;border-right:thin solid black;border-bottom:thin solid black;border-left:thin solid black;color: black; font-size:11pt;}
+</style> 
+  <link rel="stylesheet" href="./static/style.css" type="text/css">
+ </head> 
+ <body class="b1">
+  <div>
+   <input type="button" value="   查询   " onclick="_query(null)">
+   <span>|</span>
+   <input type="button" value="   首页   " onclick="firstPage()">
+   <span>|</span>
+   <input type="button" value="   上一页   " onclick="lastPage()">
+   <span>|</span>
+   <input type="button" value="   下一页   " onclick="nextPage()">
+   <span>|</span>
+   <input type="button" value="   末页   " onclick="endPage()">
+   <span>|</span>
+   <input type="button" value="   打印   " onclick="printReport()">
+   <span>|</span>
+   <font>第</font>
+   <input type="text" class="currentPage" value="1">
+   <font>页,总1页</font>
+  </div>
+  <div id="loading"></div>
+  <ul class="select">
+   <li class="select-list li_hidden">
+    <dl name="销售.查询销售信息.areaname">
+     <dt>
+      地区：
+     </dt>
+     <dd class="select-all selected">
+      <a>全部</a>
+     </dd>
+     <dd>
+      <a name="华中"><i></i>华中</a>
+     </dd>
+     <dd>
+      <a name="华北"><i></i>华北</a>
+     </dd>
+    </dl>
+    <dl>
+     <dd class="more">
+      <a>更多</a>
+     </dd>
+     <dd class="multi">
+      <a>多选</a>
+     </dd>
+    </dl></li>
+   <li class="select-result">
+    <dl>
+     <dt>
+      已选条件：
+     </dt>
+     <dd class="select-no">
+      暂时没有选择过滤条件
+     </dd>
+    </dl></li>
+  </ul>  
+  <table class="t1" width="776"> 
+   <colgroup> 
+    <col> 
+    <col width="56"> 
+    <col width="44"> 
+    <col width="88"> 
+    <col width="67"> 
+    <col width="84"> 
+    <col width="62"> 
+    <col width="132"> 
+    <col width="106"> 
+    <col width="137"> 
+   </colgroup> 
+   <thead> 
+    <tr> 
+     <th></th>
+     <th></th>
+     <th></th>
+     <th></th>
+     <th></th>
+     <th></th>
+     <th></th>
+     <th></th>
+     <th></th>
+     <th></th> 
+    </tr> 
+   </thead> 
+   <tbody> 
+    <tr class="r1"> 
+     <th class="rownumber"></th>
+     <td></td>
+     <td></td>
+     <td></td>
+     <td></td>
+     <td class="c1" colspan="3" rowspan="2">主从查询</td> 
+    </tr> 
+    <tr class="r2"></tr> 
+    <tr class="r3"> 
+     <th class="rownumber"></th>
+     <td></td>
+     <td></td>
+     <td></td>
+     <td></td>
+     <td></td>
+     <td></td>
+     <td></td>
+     <td class="c2">&nbsp;</td>
+     <td class="c2">&nbsp;</td> 
+    </tr> 
+    <tr class="r4" style="display:none;"> 
+     <th class="rownumber"></th>
+     <td></td>
+     <td></td>
+     <td class="c3" colspan="4">地区</td>
+     <td class="c4" colspan="3" style="border-right:thin solid black">&nbsp;</td> 
+    </tr> 
+    <tr class="r4"> 
+     <th class="rownumber"></th>
+     <td></td>
+     <td></td>
+     <td class="c3" colspan="4" style="border-right:thin solid black">地区</td>
+     <td class="c4" colspan="3" style="border-right:thin solid black" name="销售.查询销售信息.areaname"></td> 
+    </tr> 
+    <tr class="r5"> 
+     <th class="rownumber"></th>
+     <td></td>
+     <td></td>
+     <td class="c5" colspan="4">国家</td>
+     <td class="c6" colspan="3" style="border-right:thin solid black" name="销售.查询销售信息.countryname"></td> 
+    </tr> 
+    <tr class="r5"> 
+     <th class="rownumber"></th>
+     <td></td>
+     <td></td>
+     <td class="c5" colspan="4">销售人员</td>
+     <td class="c6" colspan="3" style="border-right:thin solid black" name="销售.查询销售信息.salesman"></td> 
+    </tr> 
+    <tr class="r5"> 
+     <th class="rownumber"></th>
+     <td></td>
+     <td></td>
+     <td class="c5" colspan="4">销售产品</td>
+     <td class="c6" colspan="3" style="border-right:thin solid black" name="销售.查询销售信息.salesproduct"></td> 
+    </tr> 
+    <tr class="r5"> 
+     <th class="rownumber"></th>
+     <td></td>
+     <td></td>
+     <td class="c7" colspan="4">销售金额</td>
+     <td class="c6" colspan="3" style="border-right:thin solid black" name="销售.查询销售信息.salesmoney"></td> 
+    </tr> 
+    <tr class="r6"> 
+     <th class="rownumber"></th>
+     <td></td>
+     <td></td>
+     <td class="c4" colspan="7" style="border-right:thin solid black">&nbsp;</td> 
+    </tr> 
+    <tr class="r7"> 
+     <th class="rownumber"></th>
+     <td></td>
+     <td></td>
+     <td class="c3" colspan="2" style="border-right:thin solid black">地区</td>
+     <td class="c3" colspan="2" style="border-right:thin solid black">国家</td>
+     <td class="c8">销售人员</td>
+     <td class="c8">销售产品</td>
+     <td class="c8">销售金额</td> 
+    </tr> 
+    <tr class="r8" name="销售.查询销售信息1" style="display:none;"> 
+     <th class="rownumber"></th>
+     <td></td>
+     <td></td>
+     <td class="c4" colspan="2" style="border-right:thin solid black" name="销售.查询销售信息1.areaname"></td>
+     <td class="c4" colspan="2" style="border-right:thin solid black" name="销售.查询销售信息1.countryname"></td>
+     <td class="c9" name="销售.查询销售信息1.salesman"></td>
+     <td class="c9" name="销售.查询销售信息1.salesproduct"></td>
+     <td class="c9" name="销售.查询销售信息1.salesmoney"></td> 
+    </tr> 
+   </tbody> 
+  </table>     
+  <script type="text/javascript" src="./static/jquery.min.js"></script>
+  <script type="text/javascript" src="./static/spin.min.js"></script>
+  <script type="text/javascript" src="./static/common.js"></script>
+  <script type="text/javascript">
+var out = {first:{namespace:'销售',sqlid:'查询销售信息',id:['areaname','countryname','salesman','salesproduct','salesmoney']},row:{namespace:'销售',sqlid:'查询销售信息1',id:['areaname','countryname','salesman','salesproduct','salesmoney'],join:[],link:[{field:'areaname',dest:'./销售查询.html',param:[{desField:'销售.查询销售信息.areaname',srcField:'areaname'}]}]}};
+var paramList = [{id:'销售.查询销售信息.areaname',text:'地区',value:[{name:'华中',value:'华中'},{name:'华北',value:'华北'}]}];
+function getQueryParam()
+{
+    return {first:{'销售.查询销售信息':{db:'form',in:[{id:'areaname',value:getParamValue('销售.查询销售信息.areaname')}]}},row:{'销售.查询销售信息1':{db:'form',in:[{id:'areaname',value:getParamValue('销售.查询销售信息.areaname')},{id:'countryname',value:''}]}}};
+}
+</script>
+ </body>
+</html>

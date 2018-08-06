@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--项目查询-->
+<mapper namespace="项目查询"> 
+  <select id="查询项目信息" parameterType="Map" resultType="Map">
+    <!--{
+	"db":"system",
+	"desc":"查询项目信息",
+	"in":[
+		{
+			"id":"project_code",
+			"name":"项目编号",
+			"datatype":"number",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"project_name",
+			"name":"项目名称",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"company_code",
+			"name":"公司编码",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"库房",
+			"auth":"OU"
+		}
+	],
+	"out":[
+		{
+			"id":"ou_name",
+			"name":"公司",
+			"datatype":"varchar"
+		},
+		{
+			"id":"pro_name",
+			"name":"项目名称",
+			"datatype":"varchar"
+		},
+		{
+			"id":"segment1",
+			"name":"项目编码",
+			"datatype":"varchar"
+		},
+		{
+			"id":"project_type",
+			"name":"项目类型",
+			"datatype":"varchar"
+		},
+		{
+			"id":"project_status",
+			"name":"项目状态",
+			"datatype":"varchar"
+		},
+		{
+			"id":"start_date",
+			"name":"项目开始日期",
+			"datatype":"varchar"
+		},
+		{
+			"id":"completion_date",
+			"name":"项目完成日期",
+			"datatype":"varchar"
+		},
+		{
+			"id":"closed_date",
+			"name":"项目关闭日期",
+			"datatype":"varchar"
+		}
+	]
+}
+--><![CDATA[SELECT 
+       hou.name ou_name,
+	   ppa.name                pro_name,
+       ppa.segment1            segment1,
+       ppa.project_type        project_type,
+       ppa.project_status_code  project_status,
+	   to_char(ppa.start_date,'yyyy-mm-dd') start_date,
+       to_char(ppa.completion_date,'yyyy-mm-dd') completion_date,
+       to_char(ppa.closed_date,'yyyy-mm-dd') closed_date
+FROM   pa.pa_projects_all ppa, hr_organization_units hou
+where 1=1
+and  ppa.org_id = hou.organization_id
+AND ppa.name like nvl(#{project_name},ppa.name)
+and ppa.segment1 = nvl(#{project_code},ppa.segment1)
+and hou.internal_address_line = nvl(#{company_code},hou.internal_address_line)
+AND    hou.name LIKE 'OU%'
+order by ppa.creation_date desc]]>
+  </select>  
+  <select id="查询项目基本信息" resultType="Map" parameterType="Map"> 
+    <!--{
+	"db":"system",
+	"desc":"查询项目基本信息",
+	"in":[
+		{
+			"id":"he_full_name",
+			"name":"项目经理",
+			"datatype":"varchar",
+			"default":""
+		}
+	],
+	"out":[
+		{
+			"id":"project_number",
+			"name":"项目编号",
+			"datatype":"varchar"
+		},
+		{
+			"id":"project_name",
+			"name":"项目名称",
+			"datatype":"varchar"
+		},
+		{
+			"id":"start_date",
+			"name":"开始日期",
+			"datatype":"varchar"
+		},
+		{
+			"id":"closed_date",
+			"name":"结束日期",
+			"datatype":"varchar"
+		},
+		{
+			"id":"project_type",
+			"name":"项目类型",
+			"datatype":"varchar"
+		},
+		{
+			"id":"project_status_code",
+			"name":"项目状态",
+			"datatype":"varchar"
+		},
+		{
+			"id":"full_name",
+			"name":"full_name",
+			"datatype":"varchar"
+		}
+	]
+}
+--><![CDATA[select ppa.segment1 project_number, --项目编号
+       ppa.name project_name,  --项目名称
+       ppa.start_date,  --开始日期
+       ppa.closed_date, --结束日期
+       ppa.project_type, --项目类型 
+       ppa.project_status_code, --项目状态
+              he.full_name   --项目经理
+  from pa_projects_all ppa,
+       pa_project_players ppp,
+       pa_proj_role_types_v pprt,
+       hr_employees he
+ where 1=1
+   and ppa.project_id = ppp.project_id
+   and ppp.person_id = he.employee_id
+   and ppp.project_role_type = pprt.project_role_type
+   and pprt.project_role_type = 'PROJECT MANAGER'
+   and he.full_name = #{he_full_name}]]> 
+  </select>  
+  <select id="项目采购金额" resultType="Map" parameterType="Map"> 
+    <!--{
+	"db":"system",
+	"desc":"项目采购金额",
+	"in":[
+		{
+			"id":"ppa_segment1",
+			"name":"项目编号",
+			"datatype":"varchar",
+			"default":""
+		}
+	],
+	"out":[
+		{
+			"id":"project_number",
+			"name":"项目编号",
+			"datatype":"varchar"
+		},
+		{
+			"id":"po_amount",
+			"name":"采购金额",
+			"datatype":"varchar"
+		}
+	]
+}
+--><![CDATA[select ppa.segment1 project_number, --项目编号
+       sum(pla.unit_price * pda.quantity_ordered) po_amount  --采购订单金额    
+  from pa_projects_all ppa,
+       po_distributions_all pda,
+       po_line_locations_all plla,
+       po_lines_all pla,
+       po_headers_all pha   
+ where pha.po_header_id(+) = pla.po_header_id
+   and pla.po_line_id(+) = plla.po_line_id
+   and plla.line_location_id(+) = pda.line_location_id
+   and pda.project_id(+) = ppa.project_id
+   and ppa.segment1 like nvl(#{ppa_segment1},ppa.segment1)
+ group by
+       ppa.segment1
+]]> 
+  </select>  
+  <select id="项目接收金额" resultType="Map" parameterType="Map"> 
+    <!--{
+	"db":"system",
+	"desc":"项目接收金额",
+	"in":[
+		{
+			"id":"ppa_segment1",
+			"name":"项目编号",
+			"datatype":"varchar",
+			"default":""
+		}
+	],
+	"out":[
+		{
+			"id":"project_number",
+			"name":"项目编号",
+			"datatype":"varchar"
+		},
+		{
+			"id":"receive_amount",
+			"name":"接收金额",
+			"datatype":"varchar"
+		}
+	]
+}
+--><![CDATA[select ppa.segment1 project_number,  --项目编号
+       sum(pla.unit_price * pda.quantity_delivered) receive_amount --采购订单接收金额
+  from pa_projects_all ppa,
+       po_headers_all pha,
+       po_lines_all pla,
+       po_line_locations_all plla,
+       po_distributions_all pda
+ where pha.po_header_id(+) = pla.po_header_id
+   and pla.po_line_id(+) = plla.po_line_id
+   and plla.line_location_id(+) = pda.line_location_id
+   and pda.project_id(+) = ppa.project_id
+   and ppa.segment1 like nvl(#{ppa_segment1},ppa.segment1)
+ group by
+       ppa.segment1
+]]> 
+  </select>  
+  <select id="查询项目信息测试" resultType="Map" parameterType="Map"> 
+    <!--{
+	"db":"system",
+	"desc":"查询项目信息测试",
+	"in":[
+		{
+			"id":"project_name",
+			"name":"project_name",
+			"datatype":"varchar",
+			"default":""
+		},
+		{
+			"id":"project_code",
+			"name":"project_code",
+			"datatype":"varchar",
+			"default":""
+		},
+		{
+			"id":"company_code",
+			"name":"company_code",
+			"datatype":"varchar",
+			"default":""
+		}
+	],
+	"out":[
+		{
+			"id":"ou_name",
+			"name":"ou_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"pro_name",
+			"name":"pro_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"segment1",
+			"name":"segment1",
+			"datatype":"varchar"
+		},
+		{
+			"id":"project_type",
+			"name":"project_type",
+			"datatype":"varchar"
+		},
+		{
+			"id":"project_status",
+			"name":"project_status",
+			"datatype":"varchar"
+		},
+		{
+			"id":"start_date",
+			"name":"start_date",
+			"datatype":"varchar"
+		},
+		{
+			"id":"completion_date",
+			"name":"completion_date",
+			"datatype":"varchar"
+		},
+		{
+			"id":"closed_date",
+			"name":"closed_date",
+			"datatype":"varchar"
+		}
+	]
+}
+--><![CDATA[SELECT 
+       hou.name ou_name,
+	   ppa.name                pro_name,
+       ppa.segment1            segment1,
+       ppa.project_type        project_type,
+       ppa.project_status_code  project_status,
+	   to_char(ppa.start_date,'yyyy-mm-dd') start_date,
+       to_char(ppa.completion_date,'yyyy-mm-dd') completion_date,
+       to_char(ppa.closed_date,'yyyy-mm-dd') closed_date
+FROM   pa.pa_projects_all ppa, hr_organization_units hou
+where 1=1
+and  ppa.org_id = hou.organization_id
+AND ppa.name like nvl(#{project_name},ppa.name)
+and ppa.segment1 = nvl(#{project_code},ppa.segment1)
+and hou.internal_address_line = nvl(#{company_code},hou.internal_address_line)
+AND    hou.name LIKE 'OU%'
+order by ppa.creation_date desc
+]]> 
+  </select>  
+  <select id="aaaaaa" resultType="Map" parameterType="Map"> 
+    <!--{
+	"db":"system",
+	"desc":"aaaaaaaaaaaa",
+	"in":[
+		{
+			"id":"project_name",
+			"name":"project_name",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"人员",
+			"auth":"OU"
+		},
+		{
+			"id":"project_code",
+			"name":"project_code",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"库房",
+			"auth":""
+		},
+		{
+			"id":"company_code",
+			"name":"company_code",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"库房",
+			"auth":" "
+		}
+	],
+	"out":[
+		{
+			"id":"ou_name",
+			"name":"ou_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"pro_name",
+			"name":"pro_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"segment1",
+			"name":"segment1",
+			"datatype":"varchar"
+		},
+		{
+			"id":"project_type",
+			"name":"project_type",
+			"datatype":"varchar"
+		},
+		{
+			"id":"project_status",
+			"name":"project_status",
+			"datatype":"varchar"
+		},
+		{
+			"id":"start_date",
+			"name":"start_date",
+			"datatype":"varchar"
+		},
+		{
+			"id":"completion_date",
+			"name":"completion_date",
+			"datatype":"varchar"
+		},
+		{
+			"id":"closed_date",
+			"name":"closed_date",
+			"datatype":"varchar"
+		}
+	]
+}
+--><![CDATA[SELECT 
+       hou.name ou_name,
+	   ppa.name                pro_name,
+       ppa.segment1            segment1,
+       ppa.project_type        project_type,
+       ppa.project_status_code  project_status,
+	   to_char(ppa.start_date,'yyyy-mm-dd') start_date,
+       to_char(ppa.completion_date,'yyyy-mm-dd') completion_date,
+       to_char(ppa.closed_date,'yyyy-mm-dd') closed_date
+FROM   pa.pa_projects_all ppa, hr_organization_units hou
+where 1=1
+and  ppa.org_id = hou.organization_id
+AND ppa.name like nvl(#{project_name},ppa.name)
+and ppa.segment1 = nvl(#{project_code},ppa.segment1)
+and hou.internal_address_line = nvl(#{company_code},hou.internal_address_line)
+AND    hou.name LIKE 'OU%'
+order by ppa.creation_date desc]]> 
+  </select> 
+</mapper>

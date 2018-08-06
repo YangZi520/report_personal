@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--应付查询-->
+<mapper namespace="应付查询"> 
+   <select id="查询发票信息" parameterType="Map" resultType="Map"> 
+      <!--{
+	      "db":"system",
+           desc:"查询发票信息",
+	       in:[
+	           {id:"invoice_num",name:"发票编号",datatype:"varchar"}
+	          ],
+		   out:[
+			    {id:"batch_name",name:"批名",datatype:"varchar"},
+			    {id:"vendor_code",name:"供应商编号",datatype:"varchar"},
+			    {id:"vendor_name",name:"供应商名称",datatype:"varchar"},
+			    {id:"site_code",name:"地点",datatype:"varchar"},
+			    {id:"invoice_num",name:"发票编号",datatype:"varchar"},
+			    {id:"invoice_source",name:"发票来源",datatype:"varchar"},				
+			    {id:"lookup_code",name:"发票类型",datatype:"varchar"},
+			    {id:"invoice_date",name:"发票日期",datatype:"varchar"},
+			    {id:"description",name:"发票说明",datatype:"varchar"},
+			    {id:"currency_code",name:"币种",datatype:"varchar"},
+			    {id:"invoice_amount",name:"发票金额",datatype:"varchar"},
+			    {id:"inv_segment",name:"科目组合",datatype:"varchar"},
+			    {id:"segment_des",name:"组合描述",datatype:"varchar"},
+			    {id:"line_number",name:"行号",datatype:"varchar"},
+			    {id:"line_amount",name:"行金额",datatype:"varchar"},
+				{id:"tax_rate",name:"税率",datatype:"varchar"},
+			    {id:"attribute3",name:"弹性域金额",datatype:"varchar"},
+			    {id:"vat_name",name:"税码",datatype:"varchar"},
+			    {id:"dis_segment",name:"行科目组合",datatype:"varchar"},
+			    {id:"dis_segment_des",name:"行组合描述",datatype:"varchar"},
+			    {id:"line_description",name:"行说明",datatype:"varchar"}
+		       ]
+	  	 }-->  <![CDATA[
+SELECT DISTINCT nvl(aba.batch_name, '无') batch_name,
+                pv.segment1 vendor_code,
+                pv.vendor_name vendor_name,
+                pvs.vendor_site_code site_code,
+                aia.invoice_num invoice_num,
+                aia.source invoice_source,
+                aia.invoice_type_lookup_code lookup_code,
+                to_char(aia.invoice_date, 'yyyy-mm-dd') invoice_date,
+                aia.description description,
+                aia.invoice_currency_code currency_code,
+                aia.invoice_amount invoice_amount,
+                gcc1.segment1 || '.' || gcc1.segment2 || '.' ||
+                gcc1.segment3 || '.' || gcc1.segment4 || '.' ||
+                gcc1.segment5 || '.' || gcc1.segment6 || '.' ||
+                gcc1.segment7 inv_segment,
+                
+                aid.distribution_line_number line_number,
+                aid.amount line_amount,
+                atc.tax_rate tax_rate,
+                aid.attribute3 attribute3,
+                atc.name vat_name,
+                to_char(aid.accounting_date, 'yyyy-mm-dd') accounting_date,
+                gcc.segment1 || '.' || gcc.segment2 || '.' || gcc.segment3 || '.' ||
+                gcc.segment4 || '.' || gcc.segment5 || '.' || gcc.segment6 || '.' ||
+                gcc.segment7 dis_segment,
+                aid.description line_description
+  FROM ap.ap_tax_codes_all             atc,
+       ap.ap_batches_all               aba,
+       po.po_vendor_sites_all          pvs,
+       ap.ap_invoices_all              aia,
+       po.po_vendors                   pv,
+       ap.ap_invoice_distributions_all aid,
+       gl.gl_code_combinations         gcc1,
+       gl.gl_code_combinations         gcc
+ WHERE aia.invoice_id = aid.invoice_id
+   AND aia.vendor_id = pv.vendor_id
+   AND aia.vendor_site_id = pvs.vendor_site_id
+   AND aba.batch_id(+) = aia.batch_id
+   AND atc.tax_id(+) = aid.tax_code_id
+   AND aid.dist_code_combination_id = gcc.code_combination_id(+)
+   AND aia.set_of_books_id = 2
+   AND aia.accts_pay_code_combination_id = gcc1.code_combination_id
+   AND aia.invoice_num = #{invoice_num}
+
+	 ]]> 
+   </select>  
+
+</mapper>

@@ -1,0 +1,99 @@
+<html>
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+  <style type="text/css">.b1{white-space-collapsing:preserve;}
+.t1{border-collapse:collapse;border-spacing:0;}
+.r1{height:13.5pt;}
+.c1{white-space:pre-wrap;text-align:center;color: black; font-size:11pt;}
+.c2{white-space:pre-wrap;text-align:right;color: black; font-size:11pt;}
+.c3{white-space:pre-wrap;border-bottom:thin solid black;color: black; font-size:11pt;}
+.c4{white-space:pre-wrap;text-align:center;border-bottom:thin solid black;color: black; font-size:11pt;}
+.c5{white-space:pre-wrap;text-align:center;border-top:thin solid black;border-right:thin solid black;border-bottom:thin solid black;border-left:thin solid black;color: black; font-size:11pt;}
+</style> 
+  <link rel="stylesheet" href="./static/style.css" type="text/css">
+ </head> 
+ <body class="b1">
+  <div>
+   <input type="button" value="   查询   " onclick="_query(null)">
+   <span>|</span>
+   <input type="button" value="   首页   " onclick="firstPage()">
+   <span>|</span>
+   <input type="button" value="   上一页   " onclick="lastPage()">
+   <span>|</span>
+   <input type="button" value="   下一页   " onclick="nextPage()">
+   <span>|</span>
+   <input type="button" value="   末页   " onclick="endPage()">
+   <span>|</span>
+   <input type="button" value="   打印   " onclick="printReport()">
+   <span>|</span>
+   <font>第</font>
+   <input type="text" class="currentPage" value="0">
+   <font>页,每页</font>
+   <input type="text" class="perPage" >
+   <font>条记录,总0页</font>
+  </div>
+  <div id="loading"></div>  
+  <table class="t1" width="476"> 
+   <colgroup> 
+    <col> 
+    <col width="56"> 
+    <col width="56"> 
+    <col width="122"> 
+    <col width="91"> 
+    <col width="151"> 
+   </colgroup> 
+   <thead> 
+    <tr> 
+     <th></th>
+     <th></th>
+     <th></th>
+     <th></th>
+     <th></th>
+     <th></th> 
+    </tr> 
+   </thead> 
+   <tbody> 
+    <tr class="r1"> 
+     <th class="rownumber"></th>
+     <td></td>
+     <td class="c1" colspan="4">查询部门信息</td> 
+    </tr> 
+    <tr class="r1"> 
+     <th class="rownumber"></th>
+     <td></td>
+     <td class="c2">开始值</td>
+     <td class="c3"><input class="r1" type="text" placeholder="请输入查询条件" name="总账查询.查询科目组合-成本中心段.begin_value"></td>
+     <td class="c2">结束值</td>
+     <td class="c3"><input class="r1" type="text" placeholder="请输入查询条件" name="总账查询.查询科目组合-成本中心段.end_value"></td> 
+    </tr> 
+    <tr class="r1"> 
+     <th class="rownumber"></th>
+     <td></td>
+     <td class="c4" colspan="4">&nbsp;</td> 
+    </tr> 
+    <tr class="r1"> 
+     <th class="rownumber"></th>
+     <td></td>
+     <td class="c5" colspan="2" style="border-right:thin solid black">代码</td>
+     <td class="c5" colspan="2" style="border-right:thin solid black">名称</td> 
+    </tr> 
+    <tr class="r1" name="总账查询.查询科目组合-成本中心段" style="display:none;"> 
+     <th class="rownumber"></th>
+     <td></td>
+     <td class="c5" colspan="2" style="border-right:thin solid black" name="总账查询.查询科目组合-成本中心段.flex_value"></td>
+     <td class="c5" colspan="2" style="border-right:thin solid black" name="总账查询.查询科目组合-成本中心段.description"></td> 
+    </tr> 
+   </tbody> 
+  </table>     
+  <script type="text/javascript" src="./static/jquery.min.js"></script>
+  <script type="text/javascript" src="./static/spin.min.js"></script>
+  <script type="text/javascript" src="./static/common.js"></script>
+  <script type="text/javascript">
+var out = {row:{namespace:'总账查询',sqlid:'查询科目组合-成本中心段',id:['flex_value','description'],join:[]}};
+function getQueryParam()
+{
+    return {row:{'总账查询.查询科目组合-成本中心段':{db:'system',in:[{id:'begin_value',value:$("input[name='总账查询.查询科目组合-成本中心段.begin_value']").val()},{id:'end_value',value:$("input[name='总账查询.查询科目组合-成本中心段.end_value']").val()},{id:'name',value:''},{id:'name',value:''},{id:'code_length',value:''},{id:'code_length',value:''}]}}};
+}
+</script>
+ </body>
+</html>

@@ -1,0 +1,3485 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--总账查询-->
+<mapper namespace="报表展示">
+	<select id="预算完成情况汇总表" resultType="Map" parameterType="Map">
+		<!--{
+            "db":"budget",
+            "desc":"预算完成情况汇总表",
+            "in":[
+                {
+                    "id":"companycodes",
+                    "name":"companycodes",
+                    "datatype":"varchar",
+                    "default":"",
+                    "lookup":"",
+                    "auth":""
+                },
+                {
+                    "id":"budget_year",
+                    "name":"budget_year",
+                    "datatype":"varchar",
+                    "default":"",
+                    "lookup":"",
+                    "auth":""
+                },
+                {
+                    "id":"period_name",
+                    "name":"period_name",
+                    "datatype":"varchar",
+                    "default":"",
+                    "lookup":"",
+                    "auth":""
+                },
+                {
+                    "id":"claim_last_update_time_start",
+                    "name":"claim_last_update_time_start",
+                    "datatype":"varchar",
+                    "default":"",
+                    "lookup":"",
+                    "auth":""
+                },
+                {
+                    "id":"claim_last_update_time_end",
+                    "name":"claim_last_update_time_end",
+                    "datatype":"varchar",
+                    "default":"",
+                    "lookup":"",
+                    "auth":""
+                },
+                {
+                    "id":"reward_last_update_time_start",
+                    "name":"reward_last_update_time_start",
+                    "datatype":"varchar",
+                    "default":"",
+                    "lookup":"",
+                    "auth":""
+                },
+                {
+                    "id":"reward_last_update_time_end",
+                    "name":"reward_last_update_time_end",
+                    "datatype":"varchar",
+                    "default":"",
+                    "lookup":"",
+                    "auth":""
+                },
+                {
+                    "id":"budget_account_code",
+                    "name":"budget_account_code",
+                    "datatype":"varchar",
+                    "default":"",
+                    "lookup":"",
+                    "auth":""
+                }
+            ],
+            "out":[
+                {
+                    "id":"company_id",
+                    "name":"company_id",
+                    "datatype":"varchar"
+                },
+                {
+                    "id":"company_name",
+                    "name":"company_name",
+                    "datatype":"varchar"
+                },
+                {
+                    "id":"BUDGET_ACCOUNT_NAME",
+                    "name":"BUDGET_ACCOUNT_NAME",
+                    "datatype":"varchar"
+                },
+                {
+                    "id":"BUDGET_ACCOUNT_CODE",
+                    "name":"BUDGET_ACCOUNT_CODE",
+                    "datatype":"varchar"
+                },
+                {
+                    "id":"TRANSMIT_BUDGET_AMOUNT",
+                    "name":"TRANSMIT_BUDGET_AMOUNT",
+                    "datatype":"varchar"
+                },
+                {
+                    "id":"APPROVED_BUDGET_AMOUNT",
+                    "name":"APPROVED_BUDGET_AMOUNT",
+                    "datatype":"varchar"
+                },
+                {
+                    "id":"ACCOUNT_AMOUNT",
+                    "name":"ACCOUNT_AMOUNT",
+                    "datatype":"varchar"
+                },
+                {
+                    "id":"CLAIM_AMOUNT",
+                    "name":"CLAIM_AMOUNT",
+                    "datatype":"varchar"
+                }
+            ]
+        }
+        -->
+		WITH
+		tb
+		(
+		BUDGET_ACCOUNT_ID,
+		PARENT_BUDGET_ACCOUNT_ID,
+		BUDGET_ACCOUNT_CODE,
+		BUDGET_ACCOUNT_NAME
+		) AS
+		(
+		SELECT
+		TBA.BUDGET_ACCOUNT_ID,
+		TBA.PARENT_BUDGET_ACCOUNT_ID,
+		TBA.BUDGET_ACCOUNT_CODE,
+		TTR.CUST_TEXT10 BUDGET_ACCOUNT_NAME
+		FROM
+		TBM_TEMPLATES TT
+		LEFT JOIN
+		TBM_TEMPLATE_LAYOUTS TTL
+		ON
+		TT.TEMPLATE_ID=TTL.TEMPLATE_ID
+		LEFT JOIN
+		TBM_TEMPLATE_ROW_SETS TTRS
+		ON
+		TTL.TEMPLATE_ROW_SET_ID=TTRS.TEMPLATE_ROW_SET_ID
+		LEFT JOIN
+		TBM_TEMPLATE_ROWS TTR
+		ON
+		TTRS.TEMPLATE_ROW_SET_ID=TTR.TEMPLATE_ROW_SET_ID
+		LEFT JOIN
+		TBM_BUDGET_ACCOUNTS TBA
+		ON
+		TTR.DIMENSION_VALUE_ID=TBA.BUDGET_ACCOUNT_ID
+		AND TTRS.BUDGET_ACCOUNT_SET_ID=TBA.BUDGET_ACCOUNT_SET_ID
+		LEFT JOIN
+		TBM_PROPERTIES_SET_VALUE TPSV
+		ON
+		TPSV.PROPERTY_SET_VALUE=TT.TEMPLATE_NUMBER
+		WHERE
+		TPSV.PROPERTY_SET_VALUE_CODE ='HB_CURRENT_TEMPLATE_NUMBER'
+		AND TBA.BUDGET_ACCOUNT_CODE='EBPL01'
+		AND TBA.ENABLED_FLAG='Y'
+		AND TBA.BUDGET_ACCOUNT_CODE != 'EBPL0198'
+		AND TBA.BUDGET_ACCOUNT_CODE != 'EBPL0199'
+		UNION ALL
+		SELECT
+		CHILD.BUDGET_ACCOUNT_ID,
+		CHILD.PARENT_BUDGET_ACCOUNT_ID,
+		CHILD.BUDGET_ACCOUNT_CODE,
+		CHILD.BUDGET_ACCOUNT_NAME
+		FROM
+		tb PARENT ,
+		( SELECT
+		TBA.BUDGET_ACCOUNT_ID,
+		TBA.PARENT_BUDGET_ACCOUNT_ID,
+		TBA.BUDGET_ACCOUNT_CODE,
+		TTR.CUST_TEXT10 BUDGET_ACCOUNT_NAME
+		FROM
+		TBM_TEMPLATES TT
+		LEFT JOIN
+		TBM_TEMPLATE_LAYOUTS TTL
+		ON
+		TT.TEMPLATE_ID=TTL.TEMPLATE_ID
+		LEFT JOIN
+		TBM_TEMPLATE_ROW_SETS TTRS
+		ON
+		TTL.TEMPLATE_ROW_SET_ID=TTRS.TEMPLATE_ROW_SET_ID
+		LEFT JOIN
+		TBM_TEMPLATE_ROWS TTR
+		ON
+		TTRS.TEMPLATE_ROW_SET_ID=TTR.TEMPLATE_ROW_SET_ID
+		LEFT JOIN
+		TBM_BUDGET_ACCOUNTS TBA
+		ON
+		TTR.DIMENSION_VALUE_ID=TBA.BUDGET_ACCOUNT_ID
+		AND TTRS.BUDGET_ACCOUNT_SET_ID=TBA.BUDGET_ACCOUNT_SET_ID
+		LEFT JOIN
+		TBM_PROPERTIES_SET_VALUE TPSV
+		ON
+		TPSV.PROPERTY_SET_VALUE=TT.TEMPLATE_NUMBER
+		WHERE
+		TPSV.PROPERTY_SET_VALUE_CODE ='HB_CURRENT_TEMPLATE_NUMBER'
+		) CHILD
+		WHERE
+		CHILD.PARENT_BUDGET_ACCOUNT_ID=PARENT.BUDGET_ACCOUNT_ID
+		)
+		SELECT
+		pa.company_id,
+		pa.company_name,
+		pa.BUDGET_ACCOUNT_NAME,
+		pa.BUDGET_ACCOUNT_CODE,
+		CAST(COALESCE(ba.TRANSMIT_BUDGET_AMOUNT,0) AS DECIMAL(30,2)) TRANSMIT_BUDGET_AMOUNT,
+		CAST(COALESCE(ab.APPROVED_BUDGET_AMOUNT,0) AS DECIMAL(30,2)) APPROVED_BUDGET_AMOUNT,
+		CAST(COALESCE(ac.ACTUAL_AMOUNT,0) AS DECIMAL(30,2))          ACCOUNT_AMOUNT,
+		CAST(COALESCE(ad.AMOUNT,0) AS DECIMAL(30,2))                 CLAIM_AMOUNT
+		FROM
+		(
+		SELECT
+		tc.company_id,
+		tc.company_name,
+		tc.company_code,
+		tbc.BUDGET_ACCOUNT_NAME,
+		tbc.BUDGET_ACCOUNT_CODE
+		FROM
+		(SELECT BUDGET_ACCOUNT_NAME,BUDGET_ACCOUNT_CODE FROM tb
+		UNION
+		SELECT '2.网间结算支出' BUDGET_ACCOUNT_NAME,'EBPL010402' BUDGET_ACCOUNT_CODE FROM tb) tbc,
+		tbm_companies tc
+		WHERE
+		1=1
+		<choose>
+			<when test="companycodes!=null">
+				and tc.COMPANY_CODE in (${companycodes})
+			</when>
+			<otherwise>
+				and tc.COMPANY_CODE in ('')
+			</otherwise>
+		</choose>
+		)pa
+		LEFT JOIN
+		(
+		SELECT
+		a.COMPANY_ID,
+		c.BUDGET_ACCOUNT_CODE,
+		SUM(a.TRANSMIT_BUDGET_AMOUNT) TRANSMIT_BUDGET_AMOUNT
+		FROM
+		TBM_BUDGET_ANNUAL_DIMVAL_SUMMARY a
+		INNER JOIN
+		TBM_DIMVAL_SUB_COMBINATIONS b
+		ON
+		a.DIMVAL_SUB_COMBINATION_ID=b.DIMVAL_SUB_COMBINATION_ID
+		INNER JOIN
+		TBM_BUDGET_ACCOUNTS c
+		ON
+		b.BUDGET_ACCOUNT_ID=c.BUDGET_ACCOUNT_ID
+		WHERE
+		a.budget_year=${budget_year}
+		AND a.BUDGET_TYPE_LOOKUP_CODE = 'OPEX'
+		AND a.BUDGET_VERSION_TYPE = 'Z'
+		GROUP BY
+		a.budget_year,
+		a.COMPANY_ID,
+		c.BUDGET_ACCOUNT_CODE
+		union
+		SELECT
+		a.COMPANY_ID,
+		'EBPL010402' BUDGET_ACCOUNT_CODE ,
+		SUM(a.TRANSMIT_BUDGET_AMOUNT) TRANSMIT_BUDGET_AMOUNT
+		FROM
+		TBM_BUDGET_ANNUAL_DIMVAL_SUMMARY a
+		INNER JOIN
+		TBM_DIMVAL_SUB_COMBINATIONS b
+		ON
+		a.DIMVAL_SUB_COMBINATION_ID=b.DIMVAL_SUB_COMBINATION_ID
+		INNER JOIN
+		TBM_BUDGET_ACCOUNTS c
+		ON
+		b.BUDGET_ACCOUNT_ID=c.BUDGET_ACCOUNT_ID
+		WHERE
+		a.budget_year=${budget_year}
+		AND c.BUDGET_ACCOUNT_CODE='EBPL01040202'
+		AND a.BUDGET_TYPE_LOOKUP_CODE = 'OPEX'
+		AND a.BUDGET_VERSION_TYPE = 'Z'
+		GROUP BY
+		a.budget_year,
+		a.COMPANY_ID,
+		c.BUDGET_ACCOUNT_CODE
+		)ba
+		ON
+		ba.COMPANY_ID=pa.COMPANY_ID
+		AND ba.BUDGET_ACCOUNT_CODE=pa.BUDGET_ACCOUNT_CODE
+		LEFT JOIN
+		(
+		SELECT
+		a.COMPANY_ID,
+		tb.BUDGET_ACCOUNT_CODE,
+		ROUND(SUM(
+		CASE
+		WHEN COALESCE(a.APPROVED_BUDGET_AMOUNT, 0) = 0
+		THEN MIN(COALESCE(a.INPROCESS_BUDGET_AMOUNT, 0), COALESCE(a.OLD_AMOUNT, 0))
+		ELSE a.APPROVED_BUDGET_AMOUNT
+		END ),2) APPROVED_BUDGET_AMOUNT
+		FROM
+		tbm_budget_project_summary a
+		INNER JOIN
+		TBM_DIMVAL_SUB_COMBINATIONS b
+		ON
+		a.DIMVAL_SUB_COMBINATION_ID=b.DIMVAL_SUB_COMBINATION_ID
+		INNER JOIN
+		TBM_BUDGET_ACCOUNTS c
+		ON
+		b.BUDGET_ACCOUNT_ID=c.BUDGET_ACCOUNT_ID
+		INNER JOIN
+		TBM_DIMENSION_MAPS m
+		ON
+		m.SOURCE_DIMENSION_VALUE_ID=c.BUDGET_ACCOUNT_ID
+		INNER JOIN
+		tb
+		ON
+		m.TARGET_DIMENSION_VALUE_ID=tb.BUDGET_ACCOUNT_ID
+		WHERE
+		1=1
+		AND a.BUDGET_YEAR=${budget_year}
+		AND a.BUDGET_TYPE_LOOKUP_CODE = 'OPEX'
+		GROUP BY
+		a.COMPANY_ID,
+		tb.BUDGET_ACCOUNT_CODE)ab
+		ON
+		ab.COMPANY_ID=pa.COMPANY_ID
+		AND ab.BUDGET_ACCOUNT_CODE=pa.BUDGET_ACCOUNT_CODE
+		LEFT JOIN
+		(
+		SELECT
+		aoa.ERP_COMPANY_CODE,
+		SUM(aoa.ACTUAL_AMOUNT) ACTUAL_AMOUNT,
+		tb.BUDGET_ACCOUNT_CODE
+		FROM
+		tbm_budget_complete_status_data aoa
+		INNER JOIN
+		TBM_ACCOUNTING_SUBJECTS sb
+		ON
+		sb.ACCOUNTING_SUBJECT_CODE=aoa.ERP_ACC_CODE
+		INNER JOIN
+		TBM_BUDGET_ACCOUNT_MAP mp
+		ON
+		mp.ACCOUNTING_SUBJECT_ID=sb.ACCOUNTING_SUBJECT_ID
+		INNER JOIN
+		TBM_BUDGET_ACCOUNTS c
+		ON
+		mp.BUDGET_ACCOUNT_ID=c.BUDGET_ACCOUNT_ID
+		INNER JOIN
+		TBM_DIMENSION_MAPS m
+		ON
+		m.SOURCE_DIMENSION_VALUE_ID=c.BUDGET_ACCOUNT_ID
+		INNER JOIN
+		tb
+		ON
+		m.TARGET_DIMENSION_VALUE_ID=tb.BUDGET_ACCOUNT_ID
+		WHERE
+		sb.ENABLED_FLAG='Y'
+		AND mp.ENABLED_FLAG='Y'
+		AND m.ENABLED_FLAG='Y'
+		AND aoa.PERIOD_NAME='${period_name}'
+		GROUP BY
+		aoa.ERP_COMPANY_CODE,
+		tb.BUDGET_ACCOUNT_CODE)ac
+		ON
+		ac.ERP_COMPANY_CODE=pa.COMPANY_CODE
+		AND ac.BUDGET_ACCOUNT_CODE=pa.BUDGET_ACCOUNT_CODE
+		LEFT JOIN
+		(
+		SELECT
+		tca.CO_SEG_CODE,
+		SUM(tca.AMOUNT) AMOUNT,
+		tb.BUDGET_ACCOUNT_CODE
+		FROM
+		TBM_CLAIM_AMOUNT tca
+		INNER JOIN
+		TBM_ACCOUNTING_SUBJECTS sb
+		ON
+		sb.ACCOUNTING_SUBJECT_CODE=tca.AC_SEG_CODE
+		INNER JOIN
+		TBM_BUDGET_ACCOUNT_MAP mp
+		ON
+		mp.ACCOUNTING_SUBJECT_ID=sb.ACCOUNTING_SUBJECT_ID
+		INNER JOIN
+		TBM_BUDGET_ACCOUNTS c
+		ON
+		mp.BUDGET_ACCOUNT_ID=c.BUDGET_ACCOUNT_ID
+		INNER JOIN
+		TBM_DIMENSION_MAPS m
+		ON
+		m.SOURCE_DIMENSION_VALUE_ID=c.BUDGET_ACCOUNT_ID
+		INNER JOIN
+		tb
+		ON
+		m.TARGET_DIMENSION_VALUE_ID=tb.BUDGET_ACCOUNT_ID
+		WHERE
+		sb.ENABLED_FLAG='Y'
+		AND mp.ENABLED_FLAG='Y'
+		AND m.ENABLED_FLAG='Y'
+		AND tca.LAST_UPDATE_TIME BETWEEN TIMESTAMP('${claim_last_update_time_start}') AND TIMESTAMP
+		('${claim_last_update_time_end}')
+		AND tb.BUDGET_ACCOUNT_CODE != 'EBPL010203'
+		GROUP BY
+		tca.CO_SEG_CODE,
+		tb.BUDGET_ACCOUNT_CODE
+		UNION
+		SELECT
+		tca.CO_SEG_CODE,
+		SUM(tca.AMOUNT) AMOUNT,
+		tb.BUDGET_ACCOUNT_CODE
+		FROM
+		TBM_CLAIM_AMOUNT tca
+		INNER JOIN
+		TBM_ACCOUNTING_SUBJECTS sb
+		ON
+		sb.ACCOUNTING_SUBJECT_CODE=tca.AC_SEG_CODE
+		INNER JOIN
+		TBM_BUDGET_ACCOUNT_MAP mp
+		ON
+		mp.ACCOUNTING_SUBJECT_ID=sb.ACCOUNTING_SUBJECT_ID
+		INNER JOIN
+		TBM_BUDGET_ACCOUNTS c
+		ON
+		mp.BUDGET_ACCOUNT_ID=c.BUDGET_ACCOUNT_ID
+		INNER JOIN
+		TBM_DIMENSION_MAPS m
+		ON
+		m.SOURCE_DIMENSION_VALUE_ID=c.BUDGET_ACCOUNT_ID
+		INNER JOIN
+		tb
+		ON
+		m.TARGET_DIMENSION_VALUE_ID=tb.BUDGET_ACCOUNT_ID
+		WHERE
+		sb.ENABLED_FLAG='Y'
+		AND mp.ENABLED_FLAG='Y'
+		AND m.ENABLED_FLAG='Y'
+		AND tca.LAST_UPDATE_TIME BETWEEN TIMESTAMP('${reward_last_update_time_start}') AND TIMESTAMP
+		('${reward_last_update_time_end}')
+		AND tb.BUDGET_ACCOUNT_CODE='EBPL010203'
+		GROUP BY
+		tca.CO_SEG_CODE,
+		tb.BUDGET_ACCOUNT_CODE )ad
+		ON
+		ad.CO_SEG_CODE=pa.COMPANY_CODE
+		AND ad.BUDGET_ACCOUNT_CODE=pa.BUDGET_ACCOUNT_CODE
+		WHERE
+		1=1
+		<if test="budget_account_code!=null">
+			and pa.BUDGET_ACCOUNT_CODE like '${budget_account_code}%'
+		</if>
+		ORDER BY pa.company_id,pa.budget_account_code
+	</select>
+	<select id="网络维修费申报占用情况表" resultType="Map" parameterType="Map">
+		<!--{
+            "db":"budget",
+            "desc":"网络维修费申报占用情况表",
+            "in":[
+                {
+                    "id":"companycodes",
+                    "name":"companycodes",
+                    "datatype":"varchar",
+                    "default":"",
+                    "lookup":"",
+                    "auth":""
+                },
+                {
+                    "id":"budget_year",
+                    "name":"budget_year",
+                    "datatype":"varchar",
+                    "default":"",
+                    "lookup":"",
+                    "auth":""
+                }
+            ],
+            "out":[
+                {
+                    "id":"company_id",
+                    "name":"company_id",
+                    "datatype":"varchar"
+                },
+                {
+                    "id":"company_name",
+                    "name":"company_name",
+                    "datatype":"varchar"
+                },
+                {
+                    "id":"BUDGET_ACCOUNT_NAME",
+                    "name":"BUDGET_ACCOUNT_NAME",
+                    "datatype":"varchar"
+                },
+                {
+                    "id":"BUDGET_ACCOUNT_CODE",
+                    "name":"BUDGET_ACCOUNT_CODE",
+                    "datatype":"varchar"
+                },
+                {
+                    "id":"TRANSMIT_BUDGET_AMOUNT",
+                    "name":"TRANSMIT_BUDGET_AMOUNT",
+                    "datatype":"varchar"
+                },
+                {
+                    "id":"APPROVED_BUDGET_AMOUNT",
+                    "name":"APPROVED_BUDGET_AMOUNT",
+                    "datatype":"varchar"
+                },
+                {
+                    "id":"ACCOUNT_AMOUNT",
+                    "name":"ACCOUNT_AMOUNT",
+                    "datatype":"varchar"
+                },
+                {
+                    "id":"CLAIM_AMOUNT",
+                    "name":"CLAIM_AMOUNT",
+                    "datatype":"varchar"
+                }
+            ]
+        }
+        -->
+		SELECT
+		t.COMPANY_ID,
+		t.COMPANY_NAME,
+		t.BUDGET_ACCOUNT_CODE,
+		t.BUDGET_ACCOUNT_NAME,
+		t.TRANSMIT_BUDGET_AMOUNT,
+		t.APPROVED_BUDGET_AMOUNT,
+		CASE WHEN t.TRANSMIT_BUDGET_AMOUNT=0 OR t.APPROVED_BUDGET_AMOUNT=0
+		THEN 0
+		ELSE CAST((10000*t.APPROVED_BUDGET_AMOUNT/t.TRANSMIT_BUDGET_AMOUNT)*0.01 AS DECIMAL(30,2))
+		END AS APPROVED_PRO,
+		t.OCCUPIED_BUDGET_AMOUNT_SUM,
+		CASE WHEN t.APPROVED_BUDGET_AMOUNT=0 OR t.OCCUPIED_BUDGET_AMOUNT_SUM=0
+		THEN 0
+		ELSE CAST((10000*t.OCCUPIED_BUDGET_AMOUNT_SUM/t.APPROVED_BUDGET_AMOUNT)*0.01 AS DECIMAL(30,2))
+		END AS OCCUPIED_PRO
+		FROM
+		(
+		SELECT
+		ab.COMPANY_ID,
+		ab.COMPANY_NAME,
+		ab.BUDGET_ACCOUNT_CODE,
+		ab.BUDGET_ACCOUNT_NAME,
+		CAST(COALESCE(ab.TRANSMIT_BUDGET_AMOUNT,0) AS DECIMAL(30,2)) TRANSMIT_BUDGET_AMOUNT,
+		CASE
+		WHEN ab.BUDGET_ACCOUNT_CODE='EBPL01010302'
+		THEN CAST(COALESCE(ac.APPROVED_BUDGET_AMOUNT1,0) AS DECIMAL(30,2))
+		ELSE CAST(COALESCE(ab.APPROVED_BUDGET_AMOUNT,0) AS DECIMAL(30,2))
+		END AS APPROVED_BUDGET_AMOUNT,
+		CASE
+		WHEN ab.BUDGET_ACCOUNT_CODE='EBPL01010302'
+		THEN CAST(COALESCE(ac.OCCUPIED_BUDGET_AMOUNT_SUM1,0) AS DECIMAL(30,2))
+		ELSE CAST(COALESCE(ab.OCCUPIED_BUDGET_AMOUNT_SUM,0) AS DECIMAL(30,2))
+		END AS OCCUPIED_BUDGET_AMOUNT_SUM
+		FROM
+		(
+		SELECT
+		pa.COMPANY_ID,
+		tc.company_code,
+		pa.budget_year,
+		tc.COMPANY_NAME,
+		pa.BUDGET_ACCOUNT_CODE,
+		pa.BUDGET_ACCOUNT_NAME,
+		0 TRANSMIT_BUDGET_AMOUNT,
+		pa.APPROVED_BUDGET_AMOUNT,
+		pa.RESERVED_BUDGET_AMOUNT_SUM,
+		pa.OCCUPIED_BUDGET_AMOUNT_SUM
+		FROM
+		(
+		SELECT
+		a.BUDGET_YEAR,
+		a.COMPANY_NATURE_LOOKUP_CODE,
+		a.SET_OF_BOOKS_ID,
+		a.COMPANY_ID,
+		a.BUDGET_TYPE_LOOKUP_CODE ,
+		c.BUDGET_ACCOUNT_ID,
+		MAX(c.BUDGET_ACCOUNT_NAME) BUDGET_ACCOUNT_NAME,
+		MAX(c.BUDGET_ACCOUNT_CODE) BUDGET_ACCOUNT_CODE,
+		ROUND(SUM(
+		CASE
+		WHEN COALESCE(a.APPROVED_BUDGET_AMOUNT, 0) = 0
+		THEN MIN(COALESCE(a.INPROCESS_BUDGET_AMOUNT, 0), COALESCE (a.OLD_AMOUNT
+		, 0))
+		ELSE a.APPROVED_BUDGET_AMOUNT
+		END ),2)                      APPROVED_BUDGET_AMOUNT,
+		SUM(a.RESERVED_BUDGET_AMOUNT_SUM) RESERVED_BUDGET_AMOUNT_SUM,
+		SUM(a.OCCUPIED_BUDGET_AMOUNT_SUM) OCCUPIED_BUDGET_AMOUNT_SUM
+		FROM
+		tbm_budget_project_summary a ,
+		TBM_DIMVAL_SUB_COMBINATIONS b ,
+		TBM_BUDGET_ACCOUNTS c
+		WHERE
+		1=1
+		AND a.DIMVAL_SUB_COMBINATION_ID=b.DIMVAL_SUB_COMBINATION_ID
+		AND b.BUDGET_ACCOUNT_ID=c.BUDGET_ACCOUNT_ID
+		AND a.BUDGET_TYPE_LOOKUP_CODE = 'OPEX'
+		AND c.BUDGET_ACCOUNT_CODE LIKE 'PL02050101__'
+		GROUP BY
+		a.BUDGET_YEAR,
+		a.COMPANY_NATURE_LOOKUP_CODE,
+		a.SET_OF_BOOKS_ID,
+		a.COMPANY_ID,
+		a.BUDGET_TYPE_LOOKUP_CODE,
+		c.BUDGET_ACCOUNT_ID)pa
+		INNER JOIN
+		TBM_COMPANIES tc
+		ON
+		tc.COMPANY_ID = pa.COMPANY_ID
+		UNION
+		SELECT
+		a.COMPANY_ID,
+		tc.company_code,
+		a.budget_year,
+		tc.COMPANY_NAME,
+		c.BUDGET_ACCOUNT_CODE,
+		MAX(c.BUDGET_ACCOUNT_NAME)    BUDGET_ACCOUNT_NAME,
+		SUM(a.TRANSMIT_BUDGET_AMOUNT) TRANSMIT_BUDGET_AMOUNT,
+		0                             APPROVED_BUDGET_AMOUNT,
+		0                             RESERVED_BUDGET_AMOUNT_SUM,
+		0                             OCCUPIED_BUDGET_AMOUNT_SUM
+		FROM
+		TBM_BUDGET_ANNUAL_DIMVAL_SUMMARY a
+		INNER JOIN
+		TBM_DIMVAL_SUB_COMBINATIONS b
+		ON
+		a.DIMVAL_SUB_COMBINATION_ID=b.DIMVAL_SUB_COMBINATION_ID
+		INNER JOIN
+		TBM_BUDGET_ACCOUNTS c
+		ON
+		b.BUDGET_ACCOUNT_ID=c.BUDGET_ACCOUNT_ID
+		INNER JOIN
+		TBM_COMPANIES tc
+		ON
+		tc.COMPANY_ID = a.COMPANY_ID
+		WHERE
+		c.BUDGET_ACCOUNT_CODE='EBPL01010302'
+		AND a.BUDGET_TYPE_LOOKUP_CODE = 'OPEX'
+		AND a.BUDGET_VERSION_TYPE = 'Z'
+		GROUP BY
+		a.budget_year,
+		a.COMPANY_ID,
+		tc.company_code,
+		tc.COMPANY_NAME,
+		c.BUDGET_ACCOUNT_CODE)ab
+		LEFT JOIN
+		(
+		SELECT
+		a.COMPANY_ID,
+		ROUND(SUM(
+		CASE
+		WHEN COALESCE(a.APPROVED_BUDGET_AMOUNT, 0) = 0
+		THEN MIN(COALESCE(a.INPROCESS_BUDGET_AMOUNT, 0), COALESCE(a.OLD_AMOUNT, 0))
+		ELSE a.APPROVED_BUDGET_AMOUNT
+		END ),2)                      APPROVED_BUDGET_AMOUNT1,
+		SUM(a.RESERVED_BUDGET_AMOUNT_SUM) RESERVED_BUDGET_AMOUNT_SUM1,
+		SUM(a.OCCUPIED_BUDGET_AMOUNT_SUM) OCCUPIED_BUDGET_AMOUNT_SUM1
+		FROM
+		tbm_budget_project_summary a ,
+		TBM_DIMVAL_SUB_COMBINATIONS b ,
+		TBM_BUDGET_ACCOUNTS c
+		WHERE
+		1=1
+		AND a.BUDGET_YEAR=${budget_year}
+		AND a.DIMVAL_SUB_COMBINATION_ID=b.DIMVAL_SUB_COMBINATION_ID
+		AND b.BUDGET_ACCOUNT_ID=c.BUDGET_ACCOUNT_ID
+		AND a.BUDGET_TYPE_LOOKUP_CODE = 'OPEX'
+		AND c.BUDGET_ACCOUNT_CODE LIKE 'PL02050101__'
+		GROUP BY
+		a.COMPANY_ID )ac
+		ON
+		ac.company_id=ab.company_id
+		LEFT JOIN
+		(
+		SELECT
+		a.COMPANY_ID,
+		MAX(tc.COMPANY_NAME) COMPANY_NAME,
+		c.BUDGET_ACCOUNT_CODE,
+		MAX(c.BUDGET_ACCOUNT_NAME)    BUDGET_ACCOUNT_NAME,
+		SUM(a.TRANSMIT_BUDGET_AMOUNT) TRANSMIT_BUDGET_AMOUNT1
+		FROM
+		TBM_BUDGET_ANNUAL_DIMVAL_SUMMARY a
+		INNER JOIN
+		TBM_DIMVAL_SUB_COMBINATIONS b
+		ON
+		a.DIMVAL_SUB_COMBINATION_ID=b.DIMVAL_SUB_COMBINATION_ID
+		INNER JOIN
+		TBM_BUDGET_ACCOUNTS c
+		ON
+		b.BUDGET_ACCOUNT_ID=c.BUDGET_ACCOUNT_ID
+		INNER JOIN
+		TBM_COMPANIES tc
+		ON
+		tc.COMPANY_ID = a.COMPANY_ID
+		WHERE
+		c.BUDGET_ACCOUNT_CODE='EBPL01010302'
+		AND a.budget_year=${budget_year}
+		AND a.BUDGET_TYPE_LOOKUP_CODE = 'OPEX'
+		AND a.BUDGET_VERSION_TYPE = 'Z'
+		GROUP BY
+		a.budget_year,
+		a.COMPANY_ID,
+		c.BUDGET_ACCOUNT_CODE)ad
+		ON
+		ad.COMPANY_ID=ab.COMPANY_ID
+		WHERE
+		ab.BUDGET_YEAR=${budget_year}
+		<choose>
+			<when test="companycodes!=null">
+				AND ab.COMPANY_CODE in (${companycodes})
+			</when>
+			<otherwise>
+				AND ab.COMPANY_CODE in ('')
+			</otherwise>
+		</choose>
+		) t
+		ORDER BY
+		t.COMPANY_ID,
+		t.BUDGET_ACCOUNT_CODE
+	</select>
+ <select id="本年度新增合同列账进度表" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"budget",
+	"desc":"本年度新增合同列账进度表",
+	"in":[
+		{
+			"id":"company",
+			"name":"公司名称",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"companycodes",
+			"name":"公司名称",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"departmentids",
+			"name":"部门名称",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"budget_year",
+			"name":"预算年份",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"company_name",
+			"name":"company_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"department_name",
+			"name":"department_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"ht_amount",
+			"name":"ht_amount",
+			"datatype":"varchar"
+		},
+		{
+			"id":"bz_amount",
+			"name":"bz_amount",
+			"datatype":"varchar"
+		}
+	]
+}
+-->SELECT
+	COMPANY_ID,
+	COMPANY_CODE,
+    COMPANY_NAME,
+	DEPARTMENT_ID,
+    DEPARTMENT_NAME,
+    HT_AMOUNT,
+    BZ_AMOUNT,
+	CASE WHEN HT_AMOUNT = 0 OR BZ_AMOUNT = 0
+		 THEN 0
+		 ELSE CAST((10000*BZ_AMOUNT/HT_AMOUNT)*0.01 AS DECIMAL(30,2))
+	END AS BZ_PRE
+FROM
+    (
+        SELECT
+            cd.COMPANY_NAME,
+            cd.DEPARTMENT_NAME,
+            cd.COMPANY_ID,
+			cd.COMPANY_CODE,
+            cd.DEPARTMENT_ID,
+            CAST(COALESCE(ht.HT_AMOUNT,0) AS DECIMAL(30,2)) HT_AMOUNT,
+            CAST(COALESCE(bz.BZ_AMOUNT,0) AS DECIMAL(30,2)) BZ_AMOUNT
+        FROM
+            (
+                SELECT
+                    ad.COMPANY_ID,
+                    tc.COMPANY_CODE,
+                    tc.COMPANY_NAME,
+                    ad.DEPARTMENT_ID,
+                    ad.DEPARTMENT_CODE,
+                    ad.DEPARTMENT_NAME
+                FROM
+                    ARCH_ECP_DEPARTMENTS_V ad
+                INNER JOIN
+                    TBM_COMPANIES tc
+                ON
+                    ad.COMPANY_ID=tc.COMPANY_ID
+                WHERE
+                    1=1
+<choose>
+ <when test="companycodes!=null">
+                AND tc.COMPANY_CODE in (${companycodes})
+</when>
+ <otherwise>
+				AND tc.COMPANY_CODE in ('')
+</otherwise>
+</choose>
+<choose>
+	 <when test="departmentids!=null">
+		AND ad.DEPARTMENT_ID in (${departmentids})
+	 </when>
+     <otherwise>
+		AND ad.DEPARTMENT_ID = -1
+     </otherwise>      
+</choose>
+                AND ad.ENABLED_FLAG = 'Y'
+                AND COALESCE(ad.virtual_department_flag,'')!='Y')cd
+LEFT JOIN
+            (
+                SELECT
+                    SUM(OCCUPIED_BUDGET_AMOUNT) HT_AMOUNT,
+                    DEPARTMENT_ID
+                FROM
+                    TBM_BUDGET_ACTUAL_SUMMARY
+                WHERE
+                    1=1
+                AND SUBSTR(DOCUMENT_TYPE_CODE,1,3)='HT_'
+                AND BUDGET_YEAR=#{budget_year}
+                AND OCCUPIED_BUDGET_AMOUNT!=0
+				AND DOCUMENT_CODE NOT IN(select distinct CONTRACT_NO from inventory_Statement )
+                GROUP BY
+                    DEPARTMENT_ID)ht
+        ON
+            ht.DEPARTMENT_ID=cd.DEPARTMENT_ID
+        LEFT JOIN
+            (
+                SELECT
+                    SUM(OCCUPIED_BUDGET_AMOUNT) BZ_AMOUNT,
+                    DEPARTMENT_ID
+                FROM
+                    TBM_BUDGET_ACTUAL_SUMMARY
+                WHERE
+                    1=1
+                AND DOCUMENT_TYPE_CODE IN('BZ_YHTBZ',
+                                          'BZ_YHTJT',
+                                          'BZ_YHTDT',
+                                          'ERP_YZXZC',
+                                          'ERP_YYFFP',
+                                          'ERP_YSGPZ',
+                                          'ERP_YNBWL')
+                AND BUDGET_YEAR=#{budget_year}
+                GROUP BY
+                    DEPARTMENT_ID)bz
+        ON
+            bz.DEPARTMENT_ID=cd.DEPARTMENT_ID)
+WHERE
+    1=1
+AND HT_AMOUNT!=0
+ORDER BY
+    COMPANY_ID,
+    DEPARTMENT_ID DESC
+</select>
+ <select id="重点费用" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"budget",
+	"desc":"重点费用",
+	"in":[
+		{
+			"id":"budget_year",
+			"name":"budget_year",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"companycodes",
+			"name":"companycodes",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"company",
+			"name":"company",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"departmentids",
+			"name":"departmentids",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"tbm_key_point_cost_id",
+			"name":"tbm_key_point_cost_id",
+			"datatype":"varchar"
+		},
+		{
+			"id":"company_id",
+			"name":"company_id",
+			"datatype":"varchar"
+		},
+		{
+			"id":"company_name",
+			"name":"company_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"company_code",
+			"name":"company_code",
+			"datatype":"varchar"
+		},
+		{
+			"id":"department_id",
+			"name":"department_id",
+			"datatype":"varchar"
+		},
+		{
+			"id":"department_code",
+			"name":"department_code",
+			"datatype":"varchar"
+		},
+		{
+			"id":"department_name",
+			"name":"department_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"ht_amount",
+			"name":"ht_amount",
+			"datatype":"varchar"
+		},
+		{
+			"id":"pa_apply_amount",
+			"name":"pa_apply_amount",
+			"datatype":"varchar"
+		},
+		{
+			"id":"htbz_amount",
+			"name":"htbz_amount",
+			"datatype":"varchar"
+		}
+	]
+}-->
+SELECT 
+	t.COMPANY_ID,
+	t.COMPANY_NAME,
+    t.DEPARTMENT_ID,
+    t.DEPARTMENT_NAME,
+    t.HT_AMOUNT,
+    t.PA_APPLY_AMOUNT,
+	CASE WHEN t.PA_APPLY_AMOUNT = 0 OR t.HT_AMOUNT = 0
+		 THEN 0
+		 ELSE CAST((10000*t.PA_APPLY_AMOUNT/t.HT_AMOUNT)*0.01 AS DECIMAL(30,2))
+	END AS PA_APPLY_PRE,
+    t.HTBZ_AMOUNT,
+	CASE WHEN t.PA_APPLY_AMOUNT = 0 OR t.HTBZ_AMOUNT = 0
+		 THEN 0
+		 ELSE CAST((10000*t.HTBZ_AMOUNT/t.HT_AMOUNT)*0.01 AS DECIMAL(30,2))
+	END AS HTBZ_PRE
+FROM 
+(
+	SELECT
+		cd.COMPANY_ID,
+		cd.DEPARTMENT_ID,
+		cd.COMPANY_NAME,
+		cd.DEPARTMENT_NAME,
+		COALESCE(kp.HT_AMOUNT,0)       HT_AMOUNT,
+		COALESCE(kp.PA_APPLY_AMOUNT,0) PA_APPLY_AMOUNT,
+		COALESCE(kp.HTBZ_AMOUNT,0)     HTBZ_AMOUNT
+	FROM
+		(
+			SELECT
+				ad.COMPANY_ID,
+				tc.COMPANY_CODE,
+				tc.COMPANY_NAME,
+				ad.DEPARTMENT_ID,
+				ad.DEPARTMENT_CODE,
+				ad.DEPARTMENT_NAME
+			FROM
+				ARCH_ECP_DEPARTMENTS_V ad
+			INNER JOIN
+				TBM_COMPANIES tc
+			ON
+				ad.COMPANY_ID=tc.COMPANY_ID
+			WHERE
+				1=1
+			AND ad.ENABLED_FLAG = 'Y'
+			AND COALESCE(ad.virtual_department_flag,'')!='Y')cd
+	LEFT JOIN
+		(
+			SELECT
+				*
+			FROM
+				TBM_KEY_POINT_COST
+			WHERE
+				1=1
+			AND budget_year=#{budget_year} ) kp
+	ON
+		cd.COMPANY_ID=kp.COMPANY_ID
+	AND cd.DEPARTMENT_ID=kp.DEPARTMENT_ID
+	WHERE
+		1=1
+	<choose>
+	 <when test="companycodes!=null">
+		 AND cd.COMPANY_CODE in (${companycodes})
+	</when>
+	 <otherwise>
+		 AND cd.COMPANY_CODE in ('')
+	</otherwise>
+	</choose>
+	<choose>
+	 <when test="departmentids!=null">
+		AND cd.DEPARTMENT_ID in (${departmentids})
+	 </when>
+     <otherwise>
+		AND cd.DEPARTMENT_ID = -1
+     </otherwise>      
+	</choose>
+	ORDER BY
+		cd.DEPARTMENT_NAME DESC
+) t
+</select><select id="本年度新增合同列账进度明细表" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"budget",
+	"desc":"本年度新增合同列账进度明细表",
+	"in":[
+		{
+			"id":"company_code",
+			"name":"company_code",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"department_id",
+			"name":"department_id",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"budget_year",
+			"name":"budget_year",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"company_name",
+			"name":"company_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"department_name",
+			"name":"department_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"ht_amount",
+			"name":"ht_amount",
+			"datatype":"varchar"
+		},
+		{
+			"id":"bz_amount",
+			"name":"bz_amount",
+			"datatype":"varchar"
+		},
+		{
+			"id":"document_code",
+			"name":"document_code",
+			"datatype":"varchar"
+		},
+		{
+			"id":"document_description",
+			"name":"document_description",
+			"datatype":"varchar"
+		}
+	]
+}-->SELECT
+    COMPANY_NAME,
+    DEPARTMENT_NAME,
+    HT_AMOUNT,
+    BZ_AMOUNT,
+	CASE WHEN HT_AMOUNT = 0 OR BZ_AMOUNT = 0
+		 THEN 0
+		 ELSE CAST((10000*BZ_AMOUNT/HT_AMOUNT)*0.01 AS DECIMAL(30,2))
+	END AS BZ_PRE,
+    DOCUMENT_CODE,
+    DOCUMENT_DESCRIPTION
+FROM
+    (
+        SELECT
+            cd.COMPANY_NAME,
+            cd.DEPARTMENT_NAME,
+            cd.COMPANY_ID,
+            cd.DEPARTMENT_ID,
+            CAST(COALESCE(ht.HT_AMOUNT,0) AS DECIMAL(30,2)) HT_AMOUNT,
+            CAST(COALESCE(bz.BZ_AMOUNT,0) AS DECIMAL(30,2)) BZ_AMOUNT,
+            ht.DOCUMENT_CODE,
+            ht.DOCUMENT_DESCRIPTION
+        FROM
+            (
+                SELECT
+                    ad.COMPANY_ID,
+                    tc.COMPANY_CODE,
+                    tc.COMPANY_NAME,
+                    ad.DEPARTMENT_ID,
+                    ad.DEPARTMENT_CODE,
+                    ad.DEPARTMENT_NAME
+                FROM
+                    ARCH_ECP_DEPARTMENTS_V ad
+                INNER JOIN
+                    TBM_COMPANIES tc
+                ON
+                    ad.COMPANY_ID=tc.COMPANY_ID
+                WHERE tc.COMPANY_CODE = #{company_code}
+                AND ad.DEPARTMENT_ID = #{department_id}
+                AND ad.ENABLED_FLAG = 'Y'
+                AND COALESCE(ad.virtual_department_flag,'')!='Y')cd
+        LEFT JOIN
+            (
+                SELECT
+                    SUM(OCCUPIED_BUDGET_AMOUNT) HT_AMOUNT,
+                    DOCUMENT_CODE,
+                    DOCUMENT_DESCRIPTION,
+                    DEPARTMENT_ID
+                FROM
+                    TBM_BUDGET_ACTUAL_SUMMARY
+                WHERE
+                    1=1
+                AND SUBSTR(DOCUMENT_TYPE_CODE,1,3)='HT_'
+                AND BUDGET_YEAR=#{budget_year}
+                AND OCCUPIED_BUDGET_AMOUNT!=0
+				AND DOCUMENT_CODE NOT IN(select distinct CONTRACT_NO from inventory_Statement )
+                GROUP BY
+                    DEPARTMENT_ID,
+                    DOCUMENT_CODE,
+                    DOCUMENT_DESCRIPTION)ht
+        ON
+            ht.DEPARTMENT_ID=cd.DEPARTMENT_ID
+        LEFT JOIN
+            (
+                SELECT
+                    SUM(OCCUPIED_BUDGET_AMOUNT) BZ_AMOUNT,
+                    PRE_DOCUMENT_NUMBER,
+                    DEPARTMENT_ID
+                FROM
+                    TBM_BUDGET_ACTUAL_SUMMARY
+                WHERE
+                    1=1
+                AND DOCUMENT_TYPE_CODE IN('BZ_YHTBZ',
+                                          'BZ_YHTJT',
+                                          'BZ_YHTDT',
+                                          'ERP_YZXZC',
+                                          'ERP_YYFFP',
+                                          'ERP_YSGPZ',
+                                          'ERP_YNBWL')
+                AND BUDGET_YEAR=#{budget_year}
+                GROUP BY
+                    DEPARTMENT_ID,
+                    PRE_DOCUMENT_NUMBER)bz
+        ON
+            bz.DEPARTMENT_ID=cd.DEPARTMENT_ID
+        AND bz.PRE_DOCUMENT_NUMBER=ht.DOCUMENT_CODE)
+WHERE HT_AMOUNT!=0
+ORDER BY
+    COMPANY_ID,
+    DEPARTMENT_ID DESC
+</select>
+ <select id="采购进度表" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"budget",
+	"desc":"采购进度表",
+	"in":[
+		{
+			"id":"companycodes",
+			"name":"companycodes",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"company",
+			"name":"company",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"departmentids",
+			"name":"departmentids",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"budget_year",
+			"name":"budget_year",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"user_name",
+			"name":"user_name",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"user_permission_code",
+			"name":"user_permission_code",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"company_code",
+			"name":"company_code",
+			"datatype":"varchar"
+		},
+		{
+			"id":"company_name",
+			"name":"company_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"department_id",
+			"name":"department_id",
+			"datatype":"varchar"
+		},
+		{
+			"id":"department_name",
+			"name":"department_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"budget_account_name",
+			"name":"budget_account_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"approved_budget_amount",
+			"name":"approved_budget_amount",
+			"datatype":"varchar"
+		},
+		{
+			"id":"budget_amount",
+			"name":"budget_amount",
+			"datatype":"varchar"
+		},
+		{
+			"id":"pa_current_person",
+			"name":"pa_current_person",
+			"datatype":"varchar"
+		}
+	]
+}
+-->
+SELECT 
+	t.COMPANY_ID,
+	t.COMPANY_CODE,
+    t.COMPANY_NAME,
+	t.DEPARTMENT_ID,
+    t.DEPARTMENT_NAME,
+	t.BUDGET_ACCOUNT_ID,
+    t.BUDGET_ACCOUNT_NAME,
+	t.APPROVED_BUDGET_AMOUNT,
+	t.APPROVED_AMOUNT,
+	t.NO_APPROVED_AMOUNT,
+	CASE WHEN t.APPROVED_BUDGET_AMOUNT=0 OR t.APPROVED_AMOUNT=0
+	        THEN 0
+			ELSE CAST((10000*APPROVED_AMOUNT/APPROVED_BUDGET_AMOUNT)*0.01 AS DECIMAL(30,2))
+	END AS APPROVED_PRE,
+	CASE WHEN t.APPROVED_BUDGET_AMOUNT=0 OR t.NO_APPROVED_AMOUNT=0
+	        THEN 0
+			ELSE CAST((10000*NO_APPROVED_AMOUNT/APPROVED_BUDGET_AMOUNT)*0.01 AS DECIMAL(30,2))
+	END AS NO_APPROVED_PRE
+FROM 
+(
+	SELECT
+		tc.COMPANY_ID,
+		tc.COMPANY_CODE,
+		tc.COMPANY_NAME,
+		pa.DEPARTMENT_ID,
+		aoe.ORG_NAME DEPARTMENT_NAME,
+		pa.BUDGET_ACCOUNT_ID,
+		pa.BUDGET_ACCOUNT_NAME,
+		CAST(ROUND(pa.APPROVED_BUDGET_AMOUNT,2) AS DECIMAL(18,2))     APPROVED_BUDGET_AMOUNT,
+		CAST(ROUND(COALESCE(pai.APPROVED_AMOUNT,0),2) AS DECIMAL(18,2)) APPROVED_AMOUNT,
+		CAST(ROUND(COALESCE(pai.NO_APPROVED_AMOUNT,0),2) AS DECIMAL(18,2)) NO_APPROVED_AMOUNT
+	FROM
+		(
+			SELECT
+				a.COMPANY_ID,
+				a.DEPARTMENT_ID,
+				c.BUDGET_ACCOUNT_ID,
+				MAX(c.BUDGET_ACCOUNT_NAME) BUDGET_ACCOUNT_NAME,
+				MAX(c.BUDGET_ACCOUNT_CODE) BUDGET_ACCOUNT_NUMBER,
+				ROUND(SUM(
+					CASE
+						WHEN COALESCE(a.APPROVED_BUDGET_AMOUNT, 0) = 0
+						THEN MIN(COALESCE(a.INPROCESS_BUDGET_AMOUNT, 0), COALESCE(a.OLD_AMOUNT, 0))
+						ELSE a.APPROVED_BUDGET_AMOUNT
+					END ),2) APPROVED_BUDGET_AMOUNT
+			FROM
+				tbm_budget_project_summary a ,
+				TBM_DIMVAL_SUB_COMBINATIONS b ,
+				TBM_BUDGET_ACCOUNTS c ,
+				TBM_PROJECTS d,
+				TBM_COMPANIES tbc
+			WHERE
+				1=1
+			AND a.company_id = tbc.company_id
+			AND a.DIMVAL_SUB_COMBINATION_ID=b.DIMVAL_SUB_COMBINATION_ID
+			AND b.BUDGET_ACCOUNT_ID=c.BUDGET_ACCOUNT_ID
+			AND a.PROJECT_ID=d.PROJECT_ID
+			AND a.BUDGET_TYPE_LOOKUP_CODE = 'OPEX'
+		<choose>
+		 <when test="companycodes!=null">
+			AND tbc.COMPANY_CODE in (${companycodes})
+		</when>
+		 <otherwise>
+			AND tbc.COMPANY_CODE in ('')
+		</otherwise>
+		</choose>
+		<choose>
+		 <when test="departmentids!=null">
+			<if test='user_permission_code!="E"' >
+			AND a.DEPARTMENT_ID in (${departmentids})
+			</if>
+		 </when>
+		 <otherwise>
+			AND a.DEPARTMENT_ID = -1
+		 </otherwise>      
+		</choose>
+			AND SUBSTR(CHAR(d.PROJECT_START_DATE),1,4)='${budget_year}'
+			GROUP BY
+				a.COMPANY_ID,
+				a.DEPARTMENT_ID,
+				c.BUDGET_ACCOUNT_ID )pa
+	<if test='user_permission_code=="E"'>
+	INNER JOIN
+	</if>
+	<if test='user_permission_code!="E"'>
+	LEFT JOIN
+	</if>
+		(
+			SELECT
+				tpo.REFERENCE2          BUDGET_ACCOUNT_CODE,
+				aoe.ORG_EXT_ID          DEPARTMENT_ID,
+				SUM(APPROVED_AMOUNT)    APPROVED_AMOUNT,
+				SUM(NO_APPROVED_AMOUNT) NO_APPROVED_AMOUNT
+			FROM
+				(
+					SELECT
+						distinct QINGSHI_CODE,
+						REFERENCE2,
+						CASE
+							WHEN REFERENCE3='已结束'
+							THEN BUDGET_AMOUNT
+							ELSE 0
+						END APPROVED_AMOUNT,
+						CASE
+							WHEN REFERENCE3!='已结束'
+							THEN BUDGET_AMOUNT
+							ELSE 0
+						END NO_APPROVED_AMOUNT,
+						BUDGET_PROJECT_NUM,
+						BUDGET_DEPT
+					FROM
+						TBM_PAGEINQUIRY_OAQINGSHIINFO_SRV
+				   WHERE 1=1
+				   <if test='user_permission_code=="E"'>
+					 AND DRAFTER_ID=#{user_name}
+				   </if>
+			 ) tpo
+			INNER JOIN
+				ARCH_ORG_EXT aoe
+			ON
+				tpo.BUDGET_DEPT= aoe.ORG_CODE
+			INNER JOIN
+				(
+					SELECT
+						PROJECT_NUMBER
+					FROM
+						tbm_projects
+					WHERE
+						1=1
+					AND SUBSTR(CHAR(PROJECT_START_DATE),1,4)='${budget_year}' )tp
+			ON
+				tpo.BUDGET_PROJECT_NUM=tp.PROJECT_NUMBER
+			GROUP BY
+				tpo.REFERENCE2 ,
+				aoe.ORG_EXT_ID )pai
+	ON
+		pa.DEPARTMENT_ID=pai.DEPARTMENT_ID
+	AND pa.BUDGET_ACCOUNT_NUMBER=pai.BUDGET_ACCOUNT_CODE
+	INNER JOIN
+		ARCH_ORG_EXT aoe
+	ON
+		aoe.ORG_EXT_ID = pa.DEPARTMENT_ID
+	INNER JOIN
+		TBM_COMPANIES tc
+	ON
+		tc.COMPANY_ID = pa.COMPANY_ID
+	WHERE
+		1=1
+	ORDER BY
+		pa.COMPANY_ID,
+		pa.DEPARTMENT_ID,
+		pa.BUDGET_ACCOUNT_ID DESC
+) t
+</select>
+ <select id="采购进度明细表" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"budget",
+	"desc":"采购进度明细表",
+	"in":[
+		{
+			"id":"company_code",
+			"name":"company_code",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"department_id",
+			"name":"department_id",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"budget_account_id",
+			"name":"budget_account_id",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"budget_year",
+			"name":"budget_year",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"user_name",
+			"name":"user_name",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"user_permission_code",
+			"name":"user_permission_code",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"company_name",
+			"name":"company_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"department_name",
+			"name":"department_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"budget_account_name",
+			"name":"budget_account_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"project_number",
+			"name":"project_number",
+			"datatype":"varchar"
+		},
+		{
+			"id":"project_name",
+			"name":"project_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"bms_current_person",
+			"name":"bms_current_person",
+			"datatype":"varchar"
+		},
+		{
+			"id":"approved_budget_amount",
+			"name":"approved_budget_amount",
+			"datatype":"varchar"
+		},
+		{
+			"id":"budget_amount",
+			"name":"budget_amount",
+			"datatype":"varchar"
+		},
+		{
+			"id":"qingshi_name",
+			"name":"qingshi_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"pa_current_person",
+			"name":"pa_current_person",
+			"datatype":"varchar"
+		}
+	]
+}
+-->
+SELECT 
+	m.COMPANY_NAME,
+	m.DEPARTMENT_NAME,
+	m.BUDGET_ACCOUNT_NAME,
+	m.PROJECT_NUMBER,
+	m.PROJECT_NAME,
+	m.BMS_CURRENT_PERSON,
+	m.APPROVED_BUDGET_AMOUNT,
+	m.APPROVED_AMOUNT,
+	m.NO_APPROVED_AMOUNT,
+	CASE WHEN m.APPROVED_BUDGET_AMOUNT=0 OR m.APPROVED_AMOUNT=0
+	        THEN 0
+			ELSE CAST((10000*m.APPROVED_AMOUNT/m.APPROVED_BUDGET_AMOUNT)*0.01 AS DECIMAL(30,2))
+	END AS APPROVED_PRE,
+	CASE WHEN m.APPROVED_BUDGET_AMOUNT=0 OR m.NO_APPROVED_AMOUNT=0
+	        THEN 0
+			ELSE CAST((10000*m.NO_APPROVED_AMOUNT/m.APPROVED_BUDGET_AMOUNT)*0.01 AS DECIMAL(30,2))
+	END AS NO_APPROVED_PRE,
+	m.QINGSHI_NAME,
+	m.PA_CURRENT_PERSON
+FROM 
+(
+	SELECT
+		t.COMPANY_NAME,
+		t.DEPARTMENT_NAME,
+		t.BUDGET_ACCOUNT_NAME,
+		t.PROJECT_NUMBER,
+		t.PROJECT_NAME,
+		t.BMS_CURRENT_PERSON,
+		t.APPROVED_BUDGET_AMOUNT,
+		t.BUDGET_AMOUNT,
+		CASE WHEN PA_CURRENT_PERSON='已结束'
+			 THEN t.BUDGET_AMOUNT
+			 ELSE 0
+		END AS APPROVED_AMOUNT,
+		CASE WHEN PA_CURRENT_PERSON='已结束'
+			 THEN 0
+			 ELSE t.BUDGET_AMOUNT
+		END AS NO_APPROVED_AMOUNT,
+		t.QINGSHI_NAME,
+		t.PA_CURRENT_PERSON
+	FROM (
+		SELECT
+			tc.COMPANY_NAME,
+			aoe.ORG_NAME DEPARTMENT_NAME,
+			pa.BUDGET_ACCOUNT_NAME,
+			pa.PROJECT_NUMBER,
+			pa.PROJECT_NAME,
+			CASE
+				WHEN COALESCE(CHAR(TPBH.APPROVED_BY_USER_ID),'')= ''
+				THEN
+					CASE
+						WHEN COALESCE(CWH.APPROVER_NAME,'')=''
+						THEN
+							CASE
+								WHEN COALESCE(CWH2.APPROVER_NAME,'')=''
+								THEN AU.USER_NAME
+								ELSE CWH2.APPROVER_NAME
+							END
+						ELSE CWH.APPROVER_NAME
+					END
+				ELSE '已结束'
+			END                                                       BMS_CURRENT_PERSON,
+			CAST(ROUND(pa.APPROVED_BUDGET_AMOUNT,2) AS DECIMAL(18,2))     APPROVED_BUDGET_AMOUNT,
+			CAST(ROUND(COALESCE(pai.BUDGET_AMOUNT,0),2) AS DECIMAL(18,2)) BUDGET_AMOUNT,
+			COALESCE(pai.QINGSHI_NAME,'') QINGSHI_NAME,
+			COALESCE(pai.PA_CURRENT_PERSON,'') PA_CURRENT_PERSON
+		FROM
+			(
+				SELECT
+					a.COMPANY_NATURE_LOOKUP_CODE,
+					a.SET_OF_BOOKS_ID,
+					a.COMPANY_ID,
+					a.DEPARTMENT_ID,
+					a.PROJECT_ID,
+					a.BUDGET_TYPE_LOOKUP_CODE ,
+					c.BUDGET_ACCOUNT_ID,
+					MAX(c.BUDGET_ACCOUNT_NAME) BUDGET_ACCOUNT_NAME,
+					MAX(c.BUDGET_ACCOUNT_CODE) BUDGET_ACCOUNT_NUMBER,
+					MAX(d.PROJECT_NAME)        PROJECT_NAME,
+					MAX(d.PROJECT_NUMBER)      PROJECT_NUMBER,
+					ROUND(SUM(
+						CASE
+							WHEN COALESCE(a.APPROVED_BUDGET_AMOUNT, 0) = 0
+							THEN MIN(COALESCE(a.INPROCESS_BUDGET_AMOUNT, 0), COALESCE(a.OLD_AMOUNT, 0))
+							ELSE a.APPROVED_BUDGET_AMOUNT
+						END ),2) APPROVED_BUDGET_AMOUNT
+				FROM
+					tbm_budget_project_summary a ,
+					TBM_DIMVAL_SUB_COMBINATIONS b ,
+					TBM_BUDGET_ACCOUNTS c ,
+					TBM_PROJECTS d,
+					TBM_COMPANIES tbc
+				WHERE
+					1=1
+				AND a.company_id = tbc.company_id
+				AND a.DIMVAL_SUB_COMBINATION_ID=b.DIMVAL_SUB_COMBINATION_ID
+				AND b.BUDGET_ACCOUNT_ID=c.BUDGET_ACCOUNT_ID
+				AND a.PROJECT_ID=d.PROJECT_ID
+				AND a.BUDGET_TYPE_LOOKUP_CODE = 'OPEX'
+				AND tbc.COMPANY_CODE = #{company_code}
+				<if test='user_permission_code!="E"' >
+				AND a.DEPARTMENT_ID = #{department_id}
+				</if>
+				AND b.BUDGET_ACCOUNT_ID = #{budget_account_id}
+				AND SUBSTR(CHAR(d.PROJECT_START_DATE),1,4)='${budget_year}'
+				GROUP BY
+					a.COMPANY_NATURE_LOOKUP_CODE,
+					a.SET_OF_BOOKS_ID,
+					a.COMPANY_ID,
+					a.DEPARTMENT_ID,
+					a.PROJECT_ID,
+					a.BUDGET_TYPE_LOOKUP_CODE,
+					c.BUDGET_ACCOUNT_ID )pa
+		<if test='user_permission_code=="E"'>
+		INNER JOIN
+		</if>
+		<if test='user_permission_code!="E"'>
+		LEFT JOIN
+		</if>
+			(
+			SELECT  ttpo.QINGSHI_CODE,
+					ttpo.BUDGET_ACCOUNT_CODE,
+					ttpo.QINGSHI_NAME,
+					ttpo.PA_CURRENT_PERSON,
+					ttpo.DEPARTMENT_ID,
+					SUM(ttpo.BUDGET_AMOUNT) BUDGET_AMOUNT,
+					ttpo.BUDGET_PROJECT_NUM
+			FROM (
+				SELECT
+					distinct tpo.QINGSHI_CODE,
+					tpo.REFERENCE2 BUDGET_ACCOUNT_CODE,
+					tpo.QINGSHI_NAME,
+					tpo.REFERENCE3         PA_CURRENT_PERSON,
+					aoe.ORG_EXT_ID         DEPARTMENT_ID,
+					tpo.BUDGET_AMOUNT,
+					tpo.BUDGET_PROJECT_NUM
+				FROM
+					TBM_PAGEINQUIRY_OAQINGSHIINFO_SRV tpo
+				INNER JOIN
+					ARCH_ORG_EXT aoe
+				ON
+					tpo.BUDGET_DEPT= aoe.ORG_CODE
+				INNER JOIN
+					(
+						SELECT
+							PROJECT_NUMBER
+						FROM
+							tbm_projects
+						WHERE
+							1=1
+						AND SUBSTR(CHAR(PROJECT_START_DATE),1,4)='${budget_year}' )tp
+				ON
+					tpo.BUDGET_PROJECT_NUM=tp.PROJECT_NUMBER
+				WHERE 1=1
+				<if test='user_permission_code=="E"'>
+					AND tpo.DRAFTER_ID=#{user_name}
+				</if>
+				)ttpo 
+				GROUP BY
+					ttpo.QINGSHI_CODE,
+					ttpo.BUDGET_ACCOUNT_CODE ,
+					ttpo.QINGSHI_NAME,
+					ttpo.PA_CURRENT_PERSON ,
+					ttpo.DEPARTMENT_ID ,
+					ttpo.BUDGET_PROJECT_NUM 
+				)pai
+		ON
+			pa.DEPARTMENT_ID=pai.DEPARTMENT_ID
+		AND pa.PROJECT_NUMBER=pai.BUDGET_PROJECT_NUM
+		AND pa.BUDGET_ACCOUNT_NUMBER=pai.BUDGET_ACCOUNT_CODE
+		INNER JOIN
+			ARCH_ORG_EXT aoe
+		ON
+			aoe.ORG_EXT_ID = pa.DEPARTMENT_ID
+		INNER JOIN
+			TBM_COMPANIES tc
+		ON
+			tc.COMPANY_ID = pa.COMPANY_ID
+		LEFT JOIN
+			TBM_PROJECT_BUDGET_HEADERS TPBH
+		ON
+			PA.PROJECT_ID=TPBH.PROJECT_ID
+		AND PA.DEPARTMENT_ID=TPBH.DEPARTMENT_ID
+		LEFT JOIN
+			CJBPM_WORKFLOW_HISTORY CWH
+		ON
+			CWH.BUSINESS_ID=CHAR(PA.PROJECT_ID)
+		AND CWH.TASK_TYPE='waitfordeal'
+		LEFT JOIN
+			CJBPM_WORKFLOW_HISTORY CWH2
+		ON
+			CWH2.BUSINESS_ID=CHAR(TPBH.PROJECT_BUDGET_HEADER_ID)
+		AND CWH2.TASK_TYPE='waitfordeal'
+		LEFT JOIN
+			ARCH_USER_EXT AUE
+		ON
+			AUE.USER_EXT_ID=TPBH.LAST_UPDATE_BY
+		LEFT JOIN
+			ARCH_USER AU
+		ON
+			AU.USER_ID=AUE.USER_ID
+		WHERE
+			1=1
+		AND TPBH.LATEST_VERSION_FLAG='Y'
+		ORDER BY
+			pa.COMPANY_ID,
+			pa.DEPARTMENT_ID,
+			pa.BUDGET_ACCOUNT_ID,
+			pa.PROJECT_ID DESC
+		) t
+) m
+</select>
+ <select id="合同签订进度表" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"budget",
+	"desc":"合同签订进度表",
+	"in":[
+		{
+			"id":"companycodes",
+			"name":"companycodes",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"company",
+			"name":"company",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"departmentids",
+			"name":"departmentids",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"budget_year",
+			"name":"budget_year",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"user_name",
+			"name":"user_name",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"user_permission_code",
+			"name":"user_permission_code",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"company_code",
+			"name":"company_code",
+			"datatype":"varchar"
+		},
+		{
+			"id":"company_name",
+			"name":"company_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"department_id",
+			"name":"department_id",
+			"datatype":"varchar"
+		},
+		{
+			"id":"department_name",
+			"name":"department_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"budget_account_name",
+			"name":"budget_account_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"approved_budget_amount",
+			"name":"approved_budget_amount",
+			"datatype":"varchar"
+		},
+		{
+			"id":"reserved_budget_amount",
+			"name":"reserved_budget_amount",
+			"datatype":"varchar"
+		},
+		{
+			"id":"occupied_budget_amount",
+			"name":"occupied_budget_amount",
+			"datatype":"varchar"
+		},
+		{
+			"id":"ht_status",
+			"name":"ht_status",
+			"datatype":"varchar"
+		}
+	]
+}
+-->
+SELECT 
+      m.COMPANY_ID,
+    m.COMPANY_CODE,
+    m.COMPANY_NAME,
+    m.DEPARTMENT_ID,
+    m.DEPARTMENT_NAME,
+    m.BUDGET_ACCOUNT_ID,
+    m.BUDGET_ACCOUNT_NAME,
+    m.APPROVED_BUDGET_AMOUNT,
+    m.OCCUPIED_BUDGET_AMOUNT FINISH_APPROVED_BUDGET_AMOUNT,
+    m.RESERVED_BUDGET_AMOUNT UNFINISH_APPROVED_BUDGET_AMOUNT,
+    CASE
+        WHEN m.APPROVED_BUDGET_AMOUNT=0
+        OR  m.OCCUPIED_BUDGET_AMOUNT=0
+        THEN 0
+        ELSE CAST((10000*m.OCCUPIED_BUDGET_AMOUNT/m.APPROVED_BUDGET_AMOUNT)* 0.01 AS DECIMAL(30,2))
+    END AS FINISH_PRE,
+    CASE
+        WHEN m.APPROVED_BUDGET_AMOUNT=0
+        OR  m.RESERVED_BUDGET_AMOUNT=0
+        THEN 0
+        ELSE CAST((10000*m.RESERVED_BUDGET_AMOUNT/m.APPROVED_BUDGET_AMOUNT )*0.01 AS DECIMAL(30,2))
+    END AS UNFINISH_PRE
+	FROM(
+		SELECT
+			pa.COMPANY_ID,
+			tc.COMPANY_CODE,
+			tc.COMPANY_NAME,
+			pa.DEPARTMENT_ID,
+			aoe.ORG_NAME DEPARTMENT_NAME,
+			pa.BUDGET_ACCOUNT_ID,
+			pa.BUDGET_ACCOUNT_NAME,
+			CAST(COALESCE(ROUND(SUM(pa.APPROVED_BUDGET_AMOUNT),2),0) AS DECIMAL(18,2)) APPROVED_BUDGET_AMOUNT,
+			CAST(COALESCE(ROUND(SUM(ht.RESERVED_BUDGET_AMOUNT),2),0) AS DECIMAL(18,2)) RESERVED_BUDGET_AMOUNT,
+			CAST(COALESCE(ROUND(SUM(ht.OCCUPIED_BUDGET_AMOUNT),2),0) AS DECIMAL(18,2)) OCCUPIED_BUDGET_AMOUNT
+		FROM
+			(
+				SELECT
+					a.COMPANY_NATURE_LOOKUP_CODE,
+					a.SET_OF_BOOKS_ID,
+					a.COMPANY_ID,
+					a.DEPARTMENT_ID,
+					a.PROJECT_ID,
+					a.BUDGET_TYPE_LOOKUP_CODE ,
+					c.BUDGET_ACCOUNT_ID,
+					MAX(c.BUDGET_ACCOUNT_NAME) BUDGET_ACCOUNT_NAME,
+					MAX(c.BUDGET_ACCOUNT_CODE) BUDGET_ACCOUNT_NUMBER,
+					MAX(d.PROJECT_NAME)        PROJECT_NAME,
+					MAX(d.PROJECT_NUMBER)      PROJECT_NUMBER,
+					ROUND(SUM(
+						CASE
+							WHEN COALESCE(a.APPROVED_BUDGET_AMOUNT, 0) = 0
+							THEN MIN(COALESCE(a.INPROCESS_BUDGET_AMOUNT, 0), COALESCE(a.OLD_AMOUNT, 0))
+							ELSE a.APPROVED_BUDGET_AMOUNT
+						END ),2) APPROVED_BUDGET_AMOUNT
+				FROM
+					tbm_budget_project_summary a ,
+					TBM_DIMVAL_SUB_COMBINATIONS b ,
+					TBM_BUDGET_ACCOUNTS c ,
+					TBM_PROJECTS d,
+					TBM_COMPANIES tbc
+				WHERE
+					1=1
+				AND tbc.COMPANY_ID=a.COMPANY_ID
+				AND a.DIMVAL_SUB_COMBINATION_ID=b.DIMVAL_SUB_COMBINATION_ID
+				AND b.BUDGET_ACCOUNT_ID=c.BUDGET_ACCOUNT_ID
+				AND a.PROJECT_ID=d.PROJECT_ID
+				AND a.BUDGET_TYPE_LOOKUP_CODE = 'OPEX'
+		<choose>
+		 <when test="companycodes!=null">
+			 AND tbc.COMPANY_CODE in (${companycodes})
+		</when>
+		 <otherwise>
+			 AND tbc.COMPANY_CODE in ('')
+		</otherwise>
+		</choose>
+		<choose>
+		 <when test="departmentids!=null">
+			<if test='user_permission_code!="E"' >
+			AND a.DEPARTMENT_ID in (${departmentids})
+			</if>
+		 </when>
+		 <otherwise>
+			AND a.DEPARTMENT_ID = -1
+		 </otherwise>      
+		</choose>
+				AND a.BUDGET_YEAR=#{budget_year}
+				GROUP BY
+					a.COMPANY_NATURE_LOOKUP_CODE,
+					a.SET_OF_BOOKS_ID,
+					a.COMPANY_ID,
+					a.DEPARTMENT_ID,
+					a.PROJECT_ID,
+					a.BUDGET_TYPE_LOOKUP_CODE,
+					c.BUDGET_ACCOUNT_ID )pa
+		INNER JOIN
+			(
+				SELECT
+					tba.DEPARTMENT_ID,
+					tba.PROJECT_ID,
+					tba.RESERVED_BUDGET_AMOUNT,
+					tba.OCCUPIED_BUDGET_AMOUNT,
+					tba.DOCUMENT_DESCRIPTION,
+					c.BUDGET_ACCOUNT_ID
+				FROM
+					TBM_BUDGET_ACTUAL_SUMMARY tba,
+					TBM_DIMVAL_SUB_COMBINATIONS b,
+					TBM_BUDGET_ACCOUNTS c
+				WHERE 1=1
+				AND tba.BUDGET_YEAR=#{budget_year}
+				<if test='user_permission_code=="E"'>
+				AND tba.DOCUMENT_CREATE_BY=#{user_name}
+			    </if>
+				AND tba.DIMVAL_SUB_COMBINATION_ID=b.DIMVAL_SUB_COMBINATION_ID
+				AND b.BUDGET_ACCOUNT_ID=c.BUDGET_ACCOUNT_ID
+				AND SUBSTR(tba.DOCUMENT_TYPE_CODE,1,3)='HT_'
+				AND (
+						tba.RESERVED_BUDGET_AMOUNT!=0
+					OR  tba.OCCUPIED_BUDGET_AMOUNT!=0) )ht
+		ON
+			pa.DEPARTMENT_ID=ht.DEPARTMENT_ID
+		AND pa.PROJECT_ID=ht.PROJECT_ID
+		AND pa.BUDGET_ACCOUNT_ID=ht.BUDGET_ACCOUNT_ID
+		INNER JOIN
+			ARCH_ORG_EXT aoe
+		ON
+			aoe.ORG_EXT_ID = pa.DEPARTMENT_ID
+		INNER JOIN
+			TBM_COMPANIES tc
+		ON
+			tc.COMPANY_ID = pa.COMPANY_ID
+		WHERE
+			1=1
+		GROUP BY
+			pa.COMPANY_ID,
+			pa.DEPARTMENT_ID,
+			pa.BUDGET_ACCOUNT_ID,
+			tc.COMPANY_NAME,
+			tc.COMPANY_CODE,
+			aoe.ORG_NAME,
+			pa.BUDGET_ACCOUNT_NAME
+		ORDER BY
+			pa.COMPANY_ID,
+			pa.DEPARTMENT_ID,
+			pa.BUDGET_ACCOUNT_ID DESC
+		) m
+</select>
+<select id="合同签订进度明细表" resultType="Map" parameterType="Map">
+<!--{
+	"db":"budget",
+	"desc":"合同签订进度明细表",
+	"in":[
+		{
+			"id":"company_code",
+			"name":"company_code",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"department_id",
+			"name":"department_id",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"budget_account_id",
+			"name":"budget_account_id",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"budget_year",
+			"name":"budget_year",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"user_name",
+			"name":"user_name",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"user_permission_code",
+			"name":"user_permission_code",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"company_name",
+			"name":"company_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"department_name",
+			"name":"department_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"budget_account_name",
+			"name":"budget_account_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"project_number",
+			"name":"project_number",
+			"datatype":"varchar"
+		},
+		{
+			"id":"project_name",
+			"name":"project_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"bms_current_person",
+			"name":"bms_current_person",
+			"datatype":"varchar"
+		},
+		{
+			"id":"approved_budget_amount",
+			"name":"approved_budget_amount",
+			"datatype":"varchar"
+		},
+		{
+			"id":"reserved_budget_amount",
+			"name":"reserved_budget_amount",
+			"datatype":"varchar"
+		},
+		{
+			"id":"occupied_budget_amount",
+			"name":"occupied_budget_amount",
+			"datatype":"varchar"
+		},
+		{
+			"id":"document_description",
+			"name":"document_description",
+			"datatype":"varchar"
+		},
+		{
+			"id":"ht_current_person",
+			"name":"ht_current_person",
+			"datatype":"varchar"
+		}
+	]
+}
+-->
+SELECT 
+	   m.COMPANY_NAME,
+	   m.DEPARTMENT_NAME,
+	   m.BUDGET_ACCOUNT_NAME,
+	   m.PROJECT_NUMBER,
+	   m.PROJECT_NAME,
+	   m.BMS_CURRENT_PERSON,
+	   m.APPROVED_BUDGET_AMOUNT,
+	   m.FINISH_APPROVED_BUDGET_AMOUNT,
+	   m.UNFINISH_APPROVED_BUDGET_AMOUNT,
+	   CASE WHEN m.APPROVED_BUDGET_AMOUNT=0 OR m.FINISH_APPROVED_BUDGET_AMOUNT=0
+	        THEN 0
+			ELSE CAST((10000*m.FINISH_APPROVED_BUDGET_AMOUNT/m.APPROVED_BUDGET_AMOUNT)*0.01 AS DECIMAL(30,2))
+	   END AS FINISH_PRE,
+	   CASE WHEN m.APPROVED_BUDGET_AMOUNT=0 OR m.UNFINISH_APPROVED_BUDGET_AMOUNT=0
+	        THEN 0
+			ELSE CAST((10000*m.UNFINISH_APPROVED_BUDGET_AMOUNT/m.APPROVED_BUDGET_AMOUNT)*0.01 AS DECIMAL(30,2))
+	   END AS UNFINISH_PRE,
+	   m.DOCUMENT_DESCRIPTION,
+	   m.HT_CURRENT_PERSON
+FROM 
+(
+	SELECT 
+		  t.COMPANY_NAME,
+		  t.DEPARTMENT_NAME,
+		  t.BUDGET_ACCOUNT_NAME,
+		  t.PROJECT_NUMBER,
+		  t.PROJECT_NAME,
+		  t.BMS_CURRENT_PERSON,
+		  t.APPROVED_BUDGET_AMOUNT,
+		  CASE WHEN (t.OCCUPIED_BUDGET_AMOUNT+t.RESERVED_BUDGET_AMOUNT)!=0
+			   THEN CASE WHEN t.RESERVED_BUDGET_AMOUNT=0
+					THEN t.OCCUPIED_BUDGET_AMOUNT
+					ELSE 0
+					END
+				WHEN (t.OCCUPIED_BUDGET_AMOUNT+t.RESERVED_BUDGET_AMOUNT)=0
+				THEN 0
+		  END AS FINISH_APPROVED_BUDGET_AMOUNT,
+		  CASE WHEN (t.OCCUPIED_BUDGET_AMOUNT+t.RESERVED_BUDGET_AMOUNT)!=0
+			   THEN CASE WHEN t.RESERVED_BUDGET_AMOUNT!=0
+					THEN t.RESERVED_BUDGET_AMOUNT
+					ELSE 0
+					END
+				WHEN (t.OCCUPIED_BUDGET_AMOUNT+t.RESERVED_BUDGET_AMOUNT)=0
+				THEN 0
+		  END AS UNFINISH_APPROVED_BUDGET_AMOUNT,
+		  t.DOCUMENT_DESCRIPTION,
+		  t.HT_CURRENT_PERSON
+	FROM (
+		SELECT
+			tc.COMPANY_NAME,
+			aoe.ORG_NAME DEPARTMENT_NAME,
+			pa.BUDGET_ACCOUNT_NAME,
+			pa.PROJECT_NUMBER,
+			pa.PROJECT_NAME,
+			CASE
+				WHEN COALESCE(CHAR(TPBH.APPROVED_BY_USER_ID),'')= ''
+				THEN
+					CASE
+						WHEN COALESCE(CWH.APPROVER_NAME,'')=''
+						THEN
+							CASE
+								WHEN COALESCE(CWH2.APPROVER_NAME,'')=''
+								THEN AU.USER_NAME
+								ELSE CWH2.APPROVER_NAME
+							END
+						ELSE CWH.APPROVER_NAME
+					END
+				ELSE '已结束'
+			END                                                       BMS_CURRENT_PERSON,
+			CAST(COALESCE(ROUND(pa.APPROVED_BUDGET_AMOUNT,2),0) AS DECIMAL(18,2)) APPROVED_BUDGET_AMOUNT,
+			CAST(COALESCE(ROUND(ht.RESERVED_BUDGET_AMOUNT,2),0) AS DECIMAL(18,2)) RESERVED_BUDGET_AMOUNT,
+			CAST(COALESCE(ROUND(ht.OCCUPIED_BUDGET_AMOUNT,2),0) AS DECIMAL(18,2)) OCCUPIED_BUDGET_AMOUNT,
+			COALESCE(ht.DOCUMENT_DESCRIPTION,'') DOCUMENT_DESCRIPTION,
+			COALESCE(ht.HT_CURRENT_PERSON,'') HT_CURRENT_PERSON
+		FROM
+			(
+				SELECT
+					a.COMPANY_NATURE_LOOKUP_CODE,
+					a.SET_OF_BOOKS_ID,
+					a.COMPANY_ID,
+					a.DEPARTMENT_ID,
+					a.PROJECT_ID,
+					a.BUDGET_TYPE_LOOKUP_CODE ,
+					c.BUDGET_ACCOUNT_ID,
+					MAX(c.BUDGET_ACCOUNT_NAME) BUDGET_ACCOUNT_NAME,
+					MAX(c.BUDGET_ACCOUNT_CODE) BUDGET_ACCOUNT_NUMBER,
+					MAX(d.PROJECT_NAME)        PROJECT_NAME,
+					MAX(d.PROJECT_NUMBER)      PROJECT_NUMBER,
+					ROUND(SUM(
+						CASE
+							WHEN COALESCE(a.APPROVED_BUDGET_AMOUNT, 0) = 0
+							THEN MIN(COALESCE(a.INPROCESS_BUDGET_AMOUNT, 0), COALESCE(a.OLD_AMOUNT, 0))
+							ELSE a.APPROVED_BUDGET_AMOUNT
+						END ),2) APPROVED_BUDGET_AMOUNT
+				FROM
+					tbm_budget_project_summary a ,
+					TBM_DIMVAL_SUB_COMBINATIONS b ,
+					TBM_BUDGET_ACCOUNTS c ,
+					TBM_PROJECTS d,
+					TBM_COMPANIES tbc
+				WHERE
+					1=1
+				AND tbc.COMPANY_ID=a.COMPANY_ID
+				AND a.DIMVAL_SUB_COMBINATION_ID=b.DIMVAL_SUB_COMBINATION_ID
+				AND b.BUDGET_ACCOUNT_ID=c.BUDGET_ACCOUNT_ID
+				AND a.PROJECT_ID=d.PROJECT_ID
+				AND a.BUDGET_TYPE_LOOKUP_CODE = 'OPEX'
+				AND tbc.COMPANY_CODE = #{company_code}
+				<if test='user_permission_code!="E"' >
+				AND a.DEPARTMENT_ID = #{department_id}
+				</if>
+				AND a.BUDGET_YEAR=#{budget_year}
+				AND b.BUDGET_ACCOUNT_ID = #{budget_account_id}
+				GROUP BY
+					a.COMPANY_NATURE_LOOKUP_CODE,
+					a.SET_OF_BOOKS_ID,
+					a.COMPANY_ID,
+					a.DEPARTMENT_ID,
+					a.PROJECT_ID,
+					a.BUDGET_TYPE_LOOKUP_CODE,
+					c.BUDGET_ACCOUNT_ID )pa
+		INNER JOIN
+			(
+				SELECT
+					tba.DEPARTMENT_ID,
+					tba.PROJECT_ID,
+					SUM(tba.RESERVED_BUDGET_AMOUNT) RESERVED_BUDGET_AMOUNT,
+					SUM(tba.OCCUPIED_BUDGET_AMOUNT) OCCUPIED_BUDGET_AMOUNT,
+					tba.DOCUMENT_DESCRIPTION,
+					tba.HT_STATUS,
+					tba.BUDGET_ACCOUNT_ID,
+					bpi.CURRENT_PERSON HT_CURRENT_PERSON
+				FROM
+					(
+						SELECT
+							a.DEPARTMENT_ID,
+							a.PROJECT_ID,
+							a.RESERVED_BUDGET_AMOUNT,
+							a.OCCUPIED_BUDGET_AMOUNT,
+							a.DOCUMENT_NUMBER,
+							a.DOCUMENT_DESCRIPTION,
+							c.BUDGET_ACCOUNT_ID,
+							CASE
+								WHEN a.OCCUPIED_BUDGET_AMOUNT!=0
+								THEN '已签订'
+								WHEN a.RESERVED_BUDGET_AMOUNT!=0
+								THEN '审批中'
+							END AS HT_STATUS
+						FROM
+							TBM_BUDGET_ACTUAL_SUMMARY a,
+							TBM_DIMVAL_SUB_COMBINATIONS b,
+							TBM_BUDGET_ACCOUNTS c
+						WHERE 1=1
+						AND BUDGET_YEAR=#{budget_year}
+						<if test='user_permission_code=="E"'>
+						AND a.DOCUMENT_CREATE_BY=#{user_name}
+						</if>
+						AND a.DIMVAL_SUB_COMBINATION_ID=b.DIMVAL_SUB_COMBINATION_ID
+						AND b.BUDGET_ACCOUNT_ID=c.BUDGET_ACCOUNT_ID
+						AND SUBSTR(DOCUMENT_TYPE_CODE,1,3)='HT_'
+						AND (
+								RESERVED_BUDGET_AMOUNT!=0
+							OR  OCCUPIED_BUDGET_AMOUNT!=0) )tba
+				LEFT JOIN
+					(
+						SELECT
+							BILL_NUM,
+							CURRENT_PERSON
+						FROM
+							TBM_BILL_PERSON_INFO
+						WHERE
+							IMPORT_SYSTEM='HT' ) bpi
+				ON
+					bpi.BILL_NUM=tba.DOCUMENT_NUMBER
+				GROUP BY
+					tba.DEPARTMENT_ID,
+					tba.PROJECT_ID,
+					tba.BUDGET_ACCOUNT_ID,
+					tba.DOCUMENT_DESCRIPTION,
+					tba.HT_STATUS,
+					bpi.CURRENT_PERSON)ht
+		ON
+			pa.DEPARTMENT_ID=ht.DEPARTMENT_ID
+		AND pa.PROJECT_ID=ht.PROJECT_ID
+		AND pa.BUDGET_ACCOUNT_ID=ht.BUDGET_ACCOUNT_ID
+		INNER JOIN
+			ARCH_ORG_EXT aoe
+		ON
+			aoe.ORG_EXT_ID = pa.DEPARTMENT_ID
+		INNER JOIN
+			TBM_COMPANIES tc
+		ON
+			tc.COMPANY_ID = pa.COMPANY_ID
+		LEFT JOIN
+			TBM_PROJECT_BUDGET_HEADERS TPBH
+		ON
+			PA.PROJECT_ID=TPBH.PROJECT_ID
+		AND PA.DEPARTMENT_ID=TPBH.DEPARTMENT_ID
+		LEFT JOIN
+			CJBPM_WORKFLOW_HISTORY CWH
+		ON
+			CWH.BUSINESS_ID=CHAR(PA.PROJECT_ID)
+		AND CWH.TASK_TYPE='waitfordeal'
+		LEFT JOIN
+			CJBPM_WORKFLOW_HISTORY CWH2
+		ON
+			CWH2.BUSINESS_ID=CHAR(TPBH.PROJECT_BUDGET_HEADER_ID)
+		AND CWH2.TASK_TYPE='waitfordeal'
+		LEFT JOIN
+			ARCH_USER_EXT AUE
+		ON
+			AUE.USER_EXT_ID=TPBH.LAST_UPDATE_BY
+		LEFT JOIN
+			ARCH_USER AU
+		ON
+			AU.USER_ID=AUE.USER_ID
+		WHERE
+			1=1
+		AND TPBH.LATEST_VERSION_FLAG='Y'
+		ORDER BY
+			pa.COMPANY_ID,
+			pa.DEPARTMENT_ID,
+			pa.BUDGET_ACCOUNT_ID,
+			pa.PROJECT_ID DESC
+	) t
+) m
+</select>
+<select id="部门明细表" resultType="Map" parameterType="Map">
+<!--{
+	"db":"budget",
+	"desc":"部门明细表",
+	"in":[
+		{
+			"id":"company",
+			"name":"公司名称",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"companyids",
+			"name":"公司名称",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"departmentids",
+			"name":"部门名称",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"budget_year",
+			"name":"预算年份",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"project_number",
+			"name":"预算立项编号",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"project_name",
+			"name":"预算立项名称",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"budget_account_name",
+			"name":"预算科目名称",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"document_code",
+			"name":"合同编号",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"document_description",
+			"name":"合同名称",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"order_number",
+			"name":"订单号",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"bz_document_number",
+			"name":"报账单编号",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"isadmin",
+			"name":"isadmin",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"user_name",
+			"name":"user_name",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"user_permission_code",
+			"name":"user_permission_code",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"COMPANY_NAME",
+			"name":"COMPANY_NAME",
+			"datatype":"varchar"
+		},
+		{
+			"id":"DEPARTMENT_NAME",
+			"name":"DEPARTMENT_NAME",
+			"datatype":"varchar"
+		},
+		{
+			"id":"BUDGET_ACCOUNT_NAME",
+			"name":"BUDGET_ACCOUNT_NAME",
+			"datatype":"varchar"
+		},
+		{
+			"id":"PROJECT_NUMBER",
+			"name":"PROJECT_NUMBER",
+			"datatype":"varchar"
+		},
+		{
+			"id":"PROJECT_NAME",
+			"name":"PROJECT_NAME",
+			"datatype":"varchar"
+		},
+		{
+			"id":"BMS_CURRENT_PERSON",
+			"name":"BMS_CURRENT_PERSON",
+			"datatype":"varchar"
+		},
+		{
+			"id":"APPROVED_BUDGET_AMOUNT",
+			"name":"APPROVED_BUDGET_AMOUNT",
+			"datatype":"varchar"
+		},
+		{
+			"id":"SUBMIT_HT_AMOUNT",
+			"name":"SUBMIT_HT_AMOUNT",
+			"datatype":"varchar"
+		},
+		{
+			"id":"DOCUMENT_CODE",
+			"name":"DOCUMENT_CODE",
+			"datatype":"varchar"
+		},
+		{
+			"id":"DOCUMENT_DESCRIPTION",
+			"name":"DOCUMENT_DESCRIPTION",
+			"datatype":"varchar"
+		},
+		{
+			"id":"HT_CURRENT_PERSON",
+			"name":"HT_CURRENT_PERSON",
+			"datatype":"varchar"
+		},
+		{
+			"id":"HT_AMOUNT",
+			"name":"HT_AMOUNT",
+			"datatype":"varchar"
+		},
+		{
+			"id":"HT_PROFIT_FROM",
+			"name":"HT_PROFIT_FROM",
+			"datatype":"varchar"
+		},
+		{
+			"id":"HT_PROFIT_TO",
+			"name":"HT_PROFIT_TO",
+			"datatype":"varchar"
+		},
+		{
+			"id":"HT_SUPPLIER",
+			"name":"HT_SUPPLIER",
+			"datatype":"varchar"
+		},
+		{
+			"id":"FROM_DEPT",
+			"name":"FROM_DEPT",
+			"datatype":"varchar"
+		},
+		{
+			"id":"DOCUMENT_CREATE_BY",
+			"name":"DOCUMENT_CREATE_BY",
+			"datatype":"varchar"
+		},
+		{
+			"id":"BZ_DOCUMENT_NUMBER",
+			"name":"BZ_DOCUMENT_NUMBER",
+			"datatype":"varchar"
+		},
+		{
+			"id":"BZ_DOCUMENT_CREATE_BY",
+			"name":"BZ_DOCUMENT_CREATE_BY",
+			"datatype":"varchar"
+		},
+		{
+			"id":"BZ_AMOUNT",
+			"name":"BZ_AMOUNT",
+			"datatype":"varchar"
+		},
+		{
+			"id":"BZ_CURRENT_PERSON",
+			"name":"BZ_CURRENT_PERSON",
+			"datatype":"varchar"
+		},
+		{
+			"id":"ORDER_NUMBER",
+			"name":"ORDER_NUMBER",
+			"datatype":"varchar"
+		},
+		{
+			"id":"TOTAL_ORDER_AMOUNT",
+			"name":"TOTAL_ORDER_AMOUNT",
+			"datatype":"varchar"
+		},
+		{
+			"id":"TOTAL_NOT_IN_ACCOUNT",
+			"name":"TOTAL_NOT_IN_ACCOUNT",
+			"datatype":"varchar"
+		},
+		{
+			"id":"ORDER_BILL_AMOUNT",
+			"name":"ORDER_BILL_AMOUNT",
+			"datatype":"varchar"
+		}
+	]
+}
+-->
+SELECT
+	    COALESCE(tc.COMPANY_NAME,'') COMPANY_NAME,
+	    COALESCE(aoe.ORG_NAME,'') DEPARTMENT_NAME,
+	    COALESCE(pa.BUDGET_ACCOUNT_NAME,'') BUDGET_ACCOUNT_NAME,
+	    COALESCE(pa.PROJECT_NUMBER,'') PROJECT_NUMBER,
+	    COALESCE(pa.PROJECT_NAME,'') PROJECT_NAME,
+	    CASE
+	            WHEN COALESCE(CHAR(TPBH.APPROVED_BY_USER_ID),'')= ''
+	            THEN
+	                CASE
+	                    WHEN COALESCE(CWH.APPROVER_NAME,'')=''
+	                    THEN
+	                        CASE
+	                            WHEN COALESCE(CWH2.APPROVER_NAME,'')=''
+	                            THEN AU.USER_NAME
+	                            ELSE CWH2.APPROVER_NAME
+	                        END
+	                    ELSE CWH.APPROVER_NAME
+	                END
+	            ELSE '已结束'
+	        END BMS_CURRENT_PERSON,
+	        COALESCE(pa.APPROVED_BUDGET_AMOUNT,0) APPROVED_BUDGET_AMOUNT,
+	        COALESCE(pbz.SUBMIT_HT_AMOUNT, 0) SUBMIT_HT_AMOUNT,
+	        COALESCE(pbz.DOCUMENT_CODE,'') DOCUMENT_CODE,
+            COALESCE(pbz.DOCUMENT_DESCRIPTION,'') DOCUMENT_DESCRIPTION,
+            COALESCE(pbz.HT_CURRENT_PERSON,'') HT_CURRENT_PERSON,
+            COALESCE(pbz.HT_AMOUNT,0) HT_AMOUNT,
+            pbz.HT_PROFIT_FROM HT_PROFIT_FROM,
+            pbz.HT_PROFIT_TO HT_PROFIT_TO,
+            COALESCE(pbz.HT_SUPPLIER,'') HT_SUPPLIER,
+            COALESCE(pbz.FROM_DEPT,'') FROM_DEPT,
+            COALESCE(pbz.DOCUMENT_CREATE_BY,'') DOCUMENT_CREATE_BY,
+            COALESCE(pbz.BZ_DOCUMENT_NUMBER,'') BZ_DOCUMENT_NUMBER,
+            COALESCE(pbz.BZ_DOCUMENT_CREATE_BY,'') BZ_DOCUMENT_CREATE_BY,
+	        COALESCE(pbz.BZ_CURRENT_PERSON,'') BZ_CURRENT_PERSON,
+	        COALESCE(pbz.BZ_AMOUNT,0) BZ_AMOUNT,
+	        COALESCE(pbz.ORDER_NUMBER,'') ORDER_NUMBER,
+	        COALESCE(pbz.TOTAL_ORDER_AMOUNT,0) TOTAL_ORDER_AMOUNT,
+	        COALESCE(pbz.TOTAL_NOT_IN_ACCOUNT,0) TOTAL_NOT_IN_ACCOUNT,
+	        COALESCE(pbz.ORDER_BILL_AMOUNT,0) ORDER_BILL_AMOUNT
+	FROM
+	    (
+	        SELECT
+	            a.COMPANY_NATURE_LOOKUP_CODE,
+	            a.SET_OF_BOOKS_ID,
+	            a.COMPANY_ID,
+	            a.DEPARTMENT_ID,
+	            a.PROJECT_ID,
+	            a.BUDGET_TYPE_LOOKUP_CODE ,
+	            c.BUDGET_ACCOUNT_ID,
+	            MAX(c.BUDGET_ACCOUNT_NAME) BUDGET_ACCOUNT_NAME,
+	            MAX(c.BUDGET_ACCOUNT_CODE) BUDGET_ACCOUNT_NUMBER,
+	            MAX(d.PROJECT_NAME)        PROJECT_NAME,
+	            MAX(d.PROJECT_NUMBER)      PROJECT_NUMBER,
+	            ROUND(SUM(
+	                CASE
+	                    WHEN COALESCE(a.APPROVED_BUDGET_AMOUNT, 0) = 0
+	                    THEN MIN(COALESCE(a.INPROCESS_BUDGET_AMOUNT, 0), COALESCE(a.OLD_AMOUNT, 0))
+	                    ELSE a.APPROVED_BUDGET_AMOUNT
+	                END ),2) APPROVED_BUDGET_AMOUNT
+	        FROM
+	            tbm_budget_project_summary a ,
+	            TBM_DIMVAL_SUB_COMBINATIONS b ,
+	            TBM_BUDGET_ACCOUNTS c ,
+	            TBM_PROJECTS d,
+				TBM_COMPANIES tc
+	        WHERE
+	            1=1
+	        AND a.DIMVAL_SUB_COMBINATION_ID=b.DIMVAL_SUB_COMBINATION_ID
+	        AND b.BUDGET_ACCOUNT_ID=c.BUDGET_ACCOUNT_ID
+	        AND a.PROJECT_ID=d.PROJECT_ID
+	        AND a.BUDGET_TYPE_LOOKUP_CODE = 'OPEX'
+			AND A.COMPANY_ID=tc.COMPANY_ID
+			<choose>
+				<when test="companycodes!=null">
+					 AND tc.COMPANY_CODE in (${companycodes})
+				</when>
+				 <otherwise>
+					 AND tc.COMPANY_CODE in ('')
+				</otherwise>
+			</choose>
+			<choose>
+			 <when test="departmentids!=null">
+				<if test='user_permission_code!="E"'>
+				AND a.DEPARTMENT_ID in (${departmentids})
+				</if>
+			 </when>
+			 <otherwise>
+				AND a.DEPARTMENT_ID = -1
+			 </otherwise>      
+			</choose>
+
+	        AND a.BUDGET_YEAR=${budget_year}
+	        GROUP BY
+	            a.COMPANY_NATURE_LOOKUP_CODE,
+	            a.SET_OF_BOOKS_ID,
+	            a.COMPANY_ID,
+	            a.DEPARTMENT_ID,
+	            a.PROJECT_ID,
+	            a.BUDGET_TYPE_LOOKUP_CODE,
+	            c.BUDGET_ACCOUNT_ID )pa
+	INNER JOIN
+	    ARCH_ORG_EXT aoe
+	ON
+	    aoe.ORG_EXT_ID = pa.DEPARTMENT_ID
+	<if test='user_permission_code=="E"'>
+	INNER JOIN
+	</if>
+	<if test='user_permission_code!="E"'>
+	LEFT JOIN
+	</if>
+	    (
+	        SELECT
+	            pht.BUDGET_PROJECT_NUMBER,
+	            pht.BUDGET_ACCOUNT_CODE BUDGET_ACCOUNT_NUMBER,
+	            pht.DEPARTMENT_CODE,
+	            pht.SUBMIT_HT_AMOUNT,
+	            pht.DOCUMENT_CODE,
+	            pht.DOCUMENT_DESCRIPTION,
+	            pht.HT_CURRENT_PERSON,
+	            pht.HT_AMOUNT,
+	            pht.HT_PROFIT_FROM ,
+	            pht.HT_PROFIT_TO,
+	            pht.HT_SUPPLIER,
+	            pht.FROM_DEPT,
+	            pht.DOCUMENT_CREATE_BY,
+	            htbz.BZ_DOCUMENT_NUMBER,
+	            htbz.BZ_DOCUMENT_CREATE_BY,
+	            htbz.BZ_CURRENT_PERSON,
+	            htbz.BZ_AMOUNT,
+	            htdd.ORDER_NUMBER,
+	            htdd.TOTAL_ORDER_AMOUNT,
+	            htdd.TOTAL_NOT_IN_ACCOUNT,
+	            htdd.ORDER_BILL_AMOUNT
+	        FROM
+	            (
+	                SELECT
+	                    tba.COMPANY_ID,
+	                    tba.DEPARTMENT_ID,
+	                    tba.PROJECT_ID ,
+	                    tba.DOCUMENT_TYPE_CODE,
+	                    tba.DOCUMENT_NUMBER,
+	                    CASE
+	                        WHEN COALESCE(CHAR(tba.DOCUMENT_CODE),'') = ''
+	                        THEN tba.DOCUMENT_NUMBER
+	                        ELSE tba.DOCUMENT_CODE
+	                    END                                    DOCUMENT_CODE ,
+	                    MAX(tba.DOCUMENT_DESCRIPTION)                             DOCUMENT_DESCRIPTION ,
+	                    MAX(bpi.CURRENT_PERSON)                                    HT_CURRENT_PERSON,
+	                    SUM(tba.RESERVED_BUDGET_AMOUNT+tba.OCCUPIED_BUDGET_AMOUNT) HT_AMOUNT ,
+	                    ROUND(SUM(tba.RESERVED_BUDGET_AMOUNT+tba.OCCUPIED_BUDGET_AMOUNT+
+	                    tba.RESERVED_BUDGET_TAX_AMOUNT+ tba.OCCUPIED_BUDGET_TAX_AMOUNT),2)
+	                                            SUBMIT_HT_AMOUNT ,
+	                    MAX(hpa.HT_PROFIT_FROM) HT_PROFIT_FROM ,
+	                    MAX(hpa.HT_PROFIT_TO)   HT_PROFIT_TO ,
+	                    MAX(hpa.HT_SUPPLIER)    HT_SUPPLIER,
+	                    MAX(hpa.HT_DEPT)        FROM_DEPT,
+	                    MAX(tba.DOCUMENT_CREATE_BY)      DOCUMENT_CREATE_BY,
+	                    MAX(aoe.ORG_CODE)       DEPARTMENT_CODE,
+	                    MAX(tp.PROJECT_NUMBER)  BUDGET_PROJECT_NUMBER,
+	                    bac.BUDGET_ACCOUNT_CODE,
+	                    bac.BUDGET_ACCOUNT_ID
+	                FROM
+	                    TBM_BUDGET_ACTUAL_SUMMARY tba
+	                INNER JOIN
+	                    TBM_PROJECTS tp
+	                ON
+	                    tp.PROJECT_ID=tba.PROJECT_ID
+	                INNER JOIN
+	                    ARCH_ORG_EXT aoe
+	                ON
+	                    aoe.ORG_EXT_ID = tba.DEPARTMENT_ID
+	                LEFT JOIN
+	                    (select * from (select IMPORT_SYSTEM,BILL_NUM,CURRENT_PERSON, row_number()over(partition BY IMPORT_SYSTEM,BILL_NUM ORDER BY UPDATE_TIME desc) rn 
+													from TBM_BILL_PERSON_INFO ) where rn = 1 ) bpi
+	                ON
+	                    bpi.BILL_NUM=tba.DOCUMENT_NUMBER
+	                AND bpi.IMPORT_SYSTEM='HT'
+	                LEFT JOIN
+	                    (
+	                        SELECT
+	                            bzhb.HT_PROFIT_FROM,
+	                            bzhb.HT_PROFIT_TO,
+	                            bzhb.HT_SUPPLIER,
+	                            bzhb.HT_DEPT,
+	                            bzhb.HT_PERSON,
+	                            bzhb.ACTUAL_SUMMARY_ID
+	                        FROM
+	                            TBM_BUDGET_ACTUAL_SUMMARY_HBJSONDATA bzhb )hpa
+	                ON
+	                    tba.SUMMARY_ID = hpa.ACTUAL_SUMMARY_ID
+	                INNER JOIN
+	                    (
+	                        SELECT
+	                            sub.DIMVAL_SUB_COMBINATION_ID,
+	                            ba.BUDGET_ACCOUNT_CODE,
+	                            ba.BUDGET_ACCOUNT_ID
+	                        FROM
+	                            TBM_DIMVAL_SUB_COMBINATIONS sub
+	                        INNER JOIN
+	                            TBM_BUDGET_ACCOUNTS ba
+	                        ON
+	                            ba.BUDGET_ACCOUNT_ID=sub.BUDGET_ACCOUNT_ID) bac
+	                ON
+	                    bac.DIMVAL_SUB_COMBINATION_ID=tba.DIMVAL_SUB_COMBINATION_ID
+	                WHERE
+	                    1=1
+	                AND SUBSTR(tba.DOCUMENT_TYPE_CODE,1,3)='HT_'
+	                AND tba.budget_year=${budget_year}
+					<if test='user_permission_code=="E"'>
+					AND tba.DOCUMENT_CREATE_BY=#{user_name}
+					</if>
+	                GROUP BY
+	                    tba.COMPANY_ID,
+	                    tba.DEPARTMENT_ID,
+	                    tba.PROJECT_ID,
+	                    tba.DOCUMENT_TYPE_CODE,
+	                    tba.DOCUMENT_NUMBER,
+	                    tba.DOCUMENT_CODE,
+	                    bac.BUDGET_ACCOUNT_ID,
+	                    bac.BUDGET_ACCOUNT_CODE )pht
+	        LEFT JOIN
+	            (
+	                SELECT
+	                    tba.DEPARTMENT_ID,
+	                    tba.PROJECT_ID,
+	                    bac.BUDGET_ACCOUNT_ID,
+	                    tba.DOCUMENT_TYPE_CODE,
+	                    tba.DOCUMENT_NUMBER BZ_DOCUMENT_NUMBER,
+	                    tba.PRE_DOCUMENT_NUMBER,
+	                    tba.PRE_DOCUMENT_TYPE_CODE ,
+	                    MAX(bpi.CURRENT_PERSON)                                    BZ_CURRENT_PERSON,
+	                    SUM(tba.RESERVED_BUDGET_AMOUNT+tba.OCCUPIED_BUDGET_AMOUNT) BZ_AMOUNT,
+	                    MAX(tba.DOCUMENT_CREATE_BY)                                BZ_DOCUMENT_CREATE_BY
+	                    ,
+	                    MAX(tbash.BZ_ORDER) BZ_ORDER
+	                FROM
+	                    TBM_BUDGET_ACTUAL_SUMMARY tba
+	                LEFT JOIN
+	                    TBM_BUDGET_ACTUAL_SUMMARY_HBJSONDATA tbash
+	                ON
+	                    tba.SUMMARY_ID = tbash.ACTUAL_SUMMARY_ID
+	                LEFT JOIN
+	                    (select * from (select IMPORT_SYSTEM,BILL_NUM,CURRENT_PERSON, row_number()over(partition BY IMPORT_SYSTEM,BILL_NUM ORDER BY UPDATE_TIME desc) rn 
+													from TBM_BILL_PERSON_INFO ) where rn = 1 ) bpi
+	                ON
+	                    bpi.BILL_NUM=tba.DOCUMENT_NUMBER
+	                AND bpi.IMPORT_SYSTEM='BZ'
+	                INNER JOIN
+	                    (
+	                        SELECT
+	                            sub.DIMVAL_SUB_COMBINATION_ID,
+	                            ba.BUDGET_ACCOUNT_ID
+	                        FROM
+	                            TBM_DIMVAL_SUB_COMBINATIONS sub
+	                        INNER JOIN
+	                            TBM_BUDGET_ACCOUNTS ba
+	                        ON
+	                            ba.BUDGET_ACCOUNT_ID=sub.BUDGET_ACCOUNT_ID) bac
+	                ON
+	                    bac.DIMVAL_SUB_COMBINATION_ID=tba.DIMVAL_SUB_COMBINATION_ID
+	                WHERE
+	                    1=1
+	                AND tba.DOCUMENT_TYPE_CODE IN('BZ_YHTBZ',
+	                                              'BZ_YHTJT',
+	                                              'BZ_YHTDT',
+	                                              'ERP_YZXZC',
+	                                              'ERP_YYFFP',
+	                                              'ERP_YSGPZ',
+	                                              'ERP_YNBWL')
+	                AND tba.BUDGET_YEAR=${budget_year}
+	                <![CDATA[
+	                AND (
+	                        tba.RESERVED_BUDGET_AMOUNT<>0
+	                    OR  tba.OCCUPIED_BUDGET_AMOUNT<>0)
+	                ]]> 
+	                GROUP BY
+	                    tba.DEPARTMENT_ID,
+	                    tba.PROJECT_ID ,
+	                    bac.BUDGET_ACCOUNT_ID,
+	                    tba.DOCUMENT_TYPE_CODE,
+	                    tba.DOCUMENT_NUMBER,
+	                    PRE_DOCUMENT_NUMBER,
+	                    PRE_DOCUMENT_TYPE_CODE )htbz
+	        ON
+	            htbz.BUDGET_ACCOUNT_ID=pht.BUDGET_ACCOUNT_ID
+	        AND pht.DEPARTMENT_ID = htbz.DEPARTMENT_ID
+	        AND pht.PROJECT_ID = htbz.PROJECT_ID
+	        AND pht.DOCUMENT_TYPE_CODE = htbz.PRE_DOCUMENT_TYPE_CODE
+	        AND pht.DOCUMENT_CODE = htbz.PRE_DOCUMENT_NUMBER
+	        LEFT JOIN
+	            (
+	                SELECT
+	                    coa.ORDER_NUM ORDER_NUMBER,
+	                    coa.TOTAL_ORDER_AMOUNT,
+	                    coa.TOTAL_NOT_IN_ACCOUNT,
+	                    coa.ORDER_BILL_AMOUNT
+	                FROM
+	                    TBM_SOA_PO_ORDER_EB_INF_PKG_SRV coa
+	                WHERE
+	                    coa. ORDER_NUM IS NOT NULL )htdd
+	        ON
+	            htdd.ORDER_NUMBER=htbz.BZ_ORDER
+	        UNION
+	        SELECT
+	            wht.BUDGET_PROJECT_NUMBER,
+	            wht.BUDGET_ACCOUNT_NUMBER,
+	            wht.DEPARTMENT_CODE,
+	            CAST(NULL AS DECIMAL(16,2)) SUBMIT_HT_AMOUNT,
+	            ''                          DOCUMENT_CODE,
+	            ''                          DOCUMENT_DESCRIPTION,
+	            ''                          HT_CURRENT_PERSON,
+	            CAST(NULL AS DECIMAL(16,2)) HT_AMOUNT,
+	            CASE '2016-01-02'
+	                WHEN '2016-01-01'
+	                THEN CURRENT DATE
+	                ELSE NULL
+	            END HT_PROFIT_FROM ,
+	            CASE '2016-01-02'
+	                WHEN '2016-01-01'
+	                THEN CURRENT DATE
+	                ELSE NULL
+	            END HT_PROFIT_TO,
+	            ''  HT_SUPPLIER,
+	            ''  FROM_DEPT,
+	            ''  DOCUMENT_CREATE_BY,
+	            wht.BZ_DOCUMENT_NUMBER,
+	            wht.BZ_DOCUMENT_CREATE_BY,
+	            wht.BZ_CURRENT_PERSON,
+	            wht.BZ_AMOUNT,
+	            htdd.ORDER_NUMBER,
+	            htdd.TOTAL_ORDER_AMOUNT,
+	            htdd.TOTAL_NOT_IN_ACCOUNT,
+	            htdd.ORDER_BILL_AMOUNT
+	        FROM
+	            (
+	                SELECT
+	                    tba.COMPANY_ID,
+	                    aoe.ORG_CODE            DEPARTMENT_CODE,
+	                    tp.PROJECT_NUMBER       BUDGET_PROJECT_NUMBER,
+	                    bac.BUDGET_ACCOUNT_CODE BUDGET_ACCOUNT_NUMBER,
+	                    tba.DOCUMENT_TYPE_CODE,
+	                    tba.DOCUMENT_NUMBER BZ_DOCUMENT_NUMBER,
+	                    tba.PRE_DOCUMENT_NUMBER,
+	                    tba.PRE_DOCUMENT_TYPE_CODE,
+	                    MAX(bpi.CURRENT_PERSON)                                    BZ_CURRENT_PERSON,
+	                    SUM(tba.RESERVED_BUDGET_AMOUNT+tba.OCCUPIED_BUDGET_AMOUNT) BZ_AMOUNT,
+	                    MAX(tba.DOCUMENT_CREATE_BY)                                BZ_DOCUMENT_CREATE_BY
+	                    ,
+	                    MAX(tbash.BZ_ORDER) BZ_ORDER
+	                FROM
+	                    TBM_BUDGET_ACTUAL_SUMMARY tba
+	                INNER JOIN
+	                    TBM_PROJECTS tp
+	                ON
+	                    tp.PROJECT_ID=tba.PROJECT_ID
+	                INNER JOIN
+	                    ARCH_ORG_EXT aoe
+	                ON
+	                    aoe.ORG_EXT_ID = tba.DEPARTMENT_ID
+	                LEFT JOIN
+	                    TBM_BUDGET_ACTUAL_SUMMARY_HBJSONDATA tbash
+	                ON
+	                    tba.SUMMARY_ID = tbash.ACTUAL_SUMMARY_ID
+	                LEFT JOIN
+	                    (select * from (select IMPORT_SYSTEM,BILL_NUM,CURRENT_PERSON, row_number()over(partition BY IMPORT_SYSTEM,BILL_NUM ORDER BY UPDATE_TIME desc) rn 
+													from TBM_BILL_PERSON_INFO ) where rn = 1 ) bpi
+	                ON
+	                    bpi.BILL_NUM=tba.DOCUMENT_NUMBER
+	                AND bpi.IMPORT_SYSTEM='BZ'
+	                INNER JOIN
+	                    (
+	                        SELECT
+	                            sub.DIMVAL_SUB_COMBINATION_ID,
+	                            ba.BUDGET_ACCOUNT_CODE
+	                        FROM
+	                            TBM_DIMVAL_SUB_COMBINATIONS sub
+	                        INNER JOIN
+	                            TBM_BUDGET_ACCOUNTS ba
+	                        ON
+	                            ba.BUDGET_ACCOUNT_ID=sub.BUDGET_ACCOUNT_ID) bac
+	                ON
+	                    bac.DIMVAL_SUB_COMBINATION_ID=tba.DIMVAL_SUB_COMBINATION_ID
+	                WHERE
+	                    1=1
+	                AND tba.DOCUMENT_TYPE_CODE IN('BZ_WHTBZ',
+	                                              'BZ_WHTJT',
+	                                              'BZ_WHTDT',
+	                                              'ERP_ZXZC',
+	                                              'ERP_YFFP',
+	                                              'ERP_SGPZ',
+	                                              'ERP_NBWL')
+	                AND tba.BUDGET_YEAR=${budget_year}
+					<if test='user_permission_code=="E"'>
+					AND tba.DOCUMENT_CREATE_BY=#{userName}
+					</if>
+	                <![CDATA[
+                    AND (
+                            tba.RESERVED_BUDGET_AMOUNT<>0
+                        OR  tba.OCCUPIED_BUDGET_AMOUNT<>0)
+                    ]]> 
+	                GROUP BY
+	                    tba.COMPANY_ID,
+	                    aoe.ORG_CODE,
+	                    tp.PROJECT_NUMBER,
+	                    bac.BUDGET_ACCOUNT_CODE,
+	                    tba.DOCUMENT_TYPE_CODE,
+	                    tba.DOCUMENT_NUMBER ,
+	                    PRE_DOCUMENT_NUMBER,
+	                    PRE_DOCUMENT_TYPE_CODE )wht
+	        LEFT JOIN
+	            (
+	                SELECT
+	                    coa.ORDER_NUM ORDER_NUMBER,
+	                    coa.TOTAL_ORDER_AMOUNT,
+	                    coa.TOTAL_NOT_IN_ACCOUNT,
+	                    coa.ORDER_BILL_AMOUNT
+	                FROM
+	                    TBM_SOA_PO_ORDER_EB_INF_PKG_SRV coa
+	                WHERE
+	                    coa. ORDER_NUM IS NOT NULL )htdd
+	        ON
+	            htdd.ORDER_NUMBER=wht.BZ_ORDER)pbz
+	ON
+	    aoe.ORG_CODE=pbz.DEPARTMENT_CODE
+	AND pa.PROJECT_NUMBER=pbz.BUDGET_PROJECT_NUMBER
+	AND pa.BUDGET_ACCOUNT_NUMBER=pbz.BUDGET_ACCOUNT_NUMBER
+	INNER JOIN
+	    TBM_COMPANIES tc
+	ON
+	    tc.COMPANY_ID = pa.COMPANY_ID
+	LEFT JOIN
+	    TBM_PROJECT_BUDGET_HEADERS TPBH
+	ON
+	    PA.PROJECT_ID=TPBH.PROJECT_ID
+	AND PA.DEPARTMENT_ID=TPBH.DEPARTMENT_ID
+	LEFT JOIN
+	    CJBPM_WORKFLOW_HISTORY CWH
+	ON
+	    CWH.BUSINESS_ID=CHAR(PA.PROJECT_ID)
+	AND CWH.TASK_TYPE='waitfordeal'
+	LEFT JOIN
+	    CJBPM_WORKFLOW_HISTORY CWH2
+	ON
+	    CWH2.BUSINESS_ID=CHAR(TPBH.PROJECT_BUDGET_HEADER_ID)
+	AND CWH2.TASK_TYPE='waitfordeal'
+	LEFT JOIN
+	    ARCH_USER_EXT AUE
+	ON
+	    AUE.USER_EXT_ID=TPBH.LAST_UPDATE_BY
+	LEFT JOIN
+	    ARCH_USER AU
+	ON
+	    AU.USER_ID=AUE.USER_ID
+	WHERE
+	    1=1
+	AND TPBH.LATEST_VERSION_FLAG='Y'
+	    <if test="project_number!=null">
+	        AND pa.project_number = '${project_number}'
+	    </if>
+	    <if test="project_name!=null">
+	        AND pa.project_name like '%${project_name}%'
+	    </if>
+	    <if test="budget_account_name!=null">
+	        AND pa.BUDGET_ACCOUNT_NAME like '%${budget_account_name}%'
+	    </if>
+	    <if test="document_code!=null">
+	        AND pbz.DOCUMENT_CODE = '${document_code}'
+	    </if>
+	    <if test="document_description!=null">
+	        AND pbz.DOCUMENT_DESCRIPTION like '%${document_description}%'
+	    </if>
+	    <if test="order_number!=null">
+	        AND pbz.ORDER_NUMBER = '${order_number}'
+	    </if>
+	    <if test="bz_document_number!=null">
+	        AND pbz.BZ_DOCUMENT_NUMBER = '${bz_document_number}'
+	    </if>
+		ORDER BY
+		pa.COMPANY_ID,
+	    pa.DEPARTMENT_ID,
+	    pa.BUDGET_ACCOUNT_ID,
+	    pa.PROJECT_ID,
+	    pbz.DOCUMENT_CODE,
+	    pbz.ORDER_NUMBER DESC
+</select>
+<select id="合同预算明细表" resultType="Map" parameterType="Map">
+<!--{
+	"db":"budget",
+	"desc":"合同预算明细表",
+	"in":[
+		{
+			"id":"company",
+			"name":"公司名称",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"companyids",
+			"name":"公司名称",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"departmentids",
+			"name":"部门名称",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"contract_code",
+			"name":"合同编号",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"contract_name",
+			"name":"合同名称",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"isadmin",
+			"name":"isadmin",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"COMPANY_NAME",
+			"name":"COMPANY_NAME",
+			"datatype":"varchar"
+		},
+		{
+			"id":"DEPARTMENT_NAME",
+			"name":"DEPARTMENT_NAME",
+			"datatype":"varchar"
+		},
+		{
+			"id":"CONTRACT_CODE",
+			"name":"CONTRACT_CODE",
+			"datatype":"varchar"
+		},
+		{
+			"id":"CONTRACT_NAME",
+			"name":"CONTRACT_NAME",
+			"datatype":"varchar"
+		},
+		{
+			"id":"CONTRACT_AMOUNT_TOTAL",
+			"name":"CONTRACT_AMOUNT_TOTAL",
+			"datatype":"varchar"
+		},
+		{
+			"id":"CONTRACT_AMOUNT",
+			"name":"CONTRACT_AMOUNT",
+			"datatype":"varchar"
+		},
+		{
+			"id":"START_DATE_ACTIVE",
+			"name":"START_DATE_ACTIVE",
+			"datatype":"varchar"
+		},
+		{
+			"id":"END_DATE_ACTIVE",
+			"name":"END_DATE_ACTIVE",
+			"datatype":"varchar"
+		},
+		{
+			"id":"CONTRACT_STATUS",
+			"name":"CONTRACT_STATUS",
+			"datatype":"varchar"
+		},
+		{
+			"id":"CONTRACT_TYPE",
+			"name":"CONTRACT_TYPE",
+			"datatype":"varchar"
+		},
+		{
+			"id":"BUDGET_YEAR",
+			"name":"BUDGET_YEAR",
+			"datatype":"varchar"
+		},
+		{
+			"id":"BUDGET_AMOUNT",
+			"name":"BUDGET_AMOUNT",
+			"datatype":"varchar"
+		},
+		{
+			"id":"ORG_NAME",
+			"name":"ORG_NAME",
+			"datatype":"varchar"
+		},
+		{
+			"id":"BUDGET_ACCOUNT_NAME",
+			"name":"BUDGET_ACCOUNT_NAME",
+			"datatype":"varchar"
+		},
+		{
+			"id":"PROJECT_NUMBER",
+			"name":"PROJECT_NUMBER",
+			"datatype":"varchar"
+		},
+		{
+			"id":"PROJECT_NAME",
+			"name":"PROJECT_NAME",
+			"datatype":"varchar"
+		}
+	]
+}
+-->
+SELECT
+	    ci.DEPT_NAME DEPARTMENT_NAME,
+	    tc.COMPANY_NAME,
+	    ci.CONTRACT_CODE,
+	    ci.CONTRACT_NAME,
+	    ci.CONTRACT_AMOUNT_TOTAL,
+	    ci.CONTRACT_AMOUNT,
+	    ci.START_DATE_ACTIVE,
+	    ci.END_DATE_ACTIVE,
+	    ci.CONTRACT_STATUS,
+	    ci.REFERENCE13 CONTRACT_TYPE,
+	    ba.BUDGET_YEAR,
+	    ba.BUDGET_AMOUNT,
+	    ba.ORG_NAME,
+	    ba.BUDGET_ACCOUNT_NAME,
+	    ba.PROJECT_NUMBER,
+	    ba.PROJECT_NAME
+	FROM
+	    (
+	        SELECT
+			    distinct CONTRACT_CODE,
+	           <![CDATA[
+	            CASE
+	                WHEN DEPT_CODE<>''
+	                THEN DEPT_NAME
+	                ELSE REFERENCE2
+	            END AS DEPT_NAME,
+	            CASE
+	                WHEN DEPT_CODE<>''
+	                THEN DEPT_CODE
+	                ELSE REFERENCE1
+	            END AS DEPT_CODE,
+	            ]]>
+	            CONTRACT_NAME,
+	            CONTRACT_AMOUNT_TOTAL,
+	            CONTRACT_AMOUNT,
+	            START_DATE_ACTIVE,
+	            END_DATE_ACTIVE,
+	            CONTRACT_STATUS,
+	            REFERENCE13
+	        FROM
+	            CONTRACT_INFO
+	        WHERE
+	            CONTRACT_STATUS IN( '审批完毕',
+	                               '作废')) ci
+	INNER JOIN
+	    ARCH_ORG_EXT aoe
+	ON
+	    (aoe.ORG_CODE=ci.DEPT_CODE or REPLACE (aoe.ORG_CODE,'0000','')=ci.DEPT_CODE)
+	LEFT JOIN
+	    tbm_companies tc
+	ON
+	    tc.COMPANY_ID=aoe.COMPANY_ID
+	LEFT JOIN
+	    (
+	        SELECT
+	            tba.DOCUMENT_CODE,
+				tba.DEPARTMENT_ID,
+	            tba.BUDGET_YEAR,
+	            SUM(RESERVED_BUDGET_AMOUNT+OCCUPIED_BUDGET_AMOUNT) BUDGET_AMOUNT,
+	            aoe.ORG_NAME,
+	            ba.BUDGET_ACCOUNT_NAME,
+	            tp.PROJECT_NUMBER,
+	            tp.PROJECT_NAME
+	        FROM
+	            TBM_BUDGET_ACTUAL_SUMMARY tba
+	        INNER JOIN
+	            TBM_DIMVAL_COMBINATIONS tdc
+	        ON
+	            tba.DIMVAL_COMBINATION_ID=tdc.DIMVAL_COMBINATION_ID
+	        INNER JOIN
+	            TBM_DIMVAL_SUB_COMBINATIONS tdsc
+	        ON
+	            tdc.DIMVAL_SUB_COMBINATION_ID=tdsc.DIMVAL_SUB_COMBINATION_ID
+	        INNER JOIN
+	            TBM_BUDGET_ACCOUNTS ba
+	        ON
+	            ba.BUDGET_ACCOUNT_ID=tdsc.BUDGET_ACCOUNT_ID
+	        INNER JOIN
+	            ARCH_ORG_EXT aoe
+	        ON
+	            aoe.ORG_EXT_ID=tba.DEPARTMENT_ID
+	        INNER JOIN
+	            TBM_PROJECTS tp
+	        ON
+	            tp.PROJECT_ID=tba.PROJECT_ID
+	        GROUP BY
+	            tba.DOCUMENT_CODE,
+				tba.DEPARTMENT_ID,
+	            tba.BUDGET_YEAR,
+	            aoe.ORG_NAME,
+	            ba.BUDGET_ACCOUNT_NAME,
+	            tp.PROJECT_NUMBER,
+	            tp.PROJECT_NAME)ba
+	ON
+	    ba.DOCUMENT_CODE=ci.CONTRACT_CODE
+	WHERE
+	    1=1
+	<choose>
+		<when test="companycodes!=null">
+			 AND tc.COMPANY_CODE in (${companycodes})
+		</when>
+		 <otherwise>
+			 AND tc.COMPANY_CODE in ('')
+		</otherwise>
+		</choose>
+		<choose>
+		 <when test="departmentids!=null">
+			AND ba.DEPARTMENT_ID in (${departmentids})
+		 </when>
+		 <otherwise>
+			AND ba.DEPARTMENT_ID = -1
+		 </otherwise>      
+		</choose>
+
+	<if test="contract_code!=null">
+		AND ci.CONTRACT_CODE like '%${contract_code}%'
+	</if>
+	<if test="contract_name!=null">
+		AND ci.CONTRACT_NAME like '%${contract_name}%'
+	</if>
+	
+	<if test="start_Date!=null and start_Date!=''">
+		AND ci.START_DATE_ACTIVE > '${start_Date}' 
+	</if>
+	<if test="end_Date!=null and end_Date!=''">
+		AND ci.END_DATE_ACTIVE &lt; '${end_Date}' 
+	</if>
+	
+	<if test="budget_year!=''">
+		AND ba.BUDGET_YEAR = ${budget_year}
+	</if>
+	<if test="budget_account_name!=null">
+		AND ba.BUDGET_ACCOUNT_NAME like '%${budget_account_name}%'
+	</if>
+	<if test="project_number!=null">
+		AND ba.PROJECT_NUMBER = '${project_number}'
+	</if>
+
+	ORDER BY
+	    tc.COMPANY_NAME,
+	    ci.DEPT_NAME,
+	    ci.CONTRACT_CODE
+</select>
+<select id="科目映射表" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"budget",
+	"desc":"科目映射表",
+	"in":[
+		{
+			"id":"accounting_subject_name",
+			"name":"会计科目名称",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		},
+		{
+			"id":"accounting_subject_name",
+			"name":"统计科目名称",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"ACCOUNTING_SUBJECT_CODE",
+			"name":"ACCOUNTING_SUBJECT_CODE",
+			"datatype":"varchar"
+		},
+		{
+			"id":"ACCOUNTING_SUBJECT_NAME",
+			"name":"ACCOUNTING_SUBJECT_NAME",
+			"datatype":"varchar"
+		},
+		{
+			"id":"BASE_BUDGET_ACCOUNT_CODE",
+			"name":"BASE_BUDGET_ACCOUNT_CODE",
+			"datatype":"varchar"
+		},
+		{
+			"id":"BASE_BUDGET_ACCOUNT_NAME",
+			"name":"BASE_BUDGET_ACCOUNT_NAME",
+			"datatype":"varchar"
+		},
+		{
+			"id":"STATIC_BUDGET_ACCOUNT_CODE",
+			"name":"STATIC_BUDGET_ACCOUNT_CODE",
+			"datatype":"varchar"
+		},
+		{
+			"id":"STATIC_BUDGET_ACCOUNT_NAME",
+			"name":"STATIC_BUDGET_ACCOUNT_NAME",
+			"datatype":"varchar"
+		}
+	]
+}
+-->SELECT
+	    SB.ACCOUNTING_SUBJECT_CODE,
+	    SB.ACCOUNTING_SUBJECT_NAME,
+	    C.BUDGET_ACCOUNT_CODE BASE_BUDGET_ACCOUNT_CODE,
+	    C.BUDGET_ACCOUNT_NAME BASE_BUDGET_ACCOUNT_NAME,
+	    TBA.BUDGET_ACCOUNT_CODE STATIC_BUDGET_ACCOUNT_CODE,
+	    TBA.BUDGET_ACCOUNT_NAME STATIC_BUDGET_ACCOUNT_NAME
+	FROM
+	    TBM_ACCOUNTING_SUBJECTS SB
+	LEFT JOIN
+	    TBM_BUDGET_ACCOUNT_MAP MP
+	ON
+	    MP.ACCOUNTING_SUBJECT_ID=SB.ACCOUNTING_SUBJECT_ID
+	INNER JOIN
+	    TBM_BUDGET_ACCOUNTS C
+	ON
+	    MP.BUDGET_ACCOUNT_ID=C.BUDGET_ACCOUNT_ID
+	INNER JOIN
+	    TBM_DIMENSION_MAPS M
+	ON
+	    M.SOURCE_DIMENSION_VALUE_ID=C.BUDGET_ACCOUNT_ID
+	INNER JOIN
+	    TBM_BUDGET_ACCOUNTS TBA
+	ON
+	    M.TARGET_DIMENSION_VALUE_ID=TBA.BUDGET_ACCOUNT_ID
+	WHERE
+	    M.DIMENSION_MAP_SET_ID=5952
+	<if test="accounting_subject_name!=null">
+		AND sb.ACCOUNTING_SUBJECT_NAME like '%'||#{accounting_subject_name}||'%'
+	</if>
+	<if test="static_budget_account_name!=null">
+		AND TBA.BUDGET_ACCOUNT_NAME like '%'||#{static_budget_account_name}||'%'
+	</if>
+	AND M.ENABLED_FLAG='Y'
+	AND TBA.ENABLED_FLAG='Y'
+	AND C.ENABLED_FLAG='Y'
+	AND MP.ENABLED_FLAG='Y'
+	AND SB.ENABLED_FLAG='Y'
+	ORDER BY TBA.BUDGET_ACCOUNT_CODE
+</select>
+</mapper>

@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="销售">
+<select id="http调用" resultType="map" parameterType="map"> 
+    <!--{
+      	"db":"form",
+		"url":"http://localhost:8080/reportServer/user/login",
+		"type":"http",
+        "id":"http调用",
+        "name":"http调用",
+        "desc":"http调用",
+        "in":[
+	           {id:"UserCode",name:"用户名",datatype:"varchar"},
+			   {id:"Pwd",name:"密码",datatype:"varchar"}
+	          ]
+        }
+     -->
+  </select> 
+ <select id="查询销售信息" resultType="map" parameterType="map">
+ 
+<!--{
+      	"db": "form",
+         id:"查询销售信息",
+         name:"查询销售信息",
+         desc:"查询销售信息",
+         in:[
+	           {id:"areaname",name:"地区",datatype:"varchar",lookup:'数据字典/查询地区'}
+	          ],
+         out:[
+		        {id:"id",name:"编号",datatype:"varchar"},
+                {id:"areaname",name:"地区",datatype:"varchar"},
+                {id:"countryname",name:"国家",datatype:"varchar"},
+                {id:"salesman",name:"销售人员",datatype:"varchar"},
+                {id:"salesproduct",name:"销售产品",datatype:"varchar"},
+                {id:"salesmoney",name:"销售金额",datatype:"int"}
+         ]
+        }
+     --> select ID, COUNTRYNAME,AREANAME,SALESMAN,SALESPRODUCT,SALESMONEY from sales where 1=1
+<if test="null!=areaname and ''!=areaname">and areaname in (${areaname})</if>
+</select>
+ <select id="查询销售信息1" resultType="map" parameterType="map">
+ 
+<!--{
+      	"db": "form",
+         id:"查询销售信息",
+         name:"查询销售信息",
+         desc:"查询销售信息",
+         in:[
+	           {id:"areaname",name:"地区",datatype:"varchar",lookup:'数据字典/查询地区'}
+			   {id:"countryname",name:"国家",datatype:"varchar",lookup:'数据字典/查询城市'}
+	          ],
+         out:[
+				{id:"id",name:"编号",datatype:"varchar"},
+                {id:"areaname",name:"地区",datatype:"varchar"},
+                {id:"countryname",name:"国家",datatype:"varchar"},
+                {id:"salesman",name:"销售人员",datatype:"varchar"},
+                {id:"salesproduct",name:"销售产品",datatype:"varchar"},
+                {id:"salesmoney",name:"销售金额",datatype:"int"}
+         ]
+        }
+     --> select ID, COUNTRYNAME,AREANAME,SALESMAN,SALESPRODUCT,SALESMONEY from sales where 1=1
+<if test="null!=areaname and ''!=areaname">and areaname in (${areaname})</if>
+ <if test="null!=countryname and ''!=countryname">and countryname in (${countryname})</if>
+</select>
+ <select id="t" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"form",
+	"desc":"t",
+	"in":[],
+	"out":[
+		{
+			"id":"countryname",
+			"name":"countryname",
+			"datatype":"varchar"
+		}
+	]
+}
+-->select countryname
+  from sales
+</select><select id="t1" resultType="Map" parameterType="Map">
+<!--{
+	"db":"form",
+	"desc":"t1",
+	"in":[],
+	"out":[
+		{
+			"datatype":"varchar",
+			"name":"countryname",
+			"id":"countryname"
+		}
+	]
+}-->select countryname
+  from sales
+</select>
+ <select id="tt" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"system",
+	"desc":"tt",
+	"in":[
+		{
+			"lookup":"",
+			"default":"",
+			"datatype":"",
+			"auth":"",
+			"name":"p_period_year",
+			"id":"p_period_year",
+			"mut":""
+		},
+		{
+			"lookup":"",
+			"default":"",
+			"datatype":"",
+			"auth":"",
+			"name":"p_period_num",
+			"id":"p_period_num",
+			"mut":""
+		}
+	],
+	"out":[
+		{
+			"datatype":"",
+			"name":"p_balance_type",
+			"id":"p_balance_type"
+		}
+	]
+}
+-->{call CMCC_BALANCES_CHECK_TEST(
+#{p_period_year,mode=IN,jdbcType=INTEGER},
+#{p_period_num,mode=IN,jdbcType=INTEGER},
+#{p_balance_type,mode=OUT,jdbcType=INTEGER})
+}
+</select>
+ <select id="ttt" statementType="CALLABLE" parameterType="Map">
+ 
+<!--{
+	"db":"form",
+	"desc":"ttt",
+	"in":[
+		{
+			"lookup":"",
+			"default":"",
+			"datatype":"",
+			"auth":"",
+			"name":"p_period_year",
+			"id":"p_period_year",
+			"mut":""
+		},
+		{
+			"lookup":"",
+			"default":"",
+			"datatype":"",
+			"auth":"",
+			"name":"p_period_num",
+			"id":"p_period_num",
+			"mut":""
+		}
+	],
+	"out":[
+		{
+			"datatype":"",
+			"name":"p_balance_type",
+			"id":"p_balance_type"
+		}
+	]
+}
+-->{call CMCC_BALANCES_CHECK_TEST(
+#{p_period_year,mode=IN,jdbcType=INTEGER},
+#{p_period_num,mode=IN,jdbcType=INTEGER},
+#{p_balance_type,mode=OUT,jdbcType=INTEGER})
+}
+</select><select id="tg" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"form",
+	"desc":"tg",
+	"in":[],
+	"out":[
+		{
+			"datatype":"varchar",
+			"name":"countryname",
+			"id":"countryname"
+		}
+	]
+}
+-->select countryname
+  from sales
+</select></mapper>

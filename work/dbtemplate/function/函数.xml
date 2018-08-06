@@ -1,0 +1,805 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--函数-->
+<mapper namespace="函数">
+ <select id="应付发票金额" parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询应付发票金额",
+		 in:[
+				{id:"inv_num",name:"发票编号",datatype:"varchar"},
+				{id:"ou_name",name:"公司名称",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"inv_money",name:"发票金额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+	 
+     select SUM（aia.invoice_amount） 
+  from ap_invoices_all  aia,
+       hr_operating_units ou
+ where aia.org_id = ou.organization_id
+   and aia.invoice_num like nvl(#{inv_num},aia.invoice_num)
+   and ou.name like nvl(#{ou_name},ou.name)
+   
+	 ]]>
+</select>
+ <select id="应付税款" parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询应付税款",
+		 in:[
+				{id:"ou_name",name:"公司名称",datatype:"varchar"},
+				{id:"atc_name",name:"税码",datatype:"varchar"},
+				{id:"inv_beg_date",name:"起始期间",datatype:"varchar"},
+				{id:"inv_end_date",name:"结束期间",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"inv_tax",name:"税金额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+	 
+     select SUM(nvl(aia.invoice_amount,0)*nvl(atc.tax_rate,0)*0.01) 
+  from ap_invoices_all  aia
+      ,hr_operating_units  ou
+      ,ap_invoice_distributions_all  aid
+      ,ap_tax_codes_all atc
+ where aia.org_id = ou.organization_id
+   and aia.invoice_id = aid.invoice_id
+   and aid.tax_code_id = atc.tax_id(+)
+   and ou.name like nvl(#{ou_name},ou.name)
+   and aia.invoice_date between to_date(#{inv_beg_date},'yyyy-mm-dd') and to_date(#{inv_end_date},'yyyy-mm-dd')
+   and atc.name like nvl(#{atc_name},atc.name)
+   
+	 ]]>
+</select>
+ <select id="公司未付款金额 " parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询公司未付款金额",
+		 in:[
+				{id:"ou_name",name:"公司名",datatype:"varchar"},
+				{id:"beg_date",name:"起始日期",datatype:"varchar"},
+				{id:"end_date",name:"截止日期",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"unpay_money",name:"公司未付款金额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+
+select sum(nvl(aia.invoice_amount, 0) - nvl(aia.amount_paid, 0))
+from hr_operating_units hou,
+     ap_invoices_all aia
+where aia.org_id=hou.organization_id
+and  hou.name=#{ou_name}
+and aia.invoice_date between to_date(beg_date,'yyyy-mm-dd') and to_date(end_date,'yyyy-mm-dd')
+   
+	 ]]>
+</select>
+ <select id="公司未核销金额 " parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询公司未核销金额",
+		 in:[
+				{id:"ou_name",name:"公司名",datatype:"varchar"},
+				{id:"beg_date",name:"起始日期",datatype:"varchar"},
+				{id:"end_date",name:"截止日期",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"unpay_money",name:"公司未核销金额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+	
+select sum(nvl(aia.invoice_amount, 0)+nvl(aidab.amount, 0))  
+from hr_operating_units hou,
+     ap_invoice_distributions_all aidaa,  
+     ap_invoice_distributions_all aidab,  
+     ap_invoices_all aia
+where  aia.org_id=hou.organization_id
+and   aia.invoice_type_lookup_code='PREPAYMENT'
+and aidaa.invoice_distribution_id = aidab.prepay_distribution_id(+)
+and aidaa.invoice_id = aia.invoice_id
+and  hou.name=#{ou_name}
+and aia.invoice_date between to_date(beg_date,'yyyy-mm-dd') and to_date(end_date,'yyyy-mm-dd')
+   
+	 ]]>
+</select>
+ <select id="应付单项业务发生额" parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询应付单项业务发生额",
+		 in:[
+				{id:"inv_beg_date",name:"起始期间",datatype:"varchar"},
+				{id:"inv_end_date",name:"结束期间",datatype:"varchar"},
+				{id:"gcc_segment3",name:"科目代码",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"gb_money",name:"科目发生金额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+	 
+     select SUM(nvl(aid.amount,0))  
+     from ap_invoices_all  aia
+         ,ap_invoice_distributions_all  aid
+         ,gl_code_combinations   gcc
+    where aia.invoice_id = aid.invoice_id
+      and aid.dist_code_combination_id = gcc.code_combination_id
+      and aia.invoice_date between to_date(#{inv_beg_date},'yyyy-mm-dd') and to_date(#{inv_end_date},'yyyy-mm-dd')
+      and gcc.segment3 like nvl(#{gcc_segment3},gcc.segment3)
+	  
+	 ]]>
+</select>
+ <select id="供应商业务发生额" parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询供应商业务发生额",
+		 in:[
+				{id:"pv_number",name:"供应商编号",datatype:"varchar"},
+				{id:"beg_date",name:"起始日期",datatype:"varchar"},
+				{id:"end_date",name:"截止日期",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"unpay_money",name:"供应商业务发生额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+	
+select  sum(nvl(aia.invoice_amount,0))
+from po_vendors pv,
+     po_vendor_sites_all pvsa,
+     ap_invoices_all aia
+where aia.vendor_id=pv.vendor_id
+and  pv.segment1=#{pv_number}
+and aia.invoice_date between to_date(beg_date,'yyyy-mm-dd') and to_date(end_date,'yyyy-mm-dd')
+   
+	 ]]>
+</select>
+ <select id="供应商未付款" parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询供应商未付款",
+		 in:[
+				{id:"inv_beg_date",name:"起始期间",datatype:"varchar"},
+				{id:"inv_end_date",name:"结束期间",datatype:"varchar"},
+				{id:"pv_segment1",name:"供应商编码",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"inv_unpaid",name:"金额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+     select SUM(nvl(aia.invoice_amount,0) - nvl(aia.amount_paid,0))
+  from ap_invoices_all    aia
+      ,po_vendors         pv
+ where aia.vendor_id = pv.vendor_id
+   and aia.invoice_date between to_date(#{inv_beg_date},'yyyy-mm-dd') and to_date(#{inv_end_date},'yyyy-mm-dd')
+   and pv.segment1 like nvl(#{pv_segment1},pv.segment1)
+	 ]]>
+</select>
+ <select id="供应商公司项发生额" parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询供应商公司项发生额",
+		 in:[
+				{id:"inv_beg_date",name:"起始期间",datatype:"varchar"},
+				{id:"inv_end_date",name:"结束期间",datatype:"varchar"},
+				{id:"pv_segment1",name:"供应商编码",datatype:"varchar"},
+				{id:"ou_name",name:"公司名称",datatype:"varchar"}
+				
+	          ],
+		 out:[
+			 {id:"pv_money",name:"金额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+    select SUM(nvl(aia.invoice_amount,0)) 
+  from ap_invoices_all  aia
+      ,hr_operating_units  ou
+      ,po_vendors  pv
+ where aia.org_id = ou.organization_id
+   and aia.vendor_id = pv.vendor_id
+   and aia.invoice_date between to_date(#{inv_beg_date},'yyyy-mm-dd') and to_date(#{inv_end_date},'yyyy-mm-dd')
+   and pv.segment1 like nvl(#{pv_segment1},pv.segment1)
+   and ou.name like nvl(#{ou_name},ou.name)
+	 ]]>
+</select>
+ <select id="期间付款额 " parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询期间付款额",
+		 in:[
+				{id:"ou_name",name:"公司名",datatype:"varchar"},
+				{id:"beg_date",name:"起始日期",datatype:"varchar"},
+				{id:"end_date",name:"截止日期",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"unpay_money",name:"期间付款额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+	
+select sum(nvl(aca.amount, 0))
+from hr_operating_units hou,
+     ap_checks_all aca
+where aca.vendor_id=pv.vendor_id
+and   aca.org_id=hou.organization_id
+and  hou.name=#{ou_name}
+and aca.check_date between to_date(beg_date,'yyyy-mm-dd') and to_date(end_date,'yyyy-mm-dd')
+   
+	 ]]>
+</select>
+ <select id="银行付款额 " parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询期间付款额",
+		 in:[
+				{id:"bank_name",name:"公司名",datatype:"varchar"},
+				{id:"beg_date",name:"起始日期",datatype:"varchar"},
+				{id:"end_date",name:"截止日期",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"unpay_money",name:"银行付款额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+	
+select sum(nvl(aca.amount, 0))
+from hr_operating_units hou,
+     ap_checks_all aca
+where aca.vendor_id=pv.vendor_id
+and   aca.org_id=hou.organization_id
+and   aca.bank_account_name=#{bank_name}
+and aca.check_date between to_date(beg_date,'yyyy-mm-dd') and to_date(end_date,'yyyy-mm-dd')
+   
+	 ]]>
+</select>
+ <select id="采购订单金额" parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询采购订单金额",
+		 in:[
+				{id:"po_number",name:"订单编号",datatype:"varchar"},
+	          ],
+		 out:[
+			 {id:"po_money",name:"采购订单金额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+	select sum(pla.unit_price * pda.quantity_ordered)
+from po_headers_all pha,
+     po_lines_all pla,
+      po_line_locations_all        plla,
+       po_distributions_all         pda,
+     hr_operating_units hou
+where pha.po_header_id=pla.po_header_id
+and pla.po_line_id = plla.po_line_id
+and plla.line_location_id = pda.line_location_id
+and pha.org_id = hou.organization_id
+and pha.segment1 = #{po_number}
+	 ]]>
+</select>
+ <select id="采购订单接收金额" parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询订单接收金额",
+		 in:[
+				{id:"pha_segment1",name:"采购订单编号",datatype:"varchar"},
+				{id:"ou_name",name:"公司名称",datatype:"varchar"}
+				
+	          ],
+		 out:[
+			 {id:"pv_money",name:"金额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+	 
+    select SUM(nvl(pla.unit_price,0) * nvl(pda.quantity_delivered,0))
+  from po_headers_all  pha
+      ,po_lines_all  pla
+      ,po_line_locations_all  plla 
+      ,po_distributions_all  pda
+      ,hr_operating_units  ou
+ where pha.po_header_id = pla.po_header_id
+   and pla.po_line_id = plla.po_line_id
+   and plla.line_location_id = pda.line_location_id
+   and pha.org_id = ou.organization_id
+   and pha.segment1 like nvl(#{pha_segment1},pha.segment1)
+   and ou.name like nvl(#{ou_name},ou.name)
+   
+	 ]]>
+</select>
+ <select id="采购订可匹配单金额" parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询采购订单可匹配金额",
+		 in:[
+				{id:"po_number",name:"订单编号",datatype:"varchar"},
+				{id:"po_name",name:"公司名",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"po_money",name:"采购订单可匹配金额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+	select sum(pla.unit_price*pda.quantity_billed)
+from   po_headers_all               pha,
+       po_lines_all                 pla,
+       po_line_locations_all        plla,
+       po_distributions_all         pda,
+       hr_operating_units           hou
+where pha.po_header_id=pla.po_header_id
+and pla.po_line_id = plla.po_line_id
+and plla.line_location_id = pda.line_location_id
+and pha.org_id = hou.organization_id
+and pha.segment1 = #{po_number}
+and hou.name= #{po_name}
+	 ]]>
+</select>
+ <select id="过期未结算采购订单金额" parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询过期未结算采购订单金额",
+		 in:[
+				{id:"po_number",name:"订单编号",datatype:"varchar"},
+				{id:"po_name",name:"公司名",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"po_money",name:"过期未结算采购订单金额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+	select sum(pla.unit_price * pda.quantity_ordered)
+from   po_headers_all               pha,
+       po_lines_all                 pla,
+       po_line_locations_all        plla,
+       po_distributions_all         pda,
+       hr_operating_units           hou,
+       ap_invoices_all              aia,
+       ap_invoice_distributions_all aida,
+       ap_checks_all                aca,
+       ap_invoice_payments_all      aipa
+where  pha.po_header_id=pla.po_header_id
+and    pha.org_id = hou.organization_id   
+and    pla.po_line_id=plla.po_line_id
+and    plla.line_location_id=pda.line_location_id
+and    pda.po_distribution_id=aida.po_distribution_id(+)
+and    aida.invoice_id=aia.invoice_id(+)
+and    aia.invoice_id=aipa.invoice_id(+)
+and    aipa.check_id=aca.check_id(+)
+and    aca.check_date > pha.closed_date
+and pha.segment1 = #{po_number}
+and hou.name= #{po_name}
+	 ]]>
+</select>
+ <select id="供应商采购金额" parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询供应商采购金额",
+		 in:[
+				{id:"pv_segment1",name:"供应商编码",datatype:"varchar"}
+				
+	          ],
+		 out:[
+			 {id:"pv_money",name:"金额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+	 
+   select SUM(pla.unit_price * pla.quantity)
+  from po_headers_all pha
+      ,po_lines_all  pla
+      ,po_vendors    pv
+ where pha.vendor_id = pv.vendor_id
+   and pha.po_header_id = pla.po_header_id
+   and pv.segment1 like nvl(#{pv_segment1},pv.segment1)
+
+	 ]]>
+</select>
+ <select id="项目采购金额" parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询项目采购金额",
+		 in:[
+				 
+				{id:"project_num",name:"项目编码",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"project_money",name:"项目采购金额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+	
+select sum(pla.unit_price * pda.quantity_ordered)
+from   po_headers_all               pha,
+       po_lines_all                 pla,
+       po_line_locations_all        plla,
+       po_distributions_all         pda,
+       hr_operating_units           hou,
+       pa_projects_all              ppa
+where pha.po_header_id(+)=pla.po_header_id
+and pla.po_line_id(+) = plla.po_line_id
+and plla.line_location_id(+) = pda.line_location_id
+and pda.project_id(+)=ppa.project_id
+and ppa.segment1=#{project_num}
+   
+	 ]]>
+</select>
+ <select id="项目订单接收金额" parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询项目订单接收金额",
+		 in:[
+				{id:"project_num",name:"项目编码",datatype:"varchar"},
+				{id:"po_beg_date",name:"起始期间",datatype:"varchar"},
+				{id:"po_end_date",name:"结束期间",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"project_money",name:"接收金额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+	 
+    select sum(pla.unit_price * pda.quantity_delivered)
+from   po_headers_all               pha,
+       po_lines_all                 pla,
+       po_line_locations_all        plla,
+       po_distributions_all         pda,
+       hr_operating_units           hou,
+       pa_projects_all              ppa
+where pha.po_header_id(+)=pla.po_header_id
+and pla.po_line_id(+) = plla.po_line_id
+and plla.line_location_id(+) = pda.line_location_id
+and pda.project_id(+)=ppa.project_id
+and ppa.segment1=#{project_num}
+and pha.creation_date between to_date(#{po_beg_date},'yyyy-mm-dd') and to_date(#{po_end_date},'yyyy-mm-dd')
+
+	 ]]>
+</select>
+ <select id="应收发票金额" parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询应收发票金额",
+		 in:[
+				 
+				{id:"trx_num",name:"发票编号",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"unpay_money",name:"应收发票金额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+	
+select sum(rctla.extended_amount)
+from ra_customer_trx_all rcta,
+     ra_customer_trx_lines_all rctla
+where rcta.customer_trx_id=rctla.customer_trx_id
+and rcta.trx_number=#{trx_num}
+   
+	 ]]>
+</select>
+ <select id="应收收款金额" parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询应收收款金额",
+		 in:[
+				{id:"acr_num",name:"收款编号",datatype:"varchar"}
+				
+	          ],
+		 out:[
+			 {id:"acr_money",name:"收款金额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+	 
+   select SUM((nvl(amount,0)))
+  from ar_cash_receipts_all acr
+ where acr.receipt_number like nvl(#{arc_num},acr.receipt_number)
+
+	 ]]>
+</select>
+ <select id="本月科目发生额" parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询本月科目发生额",
+		 in:[
+				{id:"gb_period",name:"会计期间",datatype:"varchar"},
+				{id:"gcc_segment3",name:"会计科目",datatype:"varchar"}
+				
+	          ],
+		 out:[
+			 {id:"gb_money",name:"金额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+	 
+  select SUM(nvl(gb.period_net_dr,0) - nvl(gb.period_net_cr,0))
+  from gl_balances  gb
+      ,gl_code_combinations  gcc
+ where gb.code_combination_id = gcc.code_combination_id
+   and gb.period_name like nvl(#{gb_period},gb.period_name)
+   and gcc.segment3 like nvl(#{gcc_segment3},gcc.segment3)
+
+	 ]]>
+</select>
+ <select id="公司科目发生额" parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询公司科目发生额",
+		 in:[
+				{id:"gb_period",name:"会计期间",datatype:"varchar"},
+				{id:"gcc_segment3",name:"会计科目",datatype:"varchar"},
+				{id:"ou_name",name:"公司名称",datatype:"varchar"}
+				
+	          ],
+		 out:[
+			 {id:"gb_money",name:"金额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+	 
+  select SUM(nvl(gb.period_net_dr,0) - nvl(gb.period_net_cr,0))
+  from gl_balances  gb
+      ,gl_code_combinations  gcc
+      ,hr_all_organization_units  aou
+      ,hr_operating_units  ou
+ where gb.code_combination_id = gcc.code_combination_id
+   and gb.period_name like nvl(#{gb_period},gb.period_name)
+   and gcc.segment3 like nvl(#{gcc_segment3},gcc.segment3)
+   and gcc.segment1 = aou.attribute1
+   and aou.organization_id = ou.organization_id
+   and ou.name like nvl(#{ou_name},ou.name)
+
+	 ]]>
+</select>
+ <select id="资产变动" parameterType="Map" resultType="double">
+ 
+<!--{
+		 db:"system",
+		 desc:"查询资产变动",
+		 in:[
+				{id:"books_id",name:"账套ID",datatype:"varchar"},
+				{id:"period_name",name:"期间",datatype:"varchar"},
+				{id:"ou_id",name:"公司",datatype:"varchar"},
+				{id:"gcc_segment3",name:"科目",datatype:"varchar"},
+				{id:"project_num",name:"项目",datatype:"varchar"},
+				{id:"source_name",name:"来源",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"gb_money",name:"金额",datatype:"number"}
+		       ]
+	    }
+	 -->
+ <![CDATA[
+				SELECT SUM(nvl(gjl.accounted_cr, 0)) - SUM(nvl(gjl.accounted_dr, 0)) "CR-DR"
+			  FROM gl.gl_je_batches     gjb,
+			       gl.gl_je_headers     gjh,
+			       gl.gl_je_lines       gjl,
+			       gl_code_combinations gcc,
+			       gl.gl_je_sources_tl  gjs,
+			       gl_je_categories     gjc
+			 WHERE gjh.je_header_id = gjl.je_header_id
+			   AND gcc.code_combination_id = gjl.code_combination_id
+			   AND gjb.je_batch_id = gjh.je_batch_id
+			   AND gjh.je_header_id = gjl.je_header_id
+			   AND gjh.je_source = gjs.je_source_name
+			   AND gjh.je_category = gjc.je_category_name
+			   AND gjs.LANGUAGE = 'ZHS'
+			   AND gjl.code_combination_id = gcc.code_combination_id
+			   AND nvl(gcc.enabled_flag, 'N') = 'Y'
+			   AND gjh.set_of_books_id = #{books_id}
+			   AND gjl.period_name = #{period_name}
+			   AND gcc.segment1 = #{ou_id}
+			   AND gcc.segment3 = #{gcc_segment3}
+			   AND gcc.segment5 = #{project_num}
+			   AND gjs.user_je_source_name = #{source_name}
+			 GROUP BY gcc.segment5
+		 
+		 ]]>
+</select>
+ <select id="111" resultType="BigDecimal" parameterType="Map">
+ 
+<!--{
+	"db":"system",
+	"desc":"111",
+	"in":[
+		{
+			"id":"period",
+			"name":"period",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":""
+		},
+		{
+			"id":"segment1",
+			"name":"segment1",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"in_formula":true
+		},
+		{
+			"id":"segment2",
+			"name":"segment2",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":""
+		},
+		{
+			"id":"segment3",
+			"name":"segment3",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"in_formula":true
+		}
+	],
+	"out":[
+		{
+			"id":"period_net_cr",
+			"name":"period_net_cr",
+			"datatype":"varchar"
+		}
+	]
+}
+-->select nvl(sum(gb.begin_balance_dr),0) period_net_cr
+  from gl_balances gb, gl_code_combinations gcc
+ where gb.code_combination_id = gcc.code_combination_id
+   and gcc.summary_flag = 'N'
+      and gb.set_of_books_id = 2
+   and gb.period_name = #{period}
+   and gcc.segment1 like '${segment1}%'
+<if test="segment2!=''">
+   and gcc.segment2=#{segment2}
+</if>
+   and gcc.segment3 like '${segment3}%'
+</select>
+ <select id="t" resultType="BigDecimal" parameterType="Map">
+ 
+<!--{
+	"db":"form",
+	"desc":"t",
+	"in":[],
+	"out":[
+		{
+			"id":"countryname",
+			"name":"countryname",
+			"datatype":"varchar"
+		}
+	]
+}
+-->select countryname
+  from sales
+</select>
+ <select id="t1" resultType="BigDecimal" parameterType="Map">
+ 
+<!--{
+	"db":"form",
+	"desc":"1",
+	"in":[],
+	"out":[
+		{
+			"id":"countryname",
+			"name":"countryname",
+			"datatype":"varchar"
+		}
+	]
+}
+-->select countryname
+  from sales
+</select>
+ <select id="e" resultType="BigDecimal" parameterType="Map">
+ 
+<!--{
+	"db":"form",
+	"desc":"e",
+	"in":[],
+	"out":[
+		{
+			"id":"countryname",
+			"name":"countryname",
+			"datatype":"varchar"
+		}
+	]
+}
+-->select countryname
+  from sales
+</select>
+ <select id="g" resultType="BigDecimal" parameterType="Map">
+ 
+<!--{
+	"in":[],
+	"db":"form",
+	"desc":"g",
+	"out":[
+		{
+			"datatype":"varchar",
+			"name":"countryname",
+			"id":"countryname"
+		}
+	]
+}
+-->select countryname
+  from sales
+</select>
+ <select id="u1" resultType="BigDecimal" parameterType="Map">
+ 
+<!--{
+	"in":[],
+	"db":"form",
+	"desc":"u1",
+	"out":[
+		{
+			"datatype":"varchar",
+			"name":"countryname",
+			"id":"countryname"
+		}
+	]
+}
+-->select countryname
+  from sales
+</select>
+ <select id="b1" resultType="BigDecimal" parameterType="Map">
+<!--{
+	"in":[],
+	"db":"form",
+	"desc":"g1",
+	"out":[
+		{
+			"datatype":"varchar",
+			"name":"countryname",
+			"id":"countryname"
+		}
+	]
+}
+-->select countryname
+  from sales
+</select>
+</mapper>

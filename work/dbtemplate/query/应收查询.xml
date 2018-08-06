@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--应收查询-->
+<mapper namespace="应收查询"> 
+   <select id="查询通知单行信息" parameterType="Map" resultType="Map"> 
+      <!--{
+		 "db":"system",
+		 desc:"查询通知单行信息",
+		 in:[
+				{id:"company_code",name:"公司编码",datatype:"varchar"},
+				{id:"memo_code",name:"通知单行",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"ou_name",name:"公司",datatype:"varchar"},
+		     {id:"moeo_name",name:"通知单行",datatype:"varchar"},
+			 {id:"DESCRIPTION",name:"通知单行说明",datatype:"varchar"},
+		     {id:"segments",name:"通知单行科目",datatype:"varchar"},
+			 {id:"segments_des",name:"科目说明",datatype:"varchar"}
+		       ]
+	    }
+	 -->  <![CDATA[
+SELECT hou.NAME ou_name,
+       AML.NAME moeo_name,
+       aml.DESCRIPTION DESCRIPTION,
+       gcc.segment1 || '.' || gcc.segment2 || '.' || gcc.segment3 || '.' ||
+       gcc.segment4 || '.' || gcc.segment5 || '.' || gcc.segment6 || '.' ||
+       gcc.segment7 segments,
+       apps.qfnd_flex_api.get_concat_descs(101,
+                                           'GL#',
+                                           50257, 
+                                           gcc.code_combination_id) segments_des
+FROM   ar.ar_memo_lines_all_b  amb,
+       ar.ar_memo_lines_all_tl aml,
+       hr_organization_units hou,
+       gl_code_combinations    gcc
+WHERE  1 = 1
+AND    amb.memo_line_id = aml.memo_line_id
+AND    aml.LANGUAGE = 'ZHS'
+AND    hou.organization_id = aml.org_id
+AND    hou.organization_id = amb.org_id
+AND    hou.internal_address_line = #{company_code}
+and    AML.NAME like nvl(#{memo_code},AML.NAME)
+AND    gcc.code_combination_id = amb.gl_id_rev
+AND    amb.set_of_books_id = 1
+AND    nvl(amb.end_date, SYSDATE + 1) >= SYSDATE
+ORDER  BY hou.organization_id
+	 ]]> 
+   </select>  
+   <select id="查询应收发票信息" parameterType="Map" resultType="Map"> 
+      <!--{
+		 "db":"system",
+		 desc:"查询应收发票信息",
+		 in:[
+				{id:"inv_number",name:"发票编号",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"ou_name",name:"公司",datatype:"varchar"},
+		     {id:"trx_number",name:"发票编号",datatype:"varchar"},
+			 {id:"trx_date",name:"发票日期",datatype:"varchar"},
+		     {id:"rc_NAME",name:"类型",datatype:"varchar"},
+			 {id:"invoice_currency_code",name:"币种",datatype:"varchar"},
+		     {id:"ct_reference",name:"参考",datatype:"varchar"},
+		     {id:"rc_customer_name",name:"采购方名称",datatype:"varchar"},
+			 {id:"rc_customer_number",name:"采购方编号",datatype:"varchar"},
+		     {id:"rc1_customer_name",name:"收单方名称",datatype:"varchar"},
+			 {id:"rc1_customer_number",name:"收单方编号",datatype:"varchar"},
+		     {id:"bill_to_site_use_id",name:"收单方地点",datatype:"varchar"},
+			 {id:"rc2_customer_name",name:"付款客户名称",datatype:"varchar"},
+		     {id:"rc2_customer_number",name:"付款客户编号",datatype:"varchar"},
+			 {id:"paying_site_use_id",name:"付款地点",datatype:"varchar"},
+			 {id:"rat_name",name:"付款条件",datatype:"varchar"},
+		     {id:"term_due_date",name:"付款条件",datatype:"varchar"},
+			 {id:"line_type",name:"行类型",datatype:"varchar"},
+		     {id:"description",name:"行摘要",datatype:"varchar"},
+			 {id:"quantity_invoiced",name:"数量",datatype:"varchar"},
+		     {id:"unit_selling_price",name:"单价",datatype:"varchar"},
+			 {id:"extended_amount",name:"金额",datatype:"varchar"}
+		       ]
+	    }
+	 -->  <![CDATA[
+	SELECT hou.NAME ou_name,
+       rcta.trx_number trx_number,
+       to_char(rcta.trx_date,'yyyy-mm-dd') trx_date,
+	   rc.NAME rc_NAME,
+       rcta.invoice_currency_code invoice_currency_code,
+       rcta.ct_reference ct_reference,
+       rc.customer_name rc_customer_name,
+       rc.customer_number rc_customer_number,
+       rc1.customer_name rc1_customer_name,
+       rc1.customer_number rc1_customer_number,
+       rcta.bill_to_site_use_id bill_to_site_use_id,
+       rc2.customer_name rc2_customer_name,
+       rc2.customer_number rc2_customer_number,
+       rcta.paying_site_use_id paying_site_use_id,
+       RAT.name rat_name,
+	   to_char(rcta.term_due_date,'yyyy-mm-dd') term_due_date,
+       rctl.line_type line_type,
+       rctl.description description,
+       rctl.quantity_invoiced quantity_invoiced,
+       rctl.unit_selling_price unit_selling_price,
+       rctl.extended_amount extended_amount
+FROM   ra_customer_trx_all       rcta,
+       ra_customer_trx_lines_all rctl,
+       hr_organization_units     hou,
+       ra_customers              rc,
+       ra_customers              rc1,
+       ra_customers              rc2,
+       RA_TERMS                  RAT,
+       RA_CUST_TRX_TYPES_ALL     rc
+WHERE  rcta.customer_trx_id = rctl.customer_trx_id
+AND    rcta.customer_trx_id = rctl.customer_trx_id
+AND    rcta.org_id = hou.organization_id
+AND    rcta.sold_to_customer_id = rc.customer_id
+AND    rcta.bill_to_customer_id = rc1.customer_id
+AND    rcta.paying_customer_id = rc2.customer_id
+AND    rcta.trx_number = #{inv_number}
+AND    rcta.term_id = RAT.term_id
+AND    rc.cust_trx_type_id = rcta.cust_trx_type_id
+	 ]]> 
+   </select>  
+
+</mapper>

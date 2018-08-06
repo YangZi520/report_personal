@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--供应商查询-->
+<mapper namespace="供应商查询">
+ <select id="test" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"system",
+	"desc":"test",
+	"in":[
+		{
+			"id":"id",
+			"name":"id",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"id",
+			"name":"id",
+			"datatype":"varchar"
+		},
+		{
+			"id":"name",
+			"name":"name",
+			"datatype":"varchar"
+		}
+	]
+}-->with s as as(select 1 id, 2 name from dual)
+select  id,name from s where id=#{id}
+and 1&lt;&gt;0
+<if test="1==1">
+    and 1&lt;&gt;0
+</if>
+</select>
+ <select id="test2" resultType="Map" parameterType="Map">
+ 
+<!--{
+	"db":"system",
+	"desc":"test2",
+	"in":[
+		{
+			"id":"ou_name",
+			"name":"ou_name",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"mut":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"组织id",
+			"name":"组织id",
+			"datatype":"varchar"
+		},
+		{
+			"id":"组织名称",
+			"name":"组织名称",
+			"datatype":"varchar"
+		},
+		{
+			"id":"子库存代码",
+			"name":"子库存代码",
+			"datatype":"varchar"
+		},
+		{
+			"id":"子库存描述",
+			"name":"子库存描述",
+			"datatype":"varchar"
+		},
+		{
+			"id":"物料id",
+			"name":"物料id",
+			"datatype":"varchar"
+		},
+		{
+			"id":"物料编码",
+			"name":"物料编码",
+			"datatype":"varchar"
+		},
+		{
+			"id":"物料描述",
+			"name":"物料描述",
+			"datatype":"varchar"
+		},
+		{
+			"id":"asset_quantity",
+			"name":"asset_quantity",
+			"datatype":"varchar"
+		},
+		{
+			"id":"other_quantity",
+			"name":"other_quantity",
+			"datatype":"varchar"
+		},
+		{
+			"id":"asset_cost",
+			"name":"asset_cost",
+			"datatype":"varchar"
+		}
+	]
+}
+-->SELECT MOQ.ORGANIZATION_ID 组织id,
+              hou.name 组织名称,
+       inv.secondary_inventory_name 子库存代码,
+              inv.description 子库存描述,
+       MSI.INVENTORY_ITEM_ID 物料ID,
+       MSI.SEGMENT1   物料编码,
+       MSI.DESCRIPTION   物料描述,
+       DECODE(INV.ASSET_INVENTORY, 1, MOQ.TRANSACTION_QUANTITY, 0) ASSET_QUANTITY ,
+       DECODE(INV.ASSET_INVENTORY, 1, 0, MOQ.TRANSACTION_QUANTITY) OTHER_QUANTITY,
+       ROUND(MOQ.TRANSACTION_QUANTITY *
+             DECODE(INV.ASSET_INVENTORY, 1, NVL(MOQ.ITEM_COST, 0), 0),
+             2) ASSET_COST
+  FROM CINV_PROJECT_MOQ2         MOQ,
+       MTL_SYSTEM_ITEMS_B        MSI,
+       MTL_SECONDARY_INVENTORIES INV,
+       MTL_ITEM_CATEGORIES       MIC,
+       MTL_CATEGORY_SETS         MCS,
+       MTL_CATEGORIES            MC,
+       hr_all_organization_units hou
+ WHERE MOQ.INVENTORY_ITEM_ID = MSI.INVENTORY_ITEM_ID
+   AND MOQ.ORGANIZATION_ID = MSI.ORGANIZATION_ID
+   AND MOQ.SUBINVENTORY_CODE = INV.SECONDARY_INVENTORY_NAME
+   AND MOQ.ORGANIZATION_ID = INV.ORGANIZATION_ID
+   AND MSI.INVENTORY_ITEM_ID = MIC.INVENTORY_ITEM_ID
+   AND MSI.ORGANIZATION_ID = MIC.ORGANIZATION_ID
+   and hou.organization_id = MOQ.ORGANIZATION_ID
+   AND MIC.CATEGORY_SET_ID = MCS.CATEGORY_SET_ID
+   AND MIC.CATEGORY_ID = MC.CATEGORY_ID
+   AND MCS.STRUCTURE_ID = MC.STRUCTURE_ID
+   and hou.name like nvl('%'||#{ou_name}||'%',hou.name)
+</select><select id="test3" resultType="Map" parameterType="Map">
+<!--{
+	"db":"system",
+	"desc":"test3",
+	"in":[
+		{
+			"id":"ou_name",
+			"name":"ou_name",
+			"datatype":"varchar",
+			"default":"",
+			"lookup":"",
+			"mut":"",
+			"auth":""
+		}
+	],
+	"out":[
+		{
+			"id":"组织id",
+			"name":"组织id",
+			"datatype":"varchar"
+		},
+		{
+			"id":"组织名称",
+			"name":"组织名称",
+			"datatype":"varchar"
+		},
+		{
+			"id":"子库存代码",
+			"name":"子库存代码",
+			"datatype":"varchar"
+		},
+		{
+			"id":"子库存描述",
+			"name":"子库存描述",
+			"datatype":"varchar"
+		},
+		{
+			"id":"物料id",
+			"name":"物料id",
+			"datatype":"varchar"
+		},
+		{
+			"id":"物料编码",
+			"name":"物料编码",
+			"datatype":"varchar"
+		},
+		{
+			"id":"物料描述",
+			"name":"物料描述",
+			"datatype":"varchar"
+		},
+		{
+			"id":"asset_quantity",
+			"name":"asset_quantity",
+			"datatype":"varchar"
+		},
+		{
+			"id":"other_quantity",
+			"name":"other_quantity",
+			"datatype":"varchar"
+		},
+		{
+			"id":"asset_cost",
+			"name":"asset_cost",
+			"datatype":"varchar"
+		}
+	]
+}
+-->SELECT MOQ.ORGANIZATION_ID 组织id,
+              hou.name 组织名称,
+       inv.secondary_inventory_name 子库存代码,
+              inv.description 子库存描述,
+       MSI.INVENTORY_ITEM_ID 物料ID,
+       MSI.SEGMENT1   物料编码,
+       MSI.DESCRIPTION   物料描述,
+       DECODE(INV.ASSET_INVENTORY, 1, MOQ.TRANSACTION_QUANTITY, 0) ASSET_QUANTITY ,
+       DECODE(INV.ASSET_INVENTORY, 1, 0, MOQ.TRANSACTION_QUANTITY) OTHER_QUANTITY,
+       ROUND(MOQ.TRANSACTION_QUANTITY *
+             DECODE(INV.ASSET_INVENTORY, 1, NVL(MOQ.ITEM_COST, 0), 0),
+             2) ASSET_COST
+  FROM CINV_PROJECT_MOQ2         MOQ,
+       MTL_SYSTEM_ITEMS_B        MSI,
+       MTL_SECONDARY_INVENTORIES INV,
+       MTL_ITEM_CATEGORIES       MIC,
+       MTL_CATEGORY_SETS         MCS,
+       MTL_CATEGORIES            MC,
+       hr_all_organization_units hou
+ WHERE MOQ.INVENTORY_ITEM_ID = MSI.INVENTORY_ITEM_ID
+   AND MOQ.ORGANIZATION_ID = MSI.ORGANIZATION_ID
+   AND MOQ.SUBINVENTORY_CODE = INV.SECONDARY_INVENTORY_NAME
+   AND MOQ.ORGANIZATION_ID = INV.ORGANIZATION_ID
+   AND MSI.INVENTORY_ITEM_ID = MIC.INVENTORY_ITEM_ID
+   AND MSI.ORGANIZATION_ID = MIC.ORGANIZATION_ID
+   and hou.organization_id = MOQ.ORGANIZATION_ID
+   AND MIC.CATEGORY_SET_ID = MCS.CATEGORY_SET_ID
+   AND MIC.CATEGORY_ID = MC.CATEGORY_ID
+   AND MCS.STRUCTURE_ID = MC.STRUCTURE_ID
+   and hou.name like nvl('%'||#{ou_name}||'%',hou.name)
+</select></mapper>

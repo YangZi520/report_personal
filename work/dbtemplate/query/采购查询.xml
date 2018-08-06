@@ -1,0 +1,1387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--采购查询-->
+<mapper namespace="采购查询"> 
+  <select id="查询采购物理信息" parameterType="Map" resultType="Map"> 
+    <!--{
+	     "db":"system",
+       desc:"查询采购物理信息",
+		 in:[
+		        {id:"purchase_code",name:"采购订单编号",datatype:"varchar"},
+				{id:"purchase_name",name:"采购订单名称",datatype:"varchar"},
+				{id:"company_code",name:"公司编码",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"ou_name",name:"公司",datatype:"varchar"},
+		     {id:"pha_segment1",name:"订单编码",datatype:"varchar"},
+			 {id:"pv_segment1",name:"供应商编码",datatype:"varchar"},
+		     {id:"vendor_name",name:"供应商名称",datatype:"varchar"},
+			 {id:"vendor_site_code",name:"地点",datatype:"varchar"},
+		     {id:"type_lookup_code",name:"订单类型",datatype:"varchar"},
+			 {id:"comments",name:"订单描述",datatype:"varchar"},
+		     {id:"location_code1",name:"收货方",datatype:"varchar"},
+		     {id:"location_code",name:"收单方",datatype:"varchar"},
+			 {id:"full_name",name:"采购员",datatype:"varchar"},
+		     {id:"currency_code",name:"币种",datatype:"varchar"},
+			 {id:"authorization_status",name:"审批状态",datatype:"varchar"},
+			 {id:"atc_name",name:"税码",datatype:"varchar"},
+		     {id:"deductible",name:"是否抵扣",datatype:"varchar"},
+		     {id:"submit_date",name:"订单日期",datatype:"varchar"},
+			 {id:"closed_code",name:"关闭状态",datatype:"varchar"},
+		     {id:"closed_date",name:"关闭日期",datatype:"varchar"},
+		     {id:"cancel_flag",name:"取消状态",datatype:"varchar"}
+		       ]
+	    }
+	 -->  <![CDATA[
+	  SELECT hou.NAME ou_name,
+       pha.segment1 pha_segment1,
+       pv.segment1 pv_segment1,
+       pv.vendor_name vendor_name,
+       pvs.vendor_site_code vendor_site_code,
+       pha.type_lookup_code type_lookup_code,
+       pha.comments comments,
+       hrl1.location_code location_code1,
+       hrl2.location_code location_code,
+       h.full_name full_name,
+       pha.currency_code currency_code,
+       pha.authorization_status authorization_status,
+	   atc.NAME atc_name,
+       cha.deductible deductible,
+       to_char(pha.submit_date,'yyyy-mm-dd') submit_date,
+       pha.closed_code closed_code,
+       to_char(pha.closed_date,'yyyy-mm-dd') closed_date,
+       pha.cancel_flag cancel_flag
+FROM   po.po_headers_all      pha,
+       po.po_vendors          pv,
+       hr_organization_units  hou,
+       po.po_vendor_sites_all pvs,
+       hr_employees           h,
+       cpo_headers_all        cha,
+       ap_tax_codes_all       atc,
+       hr_locations_all_tl    hrl1,
+       hr_locations_all_tl    hrl2
+WHERE  pv.vendor_id = pha.vendor_id
+AND    pha.org_id = hou.organization_id
+AND    pv.vendor_id = pvs.vendor_id
+AND    pvs.vendor_site_id = pha.vendor_site_id
+AND    pha.agent_id = h.employee_id
+AND    atc.tax_id = cha.tax_id
+AND    cha.po_header_id = pha.po_header_id
+AND    hrl1.location_id(+) = pha.ship_to_location_id
+AND    hrl1.LANGUAGE(+) = userenv('LANG')
+AND    hrl2.location_id(+) = pha.bill_to_location_id
+AND    hrl2.LANGUAGE(+) = userenv('LANG')
+AND    hou.internal_address_line = nvl(#{company_code},hou.internal_address_line)
+AND    pha.comments like nvl(#{purchase_name},pha.comments)
+AND    pha.segment1 LIKE nvl(#{purchase_code},pha.segment1)
+	 ]]> 
+  </select>  
+  <select id="查询采购接收信息" parameterType="Map" resultType="Map"> 
+    <!--{
+	    "db":"system",
+       desc:"查询采购接收信息",
+		 in:[
+		        {id:"purchase_code",name:"采购订单编号",datatype:"varchar"},
+				{id:"purchase_name",name:"采购订单名称",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"ou_name",name:"公司",datatype:"varchar"},
+		     {id:"pha_segment1",name:"订单编码",datatype:"varchar"},
+			 {id:"pha_COMMENTS",name:"订单描述",datatype:"varchar"},
+			 {id:"pha_CREATION_DATE",name:"创建日期",datatype:"varchar"},
+		     {id:"DEDUCTIBLE",name:"是否含税",datatype:"varchar"},
+			 {id:"ta_NAME",name:"税码",datatype:"varchar"},
+		     {id:"DISPLAYED_FIELD",name:"审批状态",datatype:"varchar"},
+			 {id:"CANCEL_FLAG",name:"订单取消状态",datatype:"varchar"},
+		     {id:"PV_SEGMENT1",name:"供应商编号",datatype:"varchar"},
+		     {id:"VENDOR_NAME",name:"供应商名称",datatype:"varchar"},
+			 {id:"full_name",name:"采购员",datatype:"varchar"},
+		     {id:"LINE_NUM",name:"订单行号",datatype:"varchar"},
+			 {id:"CLOSED_FLAG",name:"订单行关闭状态",datatype:"varchar"},
+			 {id:"CANCEL_FLAG",name:"订单行取消状态",datatype:"varchar"},
+		     {id:"b_SEGMENT1",name:"物料编码",datatype:"varchar"},
+		     {id:"B_DESCRIPTION",name:"物料描述",datatype:"varchar"},
+			 {id:"B_ATTRIBUTE15",name:"是否旧物料",datatype:"varchar"},
+		     {id:"ITEM_DESCRIPTION",name:"采购描述",datatype:"varchar"},
+		     {id:"UNIT_CODE",name:"单位",datatype:"varchar"},
+		     {id:"QUANTITY",name:"采购数量",datatype:"varchar"},
+		     {id:"UNIT_PRICE",name:"单价",datatype:"varchar"},
+			 {id:"SHIPMENT_NUM",name:"发运行号",datatype:"varchar"},
+		     {id:"LL_CLOSED_FLAG",name:"发运行关闭状态",datatype:"varchar"},
+		     {id:"LL_CANCEL_FLAG",name:"发运行取消状态",datatype:"varchar"},
+		     {id:"ORGANIZATION_CODE",name:"收货组织代码",datatype:"varchar"},
+		     {id:"ORGANIZATION_NAME",name:"收货组织",datatype:"varchar"},
+		     {id:"DISTRIBUTION_NUM",name:"单价",datatype:"varchar"},
+			 {id:"DESTINATION_TYPE_CODE",name:"目的地类型",datatype:"varchar"},
+		     {id:"ATTRIBUTE13",name:"需求单号",datatype:"varchar"},
+		     {id:"segment4",name:"业务活动",datatype:"varchar"},
+		     {id:"ACTIVITY_NAME",name:"业务活动描述",datatype:"varchar"},
+		     {id:"PRO_SEGMENT1",name:"项目",datatype:"varchar"},
+		     {id:"LONG_NAME",name:"项目描述",datatype:"varchar"},
+		     {id:"TASK_NUMBER",name:"任务",datatype:"varchar"},
+		     {id:"TASK_NAME",name:"任务描述",datatype:"varchar"},
+		     {id:"EXPENDITURE_TYPE",name:"支出类型",datatype:"varchar"},
+			 {id:"QUANTITY_ORDERED",name:"订购数量",datatype:"varchar"},
+		     {id:"ORDERED_PRICE",name:"订购金额",datatype:"varchar"},
+		     {id:"QUANTITY_DELIVERED",name:"接收数量",datatype:"varchar"},
+		     {id:"DELIVERED_PRICE",name:"接收金额",datatype:"varchar"},
+		     {id:"QUANTITY_BILLED",name:"开票数量",datatype:"varchar"},
+		     {id:"AMOUNT_BILLED",name:"开票金额",datatype:"varchar"},
+		     {id:"QUANTITY_CANCELLED",name:"取消数量",datatype:"varchar"},
+			 {id:"AMOUNT_CANCELLED",name:"取消金额",datatype:"varchar"}
+		       ]
+	    }
+	 -->  <![CDATA[
+	  SELECT 
+       O.name ou_name,
+	   H.SEGMENT1 pha_segment1,
+       H.COMMENTS pha_COMMENTS,
+       to_char(H.CREATION_DATE,'yyyy-mm-dd') pha_CREATION_DATE,
+       C.DEDUCTIBLE DEDUCTIBLE,
+       TA.NAME ta_NAME,
+       PLC.DISPLAYED_FIELD DISPLAYED_FIELD,
+       H.CANCEL_FLAG CANCEL_FLAG,
+       V.SEGMENT1 PV_SEGMENT1,
+       V.VENDOR_NAME VENDOR_NAME,
+       E.full_name full_name,
+       L.LINE_NUM LINE_NUM,
+       L.CLOSED_FLAG CLOSED_FLAG,
+       L.CANCEL_FLAG CANCEL_FLAG,
+       B.SEGMENT1 b_SEGMENT1,
+       B.DESCRIPTION B_DESCRIPTION,
+       B.ATTRIBUTE15 B_ATTRIBUTE15,
+       L.ITEM_DESCRIPTION ITEM_DESCRIPTION,
+       L.UNIT_MEAS_LOOKUP_CODE UNIT_CODE,
+       L.QUANTITY QUANTITY,
+       L.UNIT_PRICE UNIT_PRICE,
+       LL.SHIPMENT_NUM SHIPMENT_NUM,
+       LL.CLOSED_FLAG LL_CLOSED_FLAG,
+       LL.CANCEL_FLAG LL_CANCEL_FLAG,
+       OO.ORGANIZATION_CODE ORGANIZATION_CODE,
+       OO.ORGANIZATION_NAME ORGANIZATION_NAME,
+       D.DISTRIBUTION_NUM DISTRIBUTION_NUM,
+       D.DESTINATION_TYPE_CODE DESTINATION_TYPE_CODE,
+       D.ATTRIBUTE13 ATTRIBUTE13,
+       BGT.segment4 segment4,
+       BD.ACTIVITY_NAME ACTIVITY_NAME,
+       P.SEGMENT1 PRO_SEGMENT1,
+       P.LONG_NAME LONG_NAME项,
+       T.TASK_NUMBER TASK_NUMBER,
+       T.TASK_NAME TASK_NAME,
+       D.EXPENDITURE_TYPE EXPENDITURE_TYPE,
+       D.QUANTITY_ORDERED QUANTITY_ORDERED,
+       (D.QUANTITY_ORDERED * L.UNIT_PRICE) ORDERED_PRICE,
+       D.QUANTITY_DELIVERED QUANTITY_DELIVERED,
+       (D.QUANTITY_DELIVERED * L.UNIT_PRICE) DELIVERED_PRICE,
+       D.QUANTITY_BILLED QUANTITY_BILLED,
+       D.AMOUNT_BILLED AMOUNT_BILLED,
+       D.QUANTITY_CANCELLED QUANTITY_CANCELLED,
+       (D.QUANTITY_CANCELLED * L.UNIT_PRICE)  AMOUNT_CANCELLED
+  FROM PO_HEADERS_ALL H,
+       CPO_HEADERS_ALL C,
+       AP_TAX_CODES_ALL TA,
+       PO_LINES_ALL L,
+       PO_LINE_LOCATIONS_ALL LL,
+       PO_DISTRIBUTIONS_ALL D,
+       PO_LOOKUP_CODES PLC,
+       HR_ORGANIZATION_UNITS O,
+       MTL_system_ITEMS_B B,
+       ORG_ORGANIZATION_DEFINITIONS OO,
+       PA_PROJECTS_ALL P,
+       PA_TASKS T,
+       HR_EMPLOYEES E,
+       PO_VENDORS V,
+       cgl_budget_combinations_kfv BGT,
+       CGL_BUDGET_ACTIVITYINFO BD
+ WHERE D.LINE_LOCATION_ID = LL.LINE_LOCATION_ID
+   AND H.PO_HEADER_ID = C.PO_HEADER_ID
+   AND C.TAX_ID = TA.TAX_ID
+   AND D.PO_LINE_ID = L.PO_LINE_ID
+   AND D.PO_HEADER_ID = H.PO_HEADER_ID
+   AND D.PROJECT_ID = P.PROJECT_ID(+)
+   AND D.TASK_ID = T.TASK_ID(+)
+   AND PLC.LOOKUP_CODE = NVL(H.AUTHORIZATION_STATUS, 'INCOMPLETE')
+   AND PLC.LOOKUP_TYPE = 'AUTHORIZATION STATUS'
+   AND H.AGENT_ID = E.employee_id(+)
+   AND L.ITEM_ID = B.INVENTORY_ITEM_ID(+)
+   AND LL.SHIP_TO_ORGANIZATION_ID = B.ORGANIZATION_ID
+   AND H.VENDOR_ID = V.VENDOR_ID(+)
+   AND H.ORG_ID = O.organization_id
+   AND LL.SHIP_TO_ORGANIZATION_ID = OO.ORGANIZATION_ID
+   AND D.ATTRIBUTE8 = BGT.budget_combination_id(+)
+   AND BGT.segment4 = BD.ACTIVITY_CODE(+)
+   AND H.SEGMENT1 = nvl(#{purchase_code},H.SEGMENT1)
+   AND H.COMMENTS = nvl(#{purchase_name},H.COMMENTS)
+   
+	 ]]> 
+  </select>  
+  <select id="采购订单查询按供应商" resultType="Map" parameterType="Map"> 
+    <!--{
+	"db":"system",
+	"desc":"采购订单查询按供应商",
+	"in":[
+		{
+			"id":"vendor_nmae",
+			"name":"供应商名称",
+			"datatype":"varchar",
+			"lookup":"数据字典/供应商名称",
+			"default":""
+		}
+	],
+	"out":[
+		{
+			"id":"org_name",
+			"name":"组织名称",
+			"datatype":"varchar"
+		},
+		{
+			"id":"po_number",
+			"name":"订单编号",
+			"datatype":"varchar"
+		},
+		{
+			"id":"po_type",
+			"name":"订单类型",
+			"datatype":"varchar"
+		},
+		{
+			"id":"creation_date",
+			"name":"创建日期",
+			"datatype":"varchar"
+		},
+		{
+			"id":"last_update_date",
+			"name":"最后更新日期",
+			"datatype":"varchar"
+		},
+		{
+			"id":"vendor_name",
+			"name":"供应商名称",
+			"datatype":"varchar"
+		},
+		{
+			"id":"vendor_code",
+			"name":"供应商编号",
+			"datatype":"varchar"
+		},
+		{
+			"id":"vendor_site_code",
+			"name":"供应商地点",
+			"datatype":"varchar"
+		},
+		{
+			"id":"contact_name",
+			"name":"合同号",
+			"datatype":"varchar"
+		},
+		{
+			"id":"bill_to_location_code",
+			"name":"发票",
+			"datatype":"varchar"
+		},
+		{
+			"id":"ship_to_location_code",
+			"name":"发运",
+			"datatype":"varchar"
+		},
+		{
+			"id":"currency_code",
+			"name":"货币",
+			"datatype":"varchar"
+		},
+		{
+			"id":"full_name",
+			"name":"合称",
+			"datatype":"varchar"
+		},
+		{
+			"id":"po_status",
+			"name":"状态",
+			"datatype":"varchar"
+		},
+		{
+			"id":"po_amount",
+			"name":"订单金额",
+			"datatype":"varchar"
+		},
+		{
+			"id":"comments",
+			"name":"说明",
+			"datatype":"varchar"
+		},
+		{
+			"id":"deductible",
+			"name":"deductible",
+			"datatype":"varchar"
+		},
+		{
+			"id":"name",
+			"name":"税码",
+			"datatype":"varchar"
+		},
+		{
+			"id":"trx_type",
+			"name":"关联交易类型",
+			"datatype":"varchar"
+		},
+		{
+			"id":"internal_identifier",
+			"name":"内部交易标识",
+			"datatype":"varchar"
+		}
+	]
+}
+-->select distinct 
+       hou.name org_name, --公司名称
+       pha.segment1 po_number, --采购订单编号
+       plc.description po_type, --采购订单类型
+       pha.creation_date, --创建日期
+       pha.last_update_date, --更新时间
+       pv.vendor_name, --供应商名称
+       pv.segment1 vendor_code, --供应商编码
+       pvs.vendor_site_code, --供应商地点
+       pvc.last_name ||  pvc.first_name contact_name, --联系人
+       hla.location_code bill_to_location_code, --收单方名称
+       hla2.location_code ship_to_location_code, --收货方名称
+       pha.currency_code, --币种
+       he.full_name, --采购员
+       decode(pha.authorization_status,
+              'IN PROCESS',
+              '处理中',
+              'REJECTED',
+              '已拒绝',
+              'APPROVED',
+              '批准',
+              'REQUIRES REAPPROVAL') po_status, --订单状态 
+       (select sum(nvl(pla.quantity, 0) * nvl(pla.unit_price, 0))
+          from po.po_lines_all pla
+         where pla.po_header_id = pha.po_header_id) po_amount, --合计金额
+       pha.comments, --说明
+       cha.deductible, --是否可抵扣
+       atc.name, --税码
+       cha.trx_type, --关联交易类型
+       cha.internal_identifier --内部交易标识
+  from po_headers_all pha,
+       po_lines_all pla,
+       po_vendors pv,
+       po_vendor_sites_all pvs,
+       po_vendor_contacts pvc,
+       po_lookup_codes plc,
+       hr_operating_units hou,
+       hr_locations_all hla,
+       hr_locations_all hla2,  
+       hr_employees he,
+       cpo_headers_all cha,
+       ap_tax_codes_all atc   
+ where pha.org_id = hou.organization_id
+   and pha.po_header_id = pla.po_header_id
+   and pha.vendor_id = pv.vendor_id
+   and pha.vendor_site_id = pvs.vendor_site_id(+)
+   and pha.vendor_contact_id = pvc.vendor_contact_id(+)
+   and pha.type_lookup_code = plc.lookup_code 
+   and plc.lookup_type = 'PO TYPE'
+   and pha.agent_id = he.employee_id(+)
+   and pha.bill_to_location_id = hla.location_id
+   and pha.ship_to_location_id = hla2.location_id
+   and pha.po_header_id = cha.po_header_id
+   and cha.tax_id = atc.tax_id(+)
+   and hou.name like nvl('',hou.name)
+   and pv.vendor_name in (${vendor_nmae})
+   and pv.segment1 like nvl('',pv.segment1)
+  </select>  
+  <select id="查询采购订单" resultType="Map" parameterType="Map"> 
+    <!--{
+	"db":"system",
+	"desc":"查询采购订单",
+	"in":[
+		{
+			"id":"po_number",
+			"name":"订单编号",
+			"datatype":"varchar",
+			"default":""
+		}
+	],
+	"out":[
+		{
+			"id":"segment1",
+			"name":"订单编号",
+			"datatype":"varchar"
+		},
+		{
+			"id":"creation_date",
+			"name":"创建日期",
+			"datatype":"varchar"
+		},
+		{
+			"id":"vendor_id",
+			"name":"供应商id",
+			"datatype":"varchar"
+		},
+		{
+			"id":"line_num",
+			"name":"行号",
+			"datatype":"varchar"
+		},
+		{
+			"id":"item_id",
+			"name":"物料ID",
+			"datatype":"varchar"
+		},
+		{
+			"id":"unit_price",
+			"name":"单价",
+			"datatype":"varchar"
+		},
+		{
+			"id":"quantity",
+			"name":"数量",
+			"datatype":"varchar"
+		}
+	]
+}
+--><![CDATA[select ph.segment1,
+       ph.creation_date,
+       ph.vendor_id,
+       pl.line_num,
+       pl.item_id,
+       pl.unit_price,
+       pl.quantity
+  from po_headers_all ph, po_lines_all pl
+ where pl.po_header_id = ph.po_header_id
+   and ph.segment1 =#{po_number}
+]]> 
+  </select>  
+  <select id="查询订单按供应商1" resultType="Map" parameterType="Map"> 
+    <!--{
+	"db":"system",
+	"desc":"查询订单按供应商1",
+	"in":[
+		{
+			"id":"vendor_nmae",
+			"name":"供应商名称",
+			"datatype":"varchar",
+			"default":""
+		}
+	],
+	"out":[
+		{
+			"id":"org_name",
+			"name":"组织名称",
+			"datatype":"varchar"
+		},
+		{
+			"id":"po_number",
+			"name":"订单编号",
+			"datatype":"varchar"
+		},
+		{
+			"id":"po_type",
+			"name":"订单类型",
+			"datatype":"varchar"
+		},
+		{
+			"id":"creation_date",
+			"name":"创建日期",
+			"datatype":"varchar"
+		},
+		{
+			"id":"last_update_date",
+			"name":"last_update_date",
+			"datatype":"varchar"
+		},
+		{
+			"id":"vendor_name",
+			"name":"vendor_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"vendor_code",
+			"name":"vendor_code",
+			"datatype":"varchar"
+		},
+		{
+			"id":"vendor_site_code",
+			"name":"vendor_site_code",
+			"datatype":"varchar"
+		},
+		{
+			"id":"contact_name",
+			"name":"contact_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"bill_to_location_code",
+			"name":"bill_to_location_code",
+			"datatype":"varchar"
+		},
+		{
+			"id":"ship_to_location_code",
+			"name":"ship_to_location_code",
+			"datatype":"varchar"
+		},
+		{
+			"id":"currency_code",
+			"name":"currency_code",
+			"datatype":"varchar"
+		},
+		{
+			"id":"full_name",
+			"name":"full_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"po_status",
+			"name":"po_status",
+			"datatype":"varchar"
+		},
+		{
+			"id":"po_amount",
+			"name":"po_amount",
+			"datatype":"varchar"
+		},
+		{
+			"id":"comments",
+			"name":"comments",
+			"datatype":"varchar"
+		},
+		{
+			"id":"deductible",
+			"name":"deductible",
+			"datatype":"varchar"
+		},
+		{
+			"id":"name",
+			"name":"name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"trx_type",
+			"name":"trx_type",
+			"datatype":"varchar"
+		},
+		{
+			"id":"internal_identifier",
+			"name":"internal_identifier",
+			"datatype":"varchar"
+		}
+	]
+}
+--><![CDATA[select distinct 
+       hou.name org_name, --公司名称
+       pha.segment1 po_number, --采购订单编号
+       plc.description po_type, --采购订单类型
+       pha.creation_date, --创建日期
+       pha.last_update_date, --更新时间
+       pv.vendor_name, --供应商名称
+       pv.segment1 vendor_code, --供应商编码
+       pvs.vendor_site_code, --供应商地点
+       pvc.last_name ||  pvc.first_name contact_name, --联系人
+       hla.location_code bill_to_location_code, --收单方名称
+       hla2.location_code ship_to_location_code, --收货方名称
+       pha.currency_code, --币种
+       he.full_name, --采购员
+       decode(pha.authorization_status,
+              'IN PROCESS',
+              '处理中',
+              'REJECTED',
+              '已拒绝',
+              'APPROVED',
+              '批准',
+              'REQUIRES REAPPROVAL') po_status, --订单状态 
+       (select sum(nvl(pla.quantity, 0) * nvl(pla.unit_price, 0))
+          from po.po_lines_all pla
+         where pla.po_header_id = pha.po_header_id) po_amount, --合计金额
+       pha.comments, --说明
+       cha.deductible, --是否可抵扣
+       atc.name, --税码
+       cha.trx_type, --关联交易类型
+       cha.internal_identifier --内部交易标识
+  from po_headers_all pha,
+       po_lines_all pla,
+       po_vendors pv,
+       po_vendor_sites_all pvs,
+       po_vendor_contacts pvc,
+       po_lookup_codes plc,
+       hr_operating_units hou,
+       hr_locations_all hla,
+       hr_locations_all hla2,  
+       hr_employees he,
+       cpo_headers_all cha,
+       ap_tax_codes_all atc   
+ where pha.org_id = hou.organization_id
+   and pha.po_header_id = pla.po_header_id
+   and pha.vendor_id = pv.vendor_id
+   and pha.vendor_site_id = pvs.vendor_site_id(+)
+   and pha.vendor_contact_id = pvc.vendor_contact_id(+)
+   and pha.type_lookup_code = plc.lookup_code 
+   and plc.lookup_type = 'PO TYPE'
+   and pha.agent_id = he.employee_id(+)
+   and pha.bill_to_location_id = hla.location_id
+   and pha.ship_to_location_id = hla2.location_id
+   and pha.po_header_id = cha.po_header_id
+   and cha.tax_id = atc.tax_id(+)
+   and hou.name like nvl('',hou.name)
+   and pv.vendor_name like nvl(#{vendor_nmae},pv.vendor_name)
+   and pv.segment1 like nvl('',pv.segment1)
+]]> 
+  </select>  
+  <select id="采购订单头查询" resultType="Map" parameterType="Map"> 
+    <!--{
+	"db":"system",
+	"desc":"采购订单头查询",
+	"in":[
+		{
+			"id":"po_number",
+			"name":"订单编号",
+			"datatype":"varchar",
+			"lookup":"查询公司信息",
+			"default":""
+		}
+	],
+	"out":[
+		{
+			"id":"org_name",
+			"name":"组织名称",
+			"datatype":"varchar"
+		},
+		{
+			"id":"po_number",
+			"name":"订单编号",
+			"datatype":"varchar"
+		},
+		{
+			"id":"revision_num",
+			"name":"版本号",
+			"datatype":"varchar"
+		},
+		{
+			"id":"po_type",
+			"name":"订单类型",
+			"datatype":"varchar"
+		},
+		{
+			"id":"creation_date",
+			"name":"创建日期",
+			"datatype":"varchar"
+		},
+		{
+			"id":"last_update_date",
+			"name":"最后更新日期",
+			"datatype":"varchar"
+		},
+		{
+			"id":"vendor_name",
+			"name":"供应商名称",
+			"datatype":"varchar"
+		},
+		{
+			"id":"vendor_code",
+			"name":"供应商编号",
+			"datatype":"varchar"
+		},
+		{
+			"id":"vendor_site_code",
+			"name":"供应商地点编码",
+			"datatype":"varchar"
+		},
+		{
+			"id":"contact_name",
+			"name":"联系人",
+			"datatype":"varchar"
+		},
+		{
+			"id":"bill_to_location_code",
+			"name":"收单方名称",
+			"datatype":"varchar"
+		},
+		{
+			"id":"ship_to_location_code",
+			"name":"收货方名称",
+			"datatype":"varchar"
+		},
+		{
+			"id":"currency_code",
+			"name":"币种",
+			"datatype":"varchar"
+		},
+		{
+			"id":"full_name",
+			"name":"采购员",
+			"datatype":"varchar"
+		},
+		{
+			"id":"po_status",
+			"name":"订单状态",
+			"datatype":"varchar"
+		},
+		{
+			"id":"po_amount",
+			"name":"订单金额",
+			"datatype":"varchar"
+		},
+		{
+			"id":"comments",
+			"name":"说明",
+			"datatype":"varchar"
+		},
+		{
+			"id":"deductible",
+			"name":"是否可抵扣",
+			"datatype":"varchar"
+		},
+		{
+			"id":"name",
+			"name":"税码",
+			"datatype":"varchar"
+		},
+		{
+			"id":"trx_type",
+			"name":"关联交易类型",
+			"datatype":"varchar"
+		},
+		{
+			"id":"internal_identifier",
+			"name":"内部交易标 识",
+			"datatype":"varchar"
+		}
+	]
+}
+--><![CDATA[select distinct hou.name org_name, --公司名称
+                pha.segment1 po_number, --采购订单编号
+                pha.revision_num, --版本编号
+                plc.description po_type, --采购订单类型
+                pha.creation_date, --创建日期
+                pha.last_update_date, --更新时间
+                pv.vendor_name, --供应商名称
+                pv.segment1 vendor_code, --供应商编码
+                pvs.vendor_site_code, --供应商地点
+                pvc.last_name || pvc.first_name contact_name, --联系人
+                hla.location_code bill_to_location_code, --收单方名称
+                hla2.location_code ship_to_location_code, --收货方名称
+                pha.currency_code, --币种
+                he.full_name, --采购员
+                decode(pha.authorization_status,
+                       'IN PROCESS',
+                       '审批中',
+                       'REJECTED',
+                       '拒绝',
+                       'APPROVED',
+                       '批准',
+                       'PRE-APPROVED',
+                       '预审批',
+                       'REQUIRES REAPPROVAL',
+                       '要求重新审批',
+                       null,
+                       '正在做',
+                       pha.authorization_status) po_status, --订单状态 
+                (select sum(nvl(pla.quantity, 0) * nvl(pla.unit_price, 0))
+                   from po.po_lines_all pla
+                  where pla.po_header_id = pha.po_header_id) po_amount, --合计金额
+                pha.comments, --说明
+                cha.deductible, --是否可抵扣
+                atc.name, --税码
+                cha.trx_type, --关联交易类型
+                cha.internal_identifier --内部交易标识
+  from po_headers_all      pha,
+       po_lines_all        pla,
+       po_vendors          pv,
+       po_vendor_sites_all pvs,
+       po_vendor_contacts  pvc,
+       po_lookup_codes     plc,
+       hr_operating_units  hou,
+       hr_locations_all    hla,
+       hr_locations_all    hla2,
+       hr_employees        he,
+       cpo_headers_all     cha,
+       ap_tax_codes_all    atc
+ where pha.org_id = hou.organization_id
+   and pha.po_header_id = pla.po_header_id
+   and pha.vendor_id = pv.vendor_id
+   and pha.vendor_site_id = pvs.vendor_site_id(+)
+   and pha.vendor_contact_id = pvc.vendor_contact_id(+)
+   and pha.type_lookup_code = plc.lookup_code
+   and plc.lookup_type = 'PO TYPE'
+   and pha.agent_id = he.employee_id(+)
+   and pha.bill_to_location_id = hla.location_id
+   and pha.ship_to_location_id = hla2.location_id
+   and pha.po_header_id = cha.po_header_id
+   and cha.tax_id = atc.tax_id(+)
+   and pha.segment1 like nvl(#{po_number}, pha.segment1)
+ 
+]]> 
+  </select>  
+  <select id="查询采购订单行" resultType="Map" parameterType="Map"> 
+    <!--{
+	"db":"system",
+	"desc":"查询采购订单行",
+	"in":[
+		{
+			"id":"po_number",
+			"name":"订单编号",
+			"datatype":"varchar",
+			"default":""
+		}
+	],
+	"out":[
+		{
+			"id":"org_name",
+			"name":"组织",
+			"datatype":"varchar"
+		},
+		{
+			"id":"po_number",
+			"name":"订单编号",
+			"datatype":"varchar"
+		},
+		{
+			"id":"line_num",
+			"name":"订单行",
+			"datatype":"varchar"
+		},
+		{
+			"id":"line_type",
+			"name":"行类型",
+			"datatype":"varchar"
+		},
+		{
+			"id":"item_code",
+			"name":"物料",
+			"datatype":"varchar"
+		},
+		{
+			"id":"item_revision",
+			"name":"物料版本",
+			"datatype":"varchar"
+		},
+		{
+			"id":"item_category",
+			"name":"物料类别",
+			"datatype":"varchar"
+		},
+		{
+			"id":"description",
+			"name":"描述",
+			"datatype":"varchar"
+		},
+		{
+			"id":"unit_meas_lookup_code",
+			"name":"计量单位",
+			"datatype":"varchar"
+		},
+		{
+			"id":"quantity",
+			"name":"数量",
+			"datatype":"varchar"
+		},
+		{
+			"id":"unit_price",
+			"name":"单价",
+			"datatype":"varchar"
+		},
+		{
+			"id":"promised_date",
+			"name":"承诺日期",
+			"datatype":"varchar"
+		},
+		{
+			"id":"need_by_date",
+			"name":"需求日期",
+			"datatype":"varchar"
+		},
+		{
+			"id":"line_amount",
+			"name":"行金额",
+			"datatype":"varchar"
+		},
+		{
+			"id":"charge_account_flex",
+			"name":"借记账户",
+			"datatype":"varchar"
+		}
+	]
+}
+--><![CDATA[select distinct 
+       hou.name org_name, --公司名称
+       pha.segment1 po_number, --采购订单编号
+       pla.line_num, --行编号
+       plt.line_type, --类型
+       msib.segment1 item_code, --物料编码
+       pla.item_revision, --版本
+       mcb.segment1 || '.' || mcb.segment2 item_category, --物料类别
+       msib.description, --物料说明
+       pla.unit_meas_lookup_code, --单位
+       pla.quantity, --数量
+       pla.unit_price, --单价
+       plla.promised_date, --承诺日期
+       plla.need_by_date, --需要日期
+       (pla.quantity * pla.unit_price) line_amount, --行金额
+       gcck.concatenated_segments charge_account_flex --借记账户
+  from po_headers_all pha,
+       po_lines_all pla,
+       po_line_types_tl plt,
+       po_line_locations_all plla,
+       po_distributions_all pda,
+       gl_code_combinations_kfv gcck, 
+       mtl_system_items_b msib,
+       mtl_item_categories mic,
+       mtl_categories_b mcb,
+       hr_operating_units hou    
+ where pha.po_header_id = pla.po_header_id
+   and pla.line_type_id = plt.line_type_id
+   and plt.language = 'ZHS'
+   and pla.item_id = msib.inventory_item_id(+)
+   and msib.inventory_item_id = mic.inventory_item_id
+   and mic.category_id = mcb.category_id
+   and pla.po_line_id = plla.po_line_id
+   and plla.line_location_id = pda.line_location_id
+   and pda.code_combination_id = gcck.code_combination_id
+   and pha.org_id = hou.organization_id
+   and pha.segment1 like nvl(#{po_number},pha.segment1)
+]]> 
+  </select>  
+  <select id="查询查询订单按项目编号" resultType="Map" parameterType="Map"> 
+    <!--{
+	"db":"system",
+	"desc":"查询查询订单按项目编号",
+	"in":[
+		{
+			"id":"project_number",
+			"name":"项目编号",
+			"datatype":"varchar",
+			"default":""
+		}
+	],
+	"out":[
+		{
+			"id":"org_name",
+			"name":"组织",
+			"datatype":"varchar"
+		},
+		{
+			"id":"po_number",
+			"name":"订单编号",
+			"datatype":"varchar"
+		},
+		{
+			"id":"line_num",
+			"name":"订单行",
+			"datatype":"varchar"
+		},
+		{
+			"id":"line_type",
+			"name":"行类型",
+			"datatype":"varchar"
+		},
+		{
+			"id":"item_code",
+			"name":"物料编码",
+			"datatype":"varchar"
+		},
+		{
+			"id":"item_revision",
+			"name":"物料版本号",
+			"datatype":"varchar"
+		},
+		{
+			"id":"item_category",
+			"name":"物料类别",
+			"datatype":"varchar"
+		},
+		{
+			"id":"description",
+			"name":"物料描述",
+			"datatype":"varchar"
+		},
+		{
+			"id":"unit_meas_lookup_code",
+			"name":"单位",
+			"datatype":"varchar"
+		},
+		{
+			"id":"quantity",
+			"name":"数量",
+			"datatype":"varchar"
+		},
+		{
+			"id":"unit_price",
+			"name":"单价",
+			"datatype":"varchar"
+		},
+		{
+			"id":"promised_date",
+			"name":"发货日期",
+			"datatype":"varchar"
+		},
+		{
+			"id":"need_by_date",
+			"name":"需求日期",
+			"datatype":"varchar"
+		},
+		{
+			"id":"line_amount",
+			"name":"行金额",
+			"datatype":"varchar"
+		},
+		{
+			"id":"charge_account_flex",
+			"name":"借记账户",
+			"datatype":"varchar"
+		}
+	]
+}
+--><![CDATA[select distinct 
+       hou.name org_name, --公司名称
+       pha.segment1 po_number, --采购订单编号
+       pla.line_num, --行编号
+       plt.line_type, --类型
+       msib.segment1 item_code, --物料编码
+       pla.item_revision, --版本
+       mcb.segment1 || '.' || mcb.segment2 item_category, --物料类别
+       msib.description, --物料说明
+       pla.unit_meas_lookup_code, --单位
+       pla.quantity, --数量
+       pla.unit_price, --单价
+       plla.promised_date, --承诺日期
+       plla.need_by_date, --需要日期
+       (pla.quantity * pla.unit_price) line_amount, --行金额
+       gcck.concatenated_segments charge_account_flex --借记账户
+  from po_headers_all pha,
+       po_lines_all pla,
+       po_line_types_tl plt,
+       po_line_locations_all plla,
+       po_distributions_all pda,
+       gl_code_combinations_kfv gcck, 
+       mtl_system_items_b msib,
+       mtl_item_categories mic,
+       mtl_categories_b mcb,
+       hr_operating_units hou,
+       pa_projects_all ppa    
+ where pha.po_header_id = pla.po_header_id
+   and pla.line_type_id = plt.line_type_id
+   and plt.language = 'ZHS'
+   and pla.item_id = msib.inventory_item_id(+)
+   and msib.inventory_item_id = mic.inventory_item_id
+   and mic.category_id = mcb.category_id
+   and pla.po_line_id = plla.po_line_id
+   and plla.line_location_id = pda.line_location_id
+   and pda.code_combination_id = gcck.code_combination_id
+   and pha.org_id = hou.organization_id
+   and pda.project_id=ppa.project_id
+   and ppa.segment1=#{project_number}]]> 
+  </select>  
+  <select id="查询采购接收单按项目编号" resultType="Map" parameterType="Map">
+    <!--{
+	"db":"system",
+	"desc":"查询采购接收单按项目编号",
+	"in":[
+		{
+			"id":"project_number",
+			"name":"项目编号",
+			"datatype":"varchar",
+			"default":""
+		}
+	],
+	"out":[
+		{
+			"id":"ou_name",
+			"name":"OU名称",
+			"datatype":"varchar"
+		},
+		{
+			"id":"pha_segment1",
+			"name":"采购订单编号",
+			"datatype":"varchar"
+		},
+		{
+			"id":"pha_comments",
+			"name":"pha_comments",
+			"datatype":"varchar"
+		},
+		{
+			"id":"pha_creation_date",
+			"name":"采购订单创建日期",
+			"datatype":"varchar"
+		},
+		{
+			"id":"deductible",
+			"name":"deductible",
+			"datatype":"varchar"
+		},
+		{
+			"id":"ta_name",
+			"name":"ta_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"displayed_field",
+			"name":"displayed_field",
+			"datatype":"varchar"
+		},
+		{
+			"id":"cancel_flag",
+			"name":"cancel_flag",
+			"datatype":"varchar"
+		},
+		{
+			"id":"pv_segment1",
+			"name":"pv_segment1",
+			"datatype":"varchar"
+		},
+		{
+			"id":"vendor_name",
+			"name":"vendor_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"full_name",
+			"name":"full_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"line_num",
+			"name":"line_num",
+			"datatype":"varchar"
+		},
+		{
+			"id":"closed_flag",
+			"name":"closed_flag",
+			"datatype":"varchar"
+		},
+		{
+			"id":"cancel_flag1",
+			"name":"cancel_flag1",
+			"datatype":"varchar"
+		},
+		{
+			"id":"b_segment1",
+			"name":"b_segment1",
+			"datatype":"varchar"
+		},
+		{
+			"id":"b_description",
+			"name":"b_description",
+			"datatype":"varchar"
+		},
+		{
+			"id":"b_attribute15",
+			"name":"b_attribute15",
+			"datatype":"varchar"
+		},
+		{
+			"id":"item_description",
+			"name":"item_description",
+			"datatype":"varchar"
+		},
+		{
+			"id":"unit_code",
+			"name":"unit_code",
+			"datatype":"varchar"
+		},
+		{
+			"id":"quantity",
+			"name":"quantity",
+			"datatype":"varchar"
+		},
+		{
+			"id":"unit_price",
+			"name":"unit_price",
+			"datatype":"varchar"
+		},
+		{
+			"id":"shipment_num",
+			"name":"shipment_num",
+			"datatype":"varchar"
+		},
+		{
+			"id":"ll_closed_flag",
+			"name":"ll_closed_flag",
+			"datatype":"varchar"
+		},
+		{
+			"id":"ll_cancel_flag",
+			"name":"ll_cancel_flag",
+			"datatype":"varchar"
+		},
+		{
+			"id":"organization_code",
+			"name":"organization_code",
+			"datatype":"varchar"
+		},
+		{
+			"id":"organization_name",
+			"name":"organization_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"distribution_num",
+			"name":"distribution_num",
+			"datatype":"varchar"
+		},
+		{
+			"id":"destination_type_code",
+			"name":"destination_type_code",
+			"datatype":"varchar"
+		},
+		{
+			"id":"attribute13",
+			"name":"attribute13",
+			"datatype":"varchar"
+		},
+		{
+			"id":"segment4",
+			"name":"segment4",
+			"datatype":"varchar"
+		},
+		{
+			"id":"activity_name",
+			"name":"activity_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"pro_segment1",
+			"name":"pro_segment1",
+			"datatype":"varchar"
+		},
+		{
+			"id":"long_name",
+			"name":"long_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"task_number",
+			"name":"task_number",
+			"datatype":"varchar"
+		},
+		{
+			"id":"task_name",
+			"name":"task_name",
+			"datatype":"varchar"
+		},
+		{
+			"id":"expenditure_type",
+			"name":"expenditure_type",
+			"datatype":"varchar"
+		},
+		{
+			"id":"quantity_ordered",
+			"name":"quantity_ordered",
+			"datatype":"varchar"
+		},
+		{
+			"id":"ordered_price",
+			"name":"ordered_price",
+			"datatype":"varchar"
+		},
+		{
+			"id":"quantity_delivered",
+			"name":"quantity_delivered",
+			"datatype":"varchar"
+		},
+		{
+			"id":"delivered_price",
+			"name":"delivered_price",
+			"datatype":"varchar"
+		},
+		{
+			"id":"quantity_billed",
+			"name":"quantity_billed",
+			"datatype":"varchar"
+		},
+		{
+			"id":"amount_billed",
+			"name":"amount_billed",
+			"datatype":"varchar"
+		},
+		{
+			"id":"quantity_cancelled",
+			"name":"quantity_cancelled",
+			"datatype":"varchar"
+		},
+		{
+			"id":"amount_cancelled",
+			"name":"amount_cancelled",
+			"datatype":"varchar"
+		}
+	]
+}
+--><![CDATA[SELECT O.name ou_name,
+       H.SEGMENT1 pha_segment1,
+       H.COMMENTS pha_COMMENTS,
+       to_char(H.CREATION_DATE, 'yyyy-mm-dd') pha_CREATION_DATE,
+       C.DEDUCTIBLE DEDUCTIBLE,
+       TA.NAME ta_NAME,
+       PLC.DISPLAYED_FIELD DISPLAYED_FIELD,
+       H.CANCEL_FLAG CANCEL_FLAG,
+       V.SEGMENT1 PV_SEGMENT1,
+       V.VENDOR_NAME VENDOR_NAME,
+       E.full_name full_name,
+       L.LINE_NUM LINE_NUM,
+       L.CLOSED_FLAG CLOSED_FLAG,
+       L.CANCEL_FLAG CANCEL_FLAG1,
+       B.SEGMENT1 b_SEGMENT1,
+       B.DESCRIPTION B_DESCRIPTION,
+       B.ATTRIBUTE15 B_ATTRIBUTE15,
+       L.ITEM_DESCRIPTION ITEM_DESCRIPTION,
+       L.UNIT_MEAS_LOOKUP_CODE UNIT_CODE,
+       L.QUANTITY QUANTITY,
+       L.UNIT_PRICE UNIT_PRICE,
+       LL.SHIPMENT_NUM SHIPMENT_NUM,
+       LL.CLOSED_FLAG LL_CLOSED_FLAG,
+       LL.CANCEL_FLAG LL_CANCEL_FLAG,
+       OO.ORGANIZATION_CODE ORGANIZATION_CODE,
+       OO.ORGANIZATION_NAME ORGANIZATION_NAME,
+       D.DISTRIBUTION_NUM DISTRIBUTION_NUM,
+       D.DESTINATION_TYPE_CODE DESTINATION_TYPE_CODE,
+       D.ATTRIBUTE13 ATTRIBUTE13,
+       BGT.segment4 segment4,
+       BD.ACTIVITY_NAME ACTIVITY_NAME,
+       P.SEGMENT1 PRO_SEGMENT1,
+       P.LONG_NAME LONG_NAME,
+       T.TASK_NUMBER TASK_NUMBER,
+       T.TASK_NAME TASK_NAME,
+       D.EXPENDITURE_TYPE EXPENDITURE_TYPE,
+       D.QUANTITY_ORDERED QUANTITY_ORDERED,
+       (D.QUANTITY_ORDERED * L.UNIT_PRICE) ORDERED_PRICE,
+       D.QUANTITY_DELIVERED QUANTITY_DELIVERED,
+       (D.QUANTITY_DELIVERED * L.UNIT_PRICE) DELIVERED_PRICE,
+       D.QUANTITY_BILLED QUANTITY_BILLED,
+       D.AMOUNT_BILLED AMOUNT_BILLED,
+       D.QUANTITY_CANCELLED QUANTITY_CANCELLED,
+       (D.QUANTITY_CANCELLED * L.UNIT_PRICE) AMOUNT_CANCELLED
+  FROM PO_HEADERS_ALL               H,
+       CPO_HEADERS_ALL              C,
+       AP_TAX_CODES_ALL             TA,
+       PO_LINES_ALL                 L,
+       PO_LINE_LOCATIONS_ALL        LL,
+       PO_DISTRIBUTIONS_ALL         D,
+       PO_LOOKUP_CODES              PLC,
+       HR_ORGANIZATION_UNITS        O,
+       MTL_system_ITEMS_B           B,
+       ORG_ORGANIZATION_DEFINITIONS OO,
+       PA_PROJECTS_ALL              P,
+       PA_TASKS                     T,
+       HR_EMPLOYEES                 E,
+       PO_VENDORS                   V,
+       cgl_budget_combinations_kfv  BGT,
+       CGL_BUDGET_ACTIVITYINFO      BD
+ WHERE D.LINE_LOCATION_ID = LL.LINE_LOCATION_ID
+   AND H.PO_HEADER_ID = C.PO_HEADER_ID
+   AND C.TAX_ID = TA.TAX_ID
+   AND D.PO_LINE_ID = L.PO_LINE_ID
+   AND D.PO_HEADER_ID = H.PO_HEADER_ID
+   AND D.PROJECT_ID = P.PROJECT_ID(+)
+   AND D.TASK_ID = T.TASK_ID(+)
+   AND PLC.LOOKUP_CODE = NVL(H.AUTHORIZATION_STATUS, 'INCOMPLETE')
+   AND PLC.LOOKUP_TYPE = 'AUTHORIZATION STATUS'
+   AND H.AGENT_ID = E.employee_id(+)
+   AND L.ITEM_ID = B.INVENTORY_ITEM_ID(+)
+   AND LL.SHIP_TO_ORGANIZATION_ID = B.ORGANIZATION_ID
+   AND H.VENDOR_ID = V.VENDOR_ID(+)
+   AND H.ORG_ID = O.organization_id
+   AND LL.SHIP_TO_ORGANIZATION_ID = OO.ORGANIZATION_ID
+   AND D.ATTRIBUTE8 = BGT.budget_combination_id(+)
+   AND BGT.segment4 = BD.ACTIVITY_CODE(+)
+   and p.segment1=#{project_number}]]>
+  </select> 
+</mapper>

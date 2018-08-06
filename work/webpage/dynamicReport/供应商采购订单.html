@@ -1,0 +1,153 @@
+<html>
+ <head> 
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
+  <style type="text/css">.b1{white-space-collapsing:preserve;}
+.t1{border-collapse:collapse;border-spacing:0;}
+.r1{height:24.75pt;}
+.r2{height:14.25pt;}
+.r3{height:26.25pt;}
+.c1{white-space:pre-wrap;font-weight:bold;color: black; font-size:11pt;}
+.c2{white-space:pre-wrap;text-align:right;border-bottom:thin solid black;color: black; font-size:11pt;}
+.c3{white-space:pre-wrap;color: black; font-size:11pt;}
+.c4{white-space:pre-wrap;text-align:center;background-color:#eeece1;border-top:thin solid black;border-right:thin solid black;border-bottom:thin solid black;border-left:thin solid black;font-weight:bold;color: black; font-size:11pt;}
+.c5{white-space:pre-wrap;border-top:thin solid black;border-right:thin solid black;border-bottom:thin solid black;border-left:thin solid black;color: black; font-size:11pt;}
+.c6{white-space:pre-wrap;border-top:thin solid black;border-right:thin solid black;border-bottom:thin solid black;border-left:thin solid black;color: #0000ff; font-size:11pt;}
+</style> 
+  <link rel="stylesheet" href="./static/style.css" type="text/css">
+ </head> 
+ <body class="b1">
+  <div>
+   <input type="button" value="   查询   " onclick="_query(null)">
+   <span>|</span>
+   <input type="button" value="   首页   " onclick="firstPage()">
+   <span>|</span>
+   <input type="button" value="   上一页   " onclick="lastPage()">
+   <span>|</span>
+   <input type="button" value="   下一页   " onclick="nextPage()">
+   <span>|</span>
+   <input type="button" value="   末页   " onclick="endPage()">
+   <span>|</span>
+   <input type="button" value="   打印   " onclick="printReport()">
+   <span>|</span>
+   <font>第</font>
+   <input type="text" class="currentPage" value="1">
+   <font>页,总1页</font>
+  </div>
+  <div id="loading"></div>
+  <ul class="select">
+   <li class="select-list li_hidden">
+    <dl name="采购查询.采购订单查询按供应商.vendor_nmae">
+     <dt>
+      供应商名称：
+     </dt>
+     <dd class="select-all selected">
+      <a>全部</a>
+     </dd>
+     <dd>
+      <a name="电讯盈科信息技术（广州）有限公司"><i></i>电讯盈科信息技术（广州）有限公司</a>
+     </dd>
+     <dd>
+      <a name="华为软件技术有限公司"><i></i>华为软件技术有限公司</a>
+     </dd>
+     <dd>
+      <a name="深圳中兴力维技术有限公司"><i></i>深圳中兴力维技术有限公司</a>
+     </dd>
+    </dl>
+    <dl>
+     <dd class="more">
+      <a>更多</a>
+     </dd>
+     <dd class="multi">
+      <a>多选</a>
+     </dd>
+    </dl></li>
+   <li class="select-result">
+    <dl>
+     <dt>
+      已选条件：
+     </dt>
+     <dd class="select-no">
+      暂时没有选择过滤条件
+     </dd>
+    </dl></li>
+  </ul>  
+  <table class="t1" width="1076"> 
+   <colgroup> 
+    <col> 
+    <col width="56"> 
+    <col width="101"> 
+    <col width="100"> 
+    <col width="102"> 
+    <col width="95"> 
+    <col width="232"> 
+    <col width="134"> 
+    <col width="104"> 
+    <col width="67"> 
+    <col width="85"> 
+   </colgroup> 
+   <thead> 
+    <tr> 
+     <th></th>
+     <th></th>
+     <th></th>
+     <th></th>
+     <th></th>
+     <th></th>
+     <th></th>
+     <th></th>
+     <th></th>
+     <th></th>
+     <th></th> 
+    </tr> 
+   </thead> 
+   <tbody> 
+    <tr class="r1" style="display:none;"> 
+     <th class="rownumber"></th>
+     <td></td>
+     <td class="c1">供应商名称</td>
+     <td class="c2" colspan="3">%盈科%</td>
+     <td class="c3">&nbsp;</td>
+     <td class="c3">&nbsp;</td> 
+    </tr> 
+    <tr class="r2"></tr> 
+    <tr class="r3"> 
+     <th class="rownumber"></th>
+     <td></td>
+     <td class="c4">组织名称</td>
+     <td class="c4">订单编号</td>
+     <td class="c4">订单类型</td>
+     <td class="c4">创建日期</td>
+     <td class="c4">供应商名称</td>
+     <td class="c4">合同号</td>
+     <td class="c4">发票</td>
+     <td class="c4">发运</td>
+     <td class="c4">订单金额</td> 
+    </tr> 
+    <tr class="r3" name="采购查询.采购订单查询按供应商" style="display:none;"> 
+     <th class="rownumber"></th>
+     <td></td>
+     <td class="c5" name="采购查询.采购订单查询按供应商.org_name"></td>
+     <td class="c6" name="采购查询.采购订单查询按供应商.po_number"></td>
+     <td class="c5" name="采购查询.采购订单查询按供应商.po_type"></td>
+     <td class="c5" name="采购查询.采购订单查询按供应商.creation_date"></td>
+     <td class="c5" name="采购查询.采购订单查询按供应商.vendor_name"></td>
+     <td class="c5" name="采购查询.采购订单查询按供应商.contact_name"></td>
+     <td class="c5" name="采购查询.采购订单查询按供应商.bill_to_location_code"></td>
+     <td class="c5" name="采购查询.采购订单查询按供应商.ship_to_location_code"></td>
+     <td class="c5" name="采购查询.采购订单查询按供应商.po_amount"></td> 
+    </tr> 
+   </tbody> 
+  </table>     
+  <script type="text/javascript" src="./static/jquery.min.js"></script>
+  <script type="text/javascript" src="./static/spin.min.js"></script>
+  <script type="text/javascript" src="./static/common.js"></script>
+  <script type="text/javascript">
+var out = {row:{namespace:'采购查询',sqlid:'采购订单查询按供应商',id:['org_name','po_number','po_type','creation_date','vendor_name','contact_name','bill_to_location_code','ship_to_location_code','po_amount'],join:[],link:[{field:'po_number',dest:'./报表模板主从/采购订单模板.html',param:[{desField:'采购查询.采购订单头查询.po_number',srcField:'po_number'}]}]}};
+var paramList = [{id:'采购查询.采购订单查询按供应商.vendor_nmae',text:'供应商名称',value:[{name:'电讯盈科信息技术（广州）有限公司',value:'电讯盈科信息技术（广州）有限公司'},{name:'华为软件技术有限公司',value:'华为软件技术有限公司'},{name:'深圳中兴力维技术有限公司',value:'深圳中兴力维技术有限公司'}]}];
+function getQueryParam()
+{
+    return {row:{'采购查询.采购订单查询按供应商':{db:'system',in:[{id:'vendor_nmae',value:getParamValue('采购查询.采购订单查询按供应商.vendor_nmae')}]}}};
+}
+</script>
+ </body>
+</html>

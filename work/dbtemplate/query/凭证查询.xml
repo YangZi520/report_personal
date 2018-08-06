@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--凭证查询-->
+<mapper namespace="凭证查询"> 
+   <select id="总账凭证" parameterType="Map" resultType="Map">  
+      <!--{
+	       "db":"system",
+             desc:"总账凭证",
+	       in:[
+	           {id:"value_code",name:"凭证编码",datatype:"varchar"}
+	          ],
+		   out:["/Users/wangjian/Documents/iReport/file/myBatisTemplate/query/凭证查询.xml"
+			    {id:"journal_type",name:"凭证类型",datatype:"varchar"},
+			    {id:"sequence_value",name:"凭证号",datatype:"varchar"},
+			    {id:"gjb_name",name:"凭证批名称",datatype:"varchar"},
+			    {id:"gjh_name",name:"凭证名称",datatype:"varchar"},
+			    {id:"user_je_source_name",name:"来源",datatype:"varchar"},
+			    {id:"user_je_category_name",name:"类别",datatype:"varchar"},
+			    {id:"currency_code",name:"币种",datatype:"varchar"},				
+			    {id:"period_name",name:"期间",datatype:"varchar"},
+			    {id:"accounted_dr",name:"借方金额",datatype:"varchar"},
+			    {id:"accounted_cr",name:"货方金额",datatype:"varchar"},
+			    {id:"segment",name:"科目",datatype:"varchar"},
+			    {id:"segment_des",name:"科目描述",datatype:"varchar"},
+			    {id:"acc_flex",name:"科目",datatype:"varchar"},
+			    {id:"acc_des",name:"科目描述",datatype:"varchar"},
+			    {id:"approver",name:"复核人",datatype:"varchar"},
+			    {id:"INVOICE_TYPE",name:"发票类型",datatype:"varchar"}
+		       ]
+	  
+	     }-->  <![CDATA[
+		SELECT 'GL' journal_type,
+       substr(qsv.sequence_value, instr(qsv.sequence_value, ',') + 1) sequence_value,
+       gjb.NAME gjb_name,
+       gjh.NAME gjh_name,
+       gjs.user_je_source_name user_je_source_name,
+       gjc.user_je_category_name user_je_category_name,
+	   gjh.currency_code currency_code,
+       gjl.period_name period_name,
+       gjl.accounted_dr accounted_dr,
+       gjl.accounted_cr accounted_cr,
+       gcc.segment1 || '.' || gcc.segment2 || '.' || gcc.segment3 || '.' ||
+       gcc.segment4 || '.' || gcc.segment5 || '.' || gcc.segment6 || '.' ||
+       gcc.segment7 segment,
+       apps.qfnd_flex_api.get_concat_descs(101,
+                                           'GL#',
+                                           50257,
+                                           gcc.code_combination_id) segment_des
+FROM   gl.gl_je_batches          gjb,
+       gl.gl_je_headers          gjh,
+       gl.gl_je_lines            gjl,
+       apps.gl_code_combinations gcc,
+       gl_je_sources             gjs,
+       gl_je_categories          gjc,
+       qgl_sequence_value        qsv
+WHERE  gjb.je_batch_id = gjh.je_batch_id
+AND    gjh.je_header_id = gjl.je_header_id
+AND    gjh.je_source = gjs.je_source_name
+AND    gjh.je_category = gjc.je_category_name
+AND    gjh.currency_code = 'CNY'
+AND    gjh.je_header_id = qsv.je_header_id
+AND    gjl.code_combination_id = gcc.code_combination_id
+AND    nvl(gcc.enabled_flag, 'N') = 'Y'
+AND    gjh.set_of_books_id = 1
+AND    substr(qsv.sequence_value, instr(qsv.sequence_value, ',') + 1) = #{value_code}
+	 ]]> 
+   </select>  
+   <select id="应付发票凭证" parameterType="Map" resultType="Map"> 
+      <!--{
+	      "db":"system",
+             desc:"应付发票凭证",
+	       in:[
+	           {id:"value_code",name:"凭证编码",datatype:"varchar"}
+	          ],
+		   out:[
+			    {id:"journal_type",name:"凭证类型",datatype:"varchar"},
+			    {id:"journal_num",name:"凭证号",datatype:"varchar"},
+			    {id:"journal_name",name:"发票编号",datatype:"varchar"},
+			    {id:"journal_date",name:"凭证日期",datatype:"varchar"},
+			    {id:"vendor_number",name:"供应商编码",datatype:"varchar"},
+			    {id:"vendor_name",name:"供应商名称",datatype:"varchar"},
+			    {id:"vendor_location",name:"供应商地点",datatype:"varchar"},
+			    {id:"CURR_CODE",name:"币种",datatype:"varchar"},
+			    {id:"LINE_DESC",name:"行说明",datatype:"varchar"},
+			    {id:"DEBIT_AMT",name:"借方金额",datatype:"varchar"},
+			    {id:"CREDIT_AMT",name:"贷方金额",datatype:"varchar"},
+			    {id:"acc_flex",name:"科目",datatype:"varchar"},
+			    {id:"acc_des",name:"科目描述",datatype:"varchar"},
+			    {id:"approver",name:"复核人",datatype:"varchar"},
+			    {id:"INVOICE_TYPE",name:"发票类型",datatype:"varchar"}
+		       ]
+	  
+	     }-->  <![CDATA[
+		SELECT 'INV' journal_type,
+       ael.subledger_doc_sequence_value journal_num,
+       ai.invoice_num journal_name,
+       to_char(aeh.accounting_date,'yyyy-mm-dd') journal_date,
+       av.segment1 vendor_number,
+       av.vendor_name vendor_name,
+       pvs.vendor_site_code vendor_location,
+       ael.currency_code CURR_CODE,
+       decode(ael.ae_line_type_code,
+              'LIABILITY',
+              ai.description,
+              decode(nvl(' ', 'N'), 'Y', NULL, aid.description)) LINE_DESC,
+       SUM(ael.entered_dr) DEBIT_AMT,
+       SUM(ael.entered_cr) CREDIT_AMT,
+       c.segment1 || '.' || c.segment2 || '.' || c.segment3 || '.' ||
+       c.segment4 || '.' || c.segment5 || '.' || c.segment6 || '.' ||
+       c.segment7 acc_flex,
+       apps.qfnd_flex_api.get_concat_descs(101,
+                                           'GL#',
+                                           --50348,--HJ
+                                           --50330,--TD
+                                           50257, --上市
+                                           ael.code_combination_id) acc_des,
+       qap_inv_approvedby(ael.subledger_doc_sequence_value) approver,
+	   ' ' INVOICE_TYPE
+FROM   ap_ae_lines_all ael,
+       ap_invoices_all ai,
+       po_vendors av,
+       po_vendor_sites_all pvs,
+       ap_invoice_distributions_all aid,
+       ap_ae_headers_all aeh,
+       AP_BATCHES_ALL ABA,
+       (SELECT *
+        FROM   FND_LOOKUP_VALUES
+        WHERE  lookup_type = 'INVOICE TYPE'
+        AND    LANGUAGE = 'ZHS') L,
+       gl_code_combinations c,
+       　　　ap_accounting_events_all ace
+WHERE  to_number(ael.reference2) = ai.invoice_id
+AND    ai.vendor_id = av.vendor_id
+AND    ai.batch_id = aba.batch_id(+)
+AND    L.LOOKUP_CODE = AI.INVOICE_TYPE_LOOKUP_CODE
+AND    ael.code_combination_id = c.code_combination_id
+AND    c.chart_of_accounts_id = 50257
+AND    ai.vendor_site_id = pvs.vendor_site_id
+AND    to_number(ael.reference2) = aid.invoice_id(+)
+AND    to_number(ael.reference3) = aid.distribution_line_number(+)
+AND    ael.source_table IN ('AP_INVOICES', 'AP_INVOICE_DISTRIBUTIONS')
+AND    ael.ae_header_id = aeh.ae_header_id
+AND    aeh.set_of_books_id = 1
+      --AND    aeh.org_id =233
+AND    aeh.accounting_event_id = ace.accounting_event_id
+      --AND    aeh.accounting_date >= to_date('2015-01-01','yyyy-mm-dd')
+      --AND    aeh.accounting_date <= to_date('2015-12-31','yyyy-mm-dd')
+      --AND    ai.invoice_num >= 'RC502154001512170215'
+      --AND    ai.invoice_num <= 'RC502154001512170215'
+AND    ael.subledger_doc_sequence_value = #{value_code}
+AND    ai.invoice_currency_code = 'CNY'
+GROUP  BY 'INV',
+          ael.subledger_doc_sequence_value,
+          ael.ae_header_id,
+          ai.invoice_num,
+          aeh.accounting_date,
+          ai.invoice_id,
+          ai.doc_sequence_value,
+          av.segment1,
+          av.vendor_name,
+          pvs.vendor_site_code,
+          decode(ael.accounted_dr, NULL, 2, 1),
+          decode(nvl(' ', 'N'),
+                 'N',
+                 decode(' ',
+                        'Y',
+                        decode(ael.ae_line_type_code,
+                               'NONRECOVERABLE TAX',
+                               ael.tax_code_id,
+                               'RECOVERABLE TAX',
+                               ael.tax_code_id,
+                               ael.ae_line_id),
+                        ael.ae_line_id),
+                 decode(aid.po_distribution_id,
+                        NULL,
+                        decode(' ',
+                               'Y',
+                               decode(ael.ae_line_type_code,
+                                      'NONRECOVERABLE TAX',
+                                      ael.tax_code_id,
+                                      'RECOVERABLE TAX',
+                                      ael.tax_code_id,
+                                      ael.ae_line_id),
+                               ael.ae_line_id),
+                        NULL)),
+          ael.currency_code,
+          ael.currency_conversion_rate,
+          decode(ael.ae_line_type_code,
+                 'LIABILITY',
+                 ai.description,
+                 decode(nvl(' ', 'N'), 'Y', NULL, aid.description)),
+          ' ',
+          decode(ace.event_type_code,
+                 'PREPAYMENT APPLICATION',
+                 decode(qapprjnl_pkg.get_null, 'Y', ' ', '0'),
+                 'PREPAYMENT UNAPPLICATION',
+                 '0',
+                 ai.attribute1),
+          C.SEGMENT1,
+          C.SEGMENT2,
+          C.SEGMENT3,
+          C.SEGMENT4,
+          C.SEGMENT5,
+          C.SEGMENT6,
+          C.SEGMENT7,
+          ael.code_combination_id,
+          qap_inv_approvedby(ai.doc_sequence_value),
+          L.MEANING,
+          ai.attribute11,
+          ai.invoice_amount,
+          aba.batch_name
+	 ]]> 
+   </select>  
+   <select id="应付付款凭证" parameterType="Map" resultType="Map"> 
+      <!--{
+	     "db":"system",
+           desc:"应付付款凭证",
+	       in:[
+	           {id:"value_code",name:"凭证编码",datatype:"varchar"}
+	          ],
+		   out:[
+			    {id:"journal_type",name:"凭证类型",datatype:"varchar"},
+			    {id:"journal_num",name:"凭证号",datatype:"varchar"},
+			    {id:"journal_name",name:"发票编号",datatype:"varchar"},
+			    {id:"journal_date",name:"凭证日期",datatype:"varchar"},
+			    {id:"vendor_number",name:"供应商编码",datatype:"varchar"},
+			    {id:"vendor_name",name:"供应商名称",datatype:"varchar"},
+			    {id:"vendor_location",name:"供应商地点",datatype:"varchar"},
+			    {id:"CURR_CODE",name:"币种",datatype:"varchar"},
+			    {id:"LINE_DESC",name:"行说明",datatype:"varchar"},
+			    {id:"DEBIT_AMT",name:"借方金额",datatype:"varchar"},
+			    {id:"CREDIT_AMT",name:"贷方金额",datatype:"varchar"},
+			    {id:"acc_flex",name:"科目",datatype:"varchar"},
+			    {id:"acc_des",name:"科目描述",datatype:"varchar"},
+			    {id:"approver",name:"复核人",datatype:"varchar"},
+			    {id:"INVOICE_TYPE",name:"发票类型",datatype:"varchar"}
+		       ]
+	  
+	     }-->  <![CDATA[
+		SELECT 'PAY' journal_type,
+       ael.subledger_doc_sequence_value journal_num,
+       ac.check_number  journal_name,
+       to_char(aeh.accounting_date,'yyyy-mm-dd') journal_date,
+       av.segment1 vendor_number,
+       av.vendor_name vendor_name,
+       ac.vendor_site_code vendor_location,
+       ael.currency_code CURR_CODE,
+       decode(nvl(' ', 'N'),
+              'Y',
+              NULL,
+              decode(ael.ae_line_type_code,
+                     'LIABILITY',
+                     qgl_get_inv_desc(AEL.AE_LINE_ID, AEL.SOURCE_TABLE),
+                     ac.description)) LINE_DESC,
+       SUM(ael.entered_dr) DEBIT_AMT,
+       SUM(ael.entered_cr) CREDIT_AMT,
+       nvl(ppl.last_name, u.user_name) USER_NAME,
+	   ' ' approver,
+       c.segment1 || '.' || c.segment2 || '.' || c.segment3 || '.' ||
+       c.segment4 || '.' || c.segment5 || '.' || c.segment6 || '.' ||
+       c.segment7 acc_flex,
+       apps.qfnd_flex_api.get_concat_descs(101,
+                                           'GL#',
+                                           --50348,--HJ
+                                           --50330,--TD
+                                           50257, --上市
+                                           ael.code_combination_id) acc_des,
+	   ' ' INVOICE_TYPE
+FROM   ap_ae_lines_all               ael,
+       ap_checks_all                 ac,
+       po_vendors                    av,
+       ap_ae_headers_all             aeh,
+       fnd_user                      u,
+       per_people_x                  ppl,
+       AP_INV_SELECTION_CRITERIA_ALL cri,
+       gl_code_combinations          c
+WHERE  to_number(ael.reference3) = ac.check_id
+AND    ac.vendor_id = av.vendor_id
+AND    cri.checkrun_id(+) = ac.checkrun_id
+AND    ael.code_combination_id = c.code_combination_id
+AND    c.chart_of_accounts_id =  50257
+AND    ael.source_table IN ('AP_INVOICE_PAYMENTS', 'AP_CHECKS')
+AND    ael.ae_header_id = aeh.ae_header_id
+AND    aeh.set_of_books_id = 1
+--AND    aeh.org_id = :P_ORG_ID
+AND    u.user_id = nvl(cri.created_by, ac.created_by)
+AND    u.employee_id = ppl.person_id(+)
+--AND    aeh.accounting_date >= '01-11-14'
+--AND    aeh.accounting_date <= '30-11-16'
+and ael.subledger_doc_sequence_value = #{value_code}
+AND    ac.currency_code = 'CNY'
+GROUP  BY 'PAY',
+          ael.subledger_doc_sequence_value,
+          ael.ae_header_id,
+          check_number,
+          aeh.accounting_date,
+          ac.check_id,
+          ac.doc_sequence_value,
+          av.segment1,
+          av.vendor_name,
+          ac.vendor_site_code,
+          decode(ael.accounted_dr, NULL, 2, 1),
+          decode(nvl( ' ', 'N'),
+                 'N',
+                 decode(' ',
+                        'Y',
+                        decode(ael.ae_line_type_code,
+                               'NONRECOVERABLE TAX',
+                               ael.tax_code_id,
+                               'RECOVERABLE TAX',
+                               ael.tax_code_id,
+                               ael.ae_line_id),
+                        ael.ae_line_id),
+                 NULL),
+          ael.currency_code,
+          ael.currency_conversion_rate,
+          decode(nvl(' ', 'N'),
+                 'Y',
+                 NULL,
+                 decode(ael.ae_line_type_code,
+                        'LIABILITY',
+                        qgl_get_inv_desc(AEL.AE_LINE_ID, AEL.SOURCE_TABLE),
+                        ac.description)),
+          nvl(ppl.last_name, u.user_name),
+          ac.attribute2,
+          ac.attribute1,
+          c.segment1 || '.' || c.segment2 || '.' || c.segment3 || '.' ||
+          c.segment4 || '.' || c.segment5 || '.' || c.segment6 || '.' ||
+          c.segment7,
+          ael.code_combination_id,
+          ' ',
+          ' ',
+          ' ',
+          0
+ORDER  BY 1, 2, 5, 6, 12, 11
+	 ]]> 
+   </select>  
+   
+</mapper>

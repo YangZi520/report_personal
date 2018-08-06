@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<DBConnection> 
+   <DB>
+      <name>system</name>
+      <driver>oracle.jdbc.OracleDriver</driver>
+      <dbtype>Oracle</dbtype>
+      <!-- 湖北测试环境 -->
+      <url>jdbc:oracle:thin:@172.16.134.129:13201:EBSIT</url>
+      <username>apps</username>
+      <password>Y0pBthERE0A=</password>
+      <maxPoolSize>50</maxPoolSize>
+      <minPoolSize>3</minPoolSize>
+   </DB>
+   <DB> 
+      <name>form</name>  
+      <dbtype>Mysql</dbtype>  
+      <driver>com.mysql.cj.jdbc.Driver</driver>
+      <url>jdbc:mysql://localhost:3306/form</url>
+      <username>root</username>  
+      <password>PyLaXmDHgI8=</password>  
+      <maxPoolSize>50</maxPoolSize>  
+      <minPoolSize>3</minPoolSize> 
+   </DB>
+   <DB>
+      <name>budget</name>
+      <driver>com.ibm.db2.jcc.DB2Driver</driver>
+      <dbtype>DB2</dbtype>
+      <url>jdbc:db2://10.25.140.139:5001/tbmprd</url>
+      <username>tbmprd</username>
+      <password>h5mmVLEcqGglgRLWg0vusA==</password>
+      <maxPoolSize>50</maxPoolSize>
+      <minPoolSize>3</minPoolSize>
+   </DB>
+<!--   <DB>
+      <name>budget</name>
+      <driver>com.ibm.db2.jcc.DB2Driver</driver>
+      <dbtype>DB2</dbtype>
+      <username>tbmprd</username>
+      <url>jdbc:db2://10.25.140.139/tbmdbeb</url>
+      <password>h5mmVLEcqGglgRLWg0vusA==</password>
+      &lt;!&ndash;<url>jdbc:db2://10.25.140.139:5001/tbmprd</url>&ndash;&gt;
+      &lt;!&ndash; 生产 &ndash;&gt;
+      &lt;!&ndash;<password>h5mmVLEcqGglgRLWg0vusA==</password>&ndash;&gt;
+      &lt;!&ndash; 生产 &ndash;&gt;
+      <maxPoolSize>50</maxPoolSize>
+      <minPoolSize>3</minPoolSize>
+   </DB>-->
+</DBConnection>

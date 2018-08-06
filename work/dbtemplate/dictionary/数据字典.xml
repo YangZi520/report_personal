@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="数据字典"> 
+    <select id="查询公司信息" parameterType="Map" resultType="Map"> 
+      <!--{
+         db:"system",
+	     desc:"查询公司信息",
+	       in:[
+	           {id:"value_code",name:"公司编码",datatype:"varchar"}
+	          ],
+		   out:[
+			    {id:"address_line",name:"公司编码",datatype:"varchar"},
+			    {id:"name",name:"公司名称",datatype:"varchar"},
+			    {id:"date_from",name:"创建日期",datatype:"varchar"} 
+		       ]
+	  
+	     }--> 
+		SELECT hou.internal_address_line address_line, hou.name name,to_char(hou.date_from,'yyyy-mm-dd') date_from
+		FROM   hr_organization_units hou
+		WHERE  1 = 1
+		AND    hou.name LIKE 'OU%'
+		<if test="value_code!=null">
+		and  hou.internal_address_line = nvl(#{value_code},hou.internal_address_line)
+		</if>
+		and  sysdate between nvl(hou.date_from,sysdate) and nvl(hou.date_to,sysdate + 1) 
+		ORDER  BY hou.internal_address_line
+	
+   </select>  
+   <select id="查询值集信息" parameterType="Map" resultType="Map"> 
+      <!--{
+	     db:"system",
+	     desc:"查询值集信息",
+	       in:[
+	            {id:"value_set_name",name:"值集名称",datatype:"varchar"}
+	          ],
+		   out:[
+			    {id:"code",name:"值集编码",datatype:"varchar"},
+			    {id:"description",name:"值集名称",datatype:"varchar"},
+				{id:"flag",name:"是否启用",datatype:"varchar"},
+				{id:"start_date",name:"启用日期",datatype:"varchar"},
+				{id:"end_date",name:"结束日期",datatype:"varchar"}
+		       ]
+	     }-->  <![CDATA[
+	  SELECT ffv.flex_value code,
+       to_char(ffv.flex_value) || ' ' || ffvt.description description,
+       ffv.enabled_flag flag,
+       to_char(ffv.start_date_active, 'yyyy-mm-dd') start_date,
+       to_char(ffv.end_date_active, 'yyyy-mm-dd') end_date
+FROM   apps.fnd_flex_values     ffv,
+       apps.fnd_flex_values_tl  ffvt,
+       apps.fnd_flex_value_sets ffvs
+WHERE  ffv.flex_value_id = ffvt.flex_value_id
+AND    ffvt.LANGUAGE = 'ZHS'
+AND length(ffv.flex_value) = 10
+AND    ffvs.flex_value_set_id = ffv.flex_value_set_id
+AND    ffvs.flex_value_set_name = nvl(#{value_set_name},ffvs.flex_value_set_name)
+ORDER  BY ffv.flex_value
+	  
+	 ]]> 
+   </select>  
+   
+<select id="供应商名称" resultType="Map" parameterType="Map">
+<!--{
+	"db":"system",
+	"desc":"",
+	"in":[],
+	"out":[
+		{
+			"id":"name",
+			"name":"供应商名称编码",
+			"datatype":"varchar"
+		},
+		{
+			"id":"value",
+			"name":"供应商名称",
+			"datatype":"varchar"
+		}
+	]
+}
+-->select '电讯盈科信息技术（广州）有限公司' name,'电讯盈科信息技术（广州）有限公司' value from dual
+union 
+select '华为软件技术有限公司' name,'华为软件技术有限公司' value from dual
+union 
+select '深圳中兴力维技术有限公司' name,'深圳中兴力维技术有限公司' value from dual
+</select>
+   <select id="查询地区" resultType="Map" parameterType="Map">
+<!--{
+	"db":"form",
+	"desc":"",
+	"in":[],
+	"out":[
+		{
+			"id":"name",
+			"name":"地区编码",
+			"datatype":"varchar"
+		},
+		{
+			"id":"value",
+			"name":"地区名称",
+			"datatype":"varchar"
+		}
+	]
+}
+-->select '华中' NAME,'华中' VALUE from dual
+union 
+select '华北' NAME,'华北' VALUE from dual
+</select>
+<select id="查询城市" resultType="Map" parameterType="Map">
+<!--{
+	"db":"form",
+	"desc":"",
+	"in":[],
+	"out":[
+		{
+			"id":"name",
+			"name":"城市编码",
+			"datatype":"varchar"
+		},
+		{
+			"id":"value",
+			"name":"城市名称",
+			"datatype":"varchar"
+		}
+	]
+}
+-->select '湖南' NAME,'湖南' VALUE from dual
+union 
+select '湖北' NAME,'湖北' VALUE from dual
+union
+select '北京' NAME,'北京' VALUE from dual
+union 
+select '天津' NAME,'天津' VALUE from dual
+</select>
+</mapper>

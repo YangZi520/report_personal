@@ -1,0 +1,674 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<!--资产查询-->
+<mapper namespace="资产查询">
+
+	<select id="查询资产期间信息" parameterType="Map" resultType="Map" >
+	  <!--{
+		"db":"system",
+     desc:"查询资产期间信息",
+		 in:[
+		    {id:"book_type_code",name:"资产账簿",datatype:"varchar"},
+		    {id:"period_name",name:"期间",datatype:"varchar"}
+	          ],
+		 out:[
+		     {id:"period_name",name:"期间",datatype:"varchar"},
+			 {id:"book_type_code",name:"资产账簿",datatype:"varchar"},
+			 {id:"period_open_date",name:"打开日期",datatype:"varchar"},
+		     {id:"period_close_date",name:"关闭日期",datatype:"varchar"},
+			 {id:"deprn_run",name:"是否折旧",datatype:"varchar"}
+		       ]
+	    }
+	 -->
+	  
+	  <![CDATA[
+	  SELECT a.book_type_code book_type_code,
+       a.period_name period_name,
+       to_char(a.period_open_date,'yyyy-mm-dd') period_open_date,
+       to_char(a.period_close_date,'yyyy-mm-dd') period_close_date,
+       decode(a.deprn_run, 'Y', '是', '否') deprn_run
+FROM   fa.fa_deprn_periods a
+WHERE  1 = 1
+AND    a.period_name LIKE #{period_name}
+AND    A.BOOK_TYPE_CODE LIKE nvl(#{book_type_code},A.BOOK_TYPE_CODE)
+AND    a.period_close_date IS NULL
+AND    EXISTS (SELECT fbc.book_type_code
+        FROM   FA_BOOK_CONTROLS fbc
+        WHERE  fbc.book_type_code LIKE nvl(#{book_type_code},fbc.book_type_code)
+        AND    SYSDATE < nvl(fbc.date_ineffective, SYSDATE + 1)
+        AND    a.book_type_code = fbc.book_type_code)
+ORDER  BY a.fiscal_year DESC, a.period_num DESC, a.book_type_code
+	 ]]>
+	</select>
+	
+	<select id="查询资产类别信息" parameterType="Map" resultType="Map" >
+	  <!--{
+		  "db":"system",
+     desc:"查询资产类别信息",
+		 in:[
+		    {id:"book_type_code",name:"资产账簿",datatype:"varchar"},
+		     {id:"category_segment",name:"资产类别第二段",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"segment1",name:"应用领域",datatype:"varchar"},
+		     {id:"segment2",name:"目录分类",datatype:"varchar"},
+			 {id:"segment3",name:"名称",datatype:"varchar"},
+		     {id:"description1",name:"应用领域描述",datatype:"varchar"},
+			 {id:"description2",name:"目录分类描述",datatype:"varchar"},
+		     {id:"description3",name:"名称描述",datatype:"varchar"},
+			 {id:"description",name:"资产类别说明",datatype:"varchar"},
+		     {id:"property_type_code",name:"动产类型",datatype:"varchar"},
+			 {id:"category_type",name:"类别",datatype:"varchar"},
+		     {id:"asset_cost_acct",name:"资产原值科目",datatype:"varchar"},
+			 {id:"deprn_expense_acct",name:"资产折旧科目",datatype:"varchar"},
+		     {id:"deprn_expense_dis",name:"资产折旧科目说明",datatype:"varchar"},
+			 {id:"deprn_reserve_acct",name:"累计折旧",datatype:"varchar"},
+		     {id:"percent_salvage_value",name:"残值率",datatype:"varchar"},
+		     {id:"attribute1",name:"计量单位",datatype:"varchar"},
+			 {id:"capitalize_flag",name:"是否资本化",datatype:"varchar"},
+			 {id:"enabled_flag",name:"是否启用",datatype:"varchar"}
+		       ]
+	    }
+	 -->
+	  
+	  <![CDATA[
+	  SELECT DISTINCT fcb.segment1 segment1,
+                fcb.segment2 segment2,
+                fcb.segment3 segment3,
+                nvl(ffvv1.description, ' ') description1,
+                nvl(ffvv2.description, ' ') description2,
+                nvl(ffvv3.description, ' ') description3,
+                fct.description description,
+                fcb.property_type_code property_type_code,
+                decode(fcb.category_type,
+                       'NON-LEASE',
+                       '非租赁',
+                       'LEASE',
+                       '租赁',
+                       '租赁资产改良支出') category_type,
+                fcbb.asset_cost_acct asset_cost_acct,
+                fcbb.deprn_expense_acct deprn_expense_acct,
+                (SELECT ffvt.description
+                 FROM   fnd_flex_values ffv, fnd_flex_values_tl ffvt
+                 WHERE  ffv.flex_value_set_id =
+                        (SELECT ffvs.flex_value_set_id
+                         FROM   fnd_flex_value_sets ffvs
+                         WHERE  ffvs.flex_value_set_name LIKE 'JXMC_COA_AC')
+                 AND    ffv.flex_value_id = ffvt.flex_value_id
+                 AND    FFV.SUMMARY_FLAG = 'N'
+                 AND    ffvt.LANGUAGE = 'ZHS'
+                 AND    ffv.flex_value = fcbb.deprn_expense_acct) deprn_expense_dis,
+                fcbb.deprn_reserve_acct deprn_reserve_acct,
+                fcbd.percent_salvage_value percent_salvage_value,
+                fcb.enabled_flag enabled_flag,
+                fcb.attribute1 attribute1,
+                fcb.capitalize_flag capitalize_flag
+FROM   fa_categories_b              fcb,
+       fa_categories_tl             fct,
+       fa.fa_category_book_defaults fcbd,
+       fnd_id_flex_segments_vl      fifs1,
+       fnd_flex_values_vl           ffvv1,
+       fnd_id_flex_segments_vl      fifs2,
+       fnd_flex_values_vl           ffvv2,
+       fnd_id_flex_segments_vl      fifs3,
+       fnd_flex_values_vl           ffvv3,
+       fa_category_books            fcbb
+WHERE  fcb.category_id = fcbd.category_id
+AND    fcb.category_id = fct.category_id
+AND    fcb.category_id = fcbb.category_id
+AND    fcbd.book_type_code = fcbb.book_type_code
+AND    nvl(fcb.enabled_flag, 'N') = 'Y'
+AND    SYSDATE BETWEEN nvl(fcb.start_date_active, SYSDATE) AND
+       nvl(fcb.end_date_active, SYSDATE + 1)
+AND    fifs1.flex_value_set_id = ffvv1.flex_value_set_id
+AND    fifs1.id_flex_code = 'CAT#'
+AND    fifs1.id_flex_num = 101
+AND    fifs1.application_column_name = 'SEGMENT1'
+AND    ffvv1.flex_value = fcb.segment1
+AND    fifs1.application_id = 140
+AND    nvl(ffvv1.enabled_flag, 'N') = 'Y'
+AND    SYSDATE BETWEEN nvl(ffvv1.start_date_active, SYSDATE) AND
+       nvl(ffvv1.end_date_active, SYSDATE + 1)
+AND    fifs2.flex_value_set_id = ffvv2.flex_value_set_id
+AND    fifs2.id_flex_code = 'CAT#'
+AND    fifs2.id_flex_num = 101
+AND    fifs2.application_column_name = 'SEGMENT2'
+AND    ffvv2.flex_value = fcb.segment2
+AND    fifs2.application_id = 140
+AND    nvl(ffvv2.enabled_flag, 'N') = 'Y'
+AND    SYSDATE BETWEEN nvl(ffvv2.start_date_active, SYSDATE) AND
+       nvl(ffvv2.end_date_active, SYSDATE + 1)
+AND    fifs3.flex_value_set_id = ffvv3.flex_value_set_id
+AND    fifs3.id_flex_code = 'CAT#'
+AND    fifs3.id_flex_num = 101
+AND    fifs3.application_column_name = 'SEGMENT3'
+AND    ffvv3.parent_flex_value_low = fcb.segment2
+AND    ffvv3.flex_value = fcb.segment3
+AND    fifs3.application_id = 140
+AND    nvl(ffvv3.enabled_flag, 'N') = 'Y'
+AND    SYSDATE BETWEEN nvl(ffvv3.start_date_active, SYSDATE) AND
+       nvl(ffvv3.end_date_active, SYSDATE + 1)
+AND    fcbd.book_type_code = nvl(#{book_type_code},fcbd.book_type_code)
+AND    fcb.segment2 = nvl(#{category_segment},fcb.segment2)
+	 ]]>
+	</select>
+	
+	<select id="查询资产明细信息" parameterType="Map" resultType="Map" >
+	  <!--{
+		 	"db":"system",
+     desc:"查询资产明细信息",
+		 in:[
+		    {id:"book_type_code",name:"资产账簿",datatype:"varchar"},
+		    {id:"tag_number",name:"资产标签号",datatype:"varchar"},
+			{id:"PERIOD_NAME",name:"期间",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"book_type_code",name:"帐簿",datatype:"varchar"},
+		     {id:"period_name",name:"期间",datatype:"varchar"},
+			 {id:"asset_number",name:"资产编号",datatype:"varchar"},
+		     {id:"tag_num",name:"资产标签号",datatype:"varchar"},
+			 {id:"descrip",name:"资产名称",datatype:"varchar"},
+		     {id:"cate_segment",name:"资产类别",datatype:"varchar"},
+			 {id:"cate_discrip",name:"资产类别说明",datatype:"varchar"},
+		     {id:"serial_number",name:"序列号",datatype:"varchar"},
+			 {id:"key_seg",name:"资产关键字",datatype:"varchar"},
+		     {id:"manufacturer_name",name:"厂商",datatype:"varchar"},
+			 {id:"model_number",name:"规格型号",datatype:"varchar"},
+		     {id:"units",name:"数量",datatype:"varchar"},
+			 {id:"unit_of_measure",name:"单位",datatype:"varchar"},
+		     {id:"creation_date",name:"创建日期",datatype:"varchar"},
+		     {id:"date_placed_in_service",name:"启用日期",datatype:"varchar"},
+			 {id:"prorate_date",name:"按比例分摊日期",datatype:"varchar"},
+			 {id:"deprn_method_code",name:"折旧方法",datatype:"varchar"},
+			 {id:"depreciate_flag",name:"是否折旧",datatype:"varchar"},
+		     {id:"life_in_months",name:"使用年限",datatype:"varchar"},
+			 {id:"leave_month",name:"剩余月数",datatype:"varchar"},
+		     {id:"original_cost",name:"资产原始成本",datatype:"varchar"},
+			 {id:"cost",name:"当前成本",datatype:"varchar"},
+		     {id:"cost_jz",name:"资产净值",datatype:"varchar"},
+			 {id:"cost_je",name:"资产净额",datatype:"varchar"},
+		     {id:"bq_zj",name:"本期折旧额",datatype:"varchar"},
+			 {id:"bn_zj",name:"本年折旧额",datatype:"varchar"},
+		     {id:"lj_zj",name:"累计折旧额",datatype:"varchar"},
+			 {id:"bq_jzzb",name:"本期减值准备",datatype:"varchar"},
+		     {id:"bn_jzzb",name:"本年减值准备",datatype:"varchar"},
+			 {id:"lj_jzzb",name:"累计减值准备",datatype:"varchar"},
+		     {id:"employee_number",name:"保管人编号",datatype:"varchar"},
+		     {id:"employee_name",name:"保管人姓名",datatype:"varchar"},
+			 {id:"prorate_date",name:"按比例分摊日期",datatype:"varchar"},
+			 {id:"project_seg",name:"项目编码",datatype:"varchar"},
+			 {id:"project_dis",name:"项目说明",datatype:"varchar"},
+		     {id:"local_host",name:"资产地点",datatype:"varchar"},
+			 {id:"buling",name:"建设状态",datatype:"varchar"},
+		     {id:"asset_source",name:"资产来源",datatype:"varchar"},
+			 {id:"zj_segment",name:"折旧科目",datatype:"varchar"},
+		     {id:"zj_segment_dis",name:"折旧科目描述",datatype:"varchar"},
+			 {id:"lj_segment",name:"累计科目",datatype:"varchar"},
+		     {id:"lj_segment_dis",name:"累计科目描述",datatype:"varchar"}
+		       ]
+	    }
+	 -->
+	  
+	  <![CDATA[
+	  SELECT fcb.book_type_code book_type_code,
+       fdp.period_name    period_name,
+       fa.asset_number    asset_number,
+       fa.tag_number      tag_num,
+       fat.description    descrip,
+       fc.segment1 || '.' || fc.segment2 || '.' || fc.segment3 cate_segment,
+       cfa_audit_2012_utl.get_cat_desc_by_cat_id(fah.category_id)  cate_discrip,
+       fa.serial_number serial_number,
+       fak.segment1 || '.' || fak.segment2 || '.' || fak.segment3  key_seg,
+       fa.manufacturer_name manufacturer_name,
+       fa.model_number model_number,
+       fah.units                 units,
+       fb.unit_of_measure        unit_of_measure,
+       to_char(fa.creation_date,'yyyy-mm-dd')          creation_date,
+       to_char(fb.date_placed_in_service,'yyyy-mm-dd')  date_placed_in_service,
+       to_char(fb.prorate_date,'yyyy-mm-dd')           prorate_date,
+       fb.deprn_method_code deprn_method_code,
+       fb.depreciate_flag depreciate_flag,
+       round(fb.life_in_months / 12, 2) life_in_months,
+       CASE
+         WHEN (decode(fb.conversion_date,
+                      NULL,
+                      fb.life_in_months -
+                      floor(months_between(fdp.calendar_period_close_date,
+                                           fb.prorate_date)) -
+                      decode( fdp.deprn_run,
+                             'Y',
+                             1,
+                             0),
+                      fb.life_in_months -
+                      floor(months_between(fdp.calendar_period_close_date,
+                                           fb.deprn_start_date)) -
+                      decode( fdp.deprn_run,
+                             'Y',
+                             1,
+                             0))) < 0 THEN
+          0
+         ELSE
+          decode(fb.conversion_date,
+                 NULL,
+                 fb.life_in_months -
+                 floor(months_between(fdp.calendar_period_close_date,
+                                      fb.prorate_date)) -
+                 decode( fdp.deprn_run,
+                        'Y',
+                        1,
+                        0),
+                 fb.life_in_months -
+                 floor(months_between(fdp.calendar_period_close_date,
+                                      fb.deprn_start_date)) -
+                 decode(fdp.deprn_run,
+                        'Y',
+                        1,
+                        0))
+       END leave_month,
+       nvl(fb.original_cost, 0) original_cost,
+       nvl(fb.cost, 0) cost,
+       nvl(fb.cost, 0) - nvl(fds.deprn_reserve, 0) -
+       decode(fds.period_counter,
+              fdp.period_counter,
+              0,
+              nvl((SELECT SUM(decode(fj.adjustment_type,
+                                    'RESERVE',
+                                    decode(fj.debit_credit_flag,
+                                           'DR',
+                                           (-1) * nvl(fj.adjustment_amount, 0),
+                                           nvl(fj.adjustment_amount, 0)),
+                                    'EXPENSE',
+                                    decode(fj.debit_credit_flag,
+                                           'CR',
+                                           (-1) * nvl(fj.adjustment_amount, 0),
+                                           nvl(fj.adjustment_amount, 0))))
+                  FROM   fa_adjustments fj
+                  WHERE  fj.asset_id = fa.asset_id
+                  AND    fj.book_type_code = fbc.book_type_code
+                  AND    fj.period_counter_created = fdp.period_counter
+                  AND    fj.adjustment_type IN ('RESERVE', 'EXPENSE')),
+                  0)) cost_jz,
+       nvl(fb.cost, 0) - nvl(fds.deprn_reserve, 0) -
+       nvl(fds.impairment_reserve, 0) -
+       decode(fds.period_counter,
+              fdp.period_counter,
+              0,
+              nvl((SELECT SUM(decode(fj.adjustment_type,
+                                    'RESERVE',
+                                    decode(fj.debit_credit_flag,
+                                           'DR',
+                                           (-1) * nvl(fj.adjustment_amount, 0),
+                                           nvl(fj.adjustment_amount, 0)),
+                                    'EXPENSE',
+                                    decode(fj.debit_credit_flag,
+                                           'CR',
+                                           (-1) * nvl(fj.adjustment_amount, 0),
+                                           nvl(fj.adjustment_amount, 0))))
+                  FROM   fa_adjustments fj
+                  WHERE  fj.asset_id = fa.asset_id
+                  AND    fj.book_type_code = fbc.book_type_code
+                  AND    fj.period_counter_created = fdp.period_counter
+                  AND    fj.adjustment_type IN ('RESERVE', 'EXPENSE')),
+                  0)) cost_je,
+       nvl(fb.salvage_value, 0) salvage_value,
+       decode(fds.period_counter,
+              fdp.period_counter,
+              nvl(fds.deprn_amount, 0),
+              0) -
+       decode(fds.period_counter,
+              fdp.period_counter,
+              0,
+              nvl((SELECT SUM(decode(fj.adjustment_type,
+                                    'EXPENSE',
+                                    decode(fj.debit_credit_flag,
+                                           'CR',
+                                           (-1) * nvl(fj.adjustment_amount, 0),
+                                           nvl(fj.adjustment_amount, 0))))
+                  FROM   fa_adjustments fj
+                  WHERE  fj.asset_id = fa.asset_id
+                  AND    fj.book_type_code = fbc.book_type_code
+                  AND    fj.period_counter_created = fdp.period_counter
+                  AND    fj.adjustment_type = 'EXPENSE'),
+                  0)) bq_zj,
+       decode(sign(fdp_min.min_counter - fds.period_counter),
+              1,
+              0,
+              nvl(fds.ytd_deprn, 0)) +
+       decode(fds.period_counter,
+              fdp.period_counter,
+              0,
+              nvl((SELECT SUM(decode(fj.adjustment_type,
+                                    'EXPENSE',
+                                    decode(fj.debit_credit_flag,
+                                           'CR',
+                                           (-1) * nvl(fj.adjustment_amount, 0),
+                                           nvl(fj.adjustment_amount, 0))))
+                  FROM   fa_adjustments fj
+                  WHERE  fj.asset_id = fa.asset_id
+                  AND    fj.book_type_code = fbc.book_type_code
+                  AND    fj.period_counter_created = fdp.period_counter
+                  AND    fj.adjustment_type = 'EXPENSE'),
+                  0)) bn_zj,
+       nvl(fds.deprn_reserve, 0) +
+       decode(fds.period_counter,
+              fdp.period_counter,
+              0,
+              nvl((SELECT SUM(decode(fj.adjustment_type,
+                                    'RESERVE',
+                                    decode(fj.debit_credit_flag,
+                                           'DR',
+                                           (-1) * nvl(fj.adjustment_amount, 0),
+                                           nvl(fj.adjustment_amount, 0)),
+                                    'EXPENSE',
+                                    decode(fj.debit_credit_flag,
+                                           'CR',
+                                           (-1) * nvl(fj.adjustment_amount, 0),
+                                           nvl(fj.adjustment_amount, 0))))
+                  FROM   fa_adjustments fj
+                  WHERE  fj.asset_id = fa.asset_id
+                  AND    fj.book_type_code = fbc.book_type_code
+                  AND    fj.period_counter_created = fdp.period_counter
+                  AND    fj.adjustment_type IN ('RESERVE', 'EXPENSE')),
+                  0)) lj_zj,
+       decode(fds.period_counter,
+              fdp.period_counter,
+              nvl(fds.impairment_amount, 0),
+              0) bq_jzzb,
+       decode(sign(fdp_min.min_counter - fds.period_counter),
+              1,
+              0,
+              nvl(fds.ytd_impairment, 0)) bn_jzzb,
+       decode(fds.deprn_reserve, 0, 0, nvl(fds.impairment_reserve, 0)) lj_jzzb,
+       (SELECT employee_number
+        FROM   fa_employees
+        WHERE  employee_id = fdh.assigned_to
+        AND    nvl(actual_termination_date, SYSDATE + 1) > SYSDATE) employee_number,
+       (SELECT NAME
+        FROM   fa_employees
+        WHERE  employee_id = fdh.assigned_to
+        AND    nvl(actual_termination_date, SYSDATE + 1) > SYSDATE) employee_name,
+       fa.attribute3 project_seg,
+       (SELECT ppa.name
+        FROM   pa.pa_projects_all ppa
+        WHERE  ppa.segment1 = fa.attribute3) project_dis,
+       fl.segment1 || '.' || fl.segment2 || '.' || fl.segment3 local_host,
+       fa.attribute4 buling,
+       (SELECT ffvt.description
+        FROM   fnd_flex_values ffv, fnd_flex_values_tl ffvt
+        WHERE  ffv.flex_value_id = ffvt.flex_value_id
+        AND    ffv.flex_value = fa.attribute5
+        AND    ffvt.language = 'ZHS'
+        AND    ffv.flex_value_set_id = 1011939) asset_source,
+       gcc2.segment1 || '.' || gcc2.segment2 || '.' || gcc2.segment3 || '.' ||
+       gcc2.segment4 || '.' || gcc2.segment5 || '.' || gcc2.segment6 || '.' ||
+       gcc2.segment7 zj_segment,
+       (SELECT ffvt.description
+        FROM   fnd_flex_value_sets ffvs,
+               fnd_flex_values     ffv,
+               fnd_flex_values_tl  ffvt
+        WHERE  ffvs.flex_value_set_name = 'NXMC_COA_CO'
+        AND    ffv.flex_value_set_id = ffvs.flex_value_set_id
+        AND    ffv.flex_value_id = ffvt.flex_value_id
+        AND    ffvt.language = 'ZHS'
+        AND    ffv.flex_value = gcc2.segment1) || '.' ||
+       (SELECT ffvt.description
+        FROM   fnd_flex_value_sets ffvs,
+               fnd_flex_values     ffv,
+               fnd_flex_values_tl  ffvt
+        WHERE  ffvs.flex_value_set_name = 'NXMC_COA_CC'
+        AND    ffv.flex_value_set_id = ffvs.flex_value_set_id
+        AND    ffv.flex_value_id = ffvt.flex_value_id
+        AND    ffvt.language = 'ZHS'
+        AND    ffv.flex_value = gcc2.segment2) || '.' ||
+       (SELECT ffvt.description
+        FROM   fnd_flex_value_sets ffvs,
+               fnd_flex_values     ffv,
+               fnd_flex_values_tl  ffvt
+        WHERE  ffvs.flex_value_set_name = 'NXMC_COA_AC'
+        AND    ffv.flex_value_set_id = ffvs.flex_value_set_id
+        AND    ffv.flex_value_id = ffvt.flex_value_id
+        AND    ffvt.language = 'ZHS'
+        AND    ffv.flex_value = gcc2.segment3) || '.' ||
+       (SELECT ffvt.description
+        FROM   fnd_flex_value_sets ffvs,
+               fnd_flex_values     ffv,
+               fnd_flex_values_tl  ffvt
+        WHERE  ffvs.flex_value_set_name = 'NXMC_COA_SB'
+        AND    ffv.flex_value_set_id = ffvs.flex_value_set_id
+        AND    ffv.flex_value_id = ffvt.flex_value_id
+        AND    ffvt.language = 'ZHS'
+        AND    ffv.flex_value = gcc2.segment4) || '.' ||
+       (SELECT ffvt.description
+        FROM   fnd_flex_value_sets ffvs,
+               fnd_flex_values     ffv,
+               fnd_flex_values_tl  ffvt
+        WHERE  ffvs.flex_value_set_name = 'NXMC_COA_PJ'
+        AND    ffv.flex_value_set_id = ffvs.flex_value_set_id
+        AND    ffv.flex_value_id = ffvt.flex_value_id
+        AND    ffvt.language = 'ZHS'
+        AND    ffv.flex_value = gcc2.segment5) || '.' ||
+       (SELECT ffvt.description
+        FROM   fnd_flex_value_sets ffvs,
+               fnd_flex_values     ffv,
+               fnd_flex_values_tl  ffvt
+        WHERE  ffvs.flex_value_set_name = 'NXMC_COA_IC'
+        AND    ffv.flex_value_set_id = ffvs.flex_value_set_id
+        AND    ffv.flex_value_id = ffvt.flex_value_id
+        AND    ffvt.language = 'ZHS'
+        AND    ffv.flex_value = gcc2.segment6) || '.' ||
+       (SELECT ffvt.description
+        FROM   fnd_flex_value_sets ffvs,
+               fnd_flex_values     ffv,
+               fnd_flex_values_tl  ffvt
+        WHERE  ffvs.flex_value_set_name = 'NXMC_COA_SP'
+        AND    ffv.flex_value_set_id = ffvs.flex_value_set_id
+        AND    ffv.flex_value_id = ffvt.flex_value_id
+        AND    ffvt.language = 'ZHS'
+        AND    ffv.flex_value = gcc2.segment7) zj_segment_dis,
+       gcc3.segment1 || '.' || gcc3.segment2 || '.' || gcc3.segment3 || '.' ||
+       gcc3.segment4 || '.' || gcc3.segment5 || '.' || gcc3.segment6 || '.' ||
+       gcc3.segment7 lj_segment,
+       (SELECT ffvt.description
+        FROM   fnd_flex_value_sets ffvs,
+               fnd_flex_values     ffv,
+               fnd_flex_values_tl  ffvt
+        WHERE  ffvs.flex_value_set_name = 'NXMC_COA_CO'
+        AND    ffv.flex_value_set_id = ffvs.flex_value_set_id
+        AND    ffv.flex_value_id = ffvt.flex_value_id
+        AND    ffvt.language = 'ZHS'
+        AND    ffv.flex_value = gcc3.segment1) || '.' ||
+       (SELECT ffvt.description
+        FROM   fnd_flex_value_sets ffvs,
+               fnd_flex_values     ffv,
+               fnd_flex_values_tl  ffvt
+        WHERE  ffvs.flex_value_set_name = 'NXMC_COA_CC'
+        AND    ffv.flex_value_set_id = ffvs.flex_value_set_id
+        AND    ffv.flex_value_id = ffvt.flex_value_id
+        AND    ffvt.language = 'ZHS'
+        AND    ffv.flex_value = gcc3.segment2) || '.' ||
+       (SELECT ffvt.description
+        FROM   fnd_flex_value_sets ffvs,
+               fnd_flex_values     ffv,
+               fnd_flex_values_tl  ffvt
+        WHERE  ffvs.flex_value_set_name = 'NXMC_COA_AC'
+        AND    ffv.flex_value_set_id = ffvs.flex_value_set_id
+        AND    ffv.flex_value_id = ffvt.flex_value_id
+        AND    ffvt.language = 'ZHS'
+        AND    ffv.flex_value = gcc3.segment3) || '.' ||
+       (SELECT ffvt.description
+        FROM   fnd_flex_value_sets ffvs,
+               fnd_flex_values     ffv,
+               fnd_flex_values_tl  ffvt
+        WHERE  ffvs.flex_value_set_name = 'NXMC_COA_SB'
+        AND    ffv.flex_value_set_id = ffvs.flex_value_set_id
+        AND    ffv.flex_value_id = ffvt.flex_value_id
+        AND    ffvt.language = 'ZHS'
+        AND    ffv.flex_value = gcc3.segment4) || '.' ||
+       (SELECT ffvt.description
+        FROM   fnd_flex_value_sets ffvs,
+               fnd_flex_values     ffv,
+               fnd_flex_values_tl  ffvt
+        WHERE  ffvs.flex_value_set_name = 'NXMC_COA_PJ'
+        AND    ffv.flex_value_set_id = ffvs.flex_value_set_id
+        AND    ffv.flex_value_id = ffvt.flex_value_id
+        AND    ffvt.language = 'ZHS'
+        AND    ffv.flex_value = gcc3.segment5) || '.' ||
+       (SELECT ffvt.description
+        FROM   fnd_flex_value_sets ffvs,
+               fnd_flex_values     ffv,
+               fnd_flex_values_tl  ffvt
+        WHERE  ffvs.flex_value_set_name = 'NXMC_COA_IC'
+        AND    ffv.flex_value_set_id = ffvs.flex_value_set_id
+        AND    ffv.flex_value_id = ffvt.flex_value_id
+        AND    ffvt.language = 'ZHS'
+        AND    ffv.flex_value = gcc3.segment6) || '.' ||
+       (SELECT ffvt.description
+        FROM   fnd_flex_value_sets ffvs,
+               fnd_flex_values     ffv,
+               fnd_flex_values_tl  ffvt
+        WHERE  ffvs.flex_value_set_name = 'NXMC_COA_SP'
+        AND    ffv.flex_value_set_id = ffvs.flex_value_set_id
+        AND    ffv.flex_value_id = ffvt.flex_value_id
+        AND    ffvt.language = 'ZHS'
+        AND    ffv.flex_value = gcc3.segment7) lj_segment_dis
+FROM   fa_book_controls        fbc,
+       fa_additions_b          fa,
+       fa_additions_tl         fat,
+       fa_asset_history        fah,
+       fa_books                fb,
+       fa_deprn_summary        fds,
+       fa_deprn_periods        fdp,
+       fa_distribution_history fdh,
+       fa_categories_b fc,
+       fa_categories_tl t,
+       fa_locations fl,
+       (SELECT MIN(fdp1.period_counter) min_counter, fdp1.book_type_code
+        FROM   fa_deprn_periods fdp1, fa_deprn_periods fdp2
+        WHERE  fdp1.book_type_code = fdp2.book_type_code
+        AND    fdp1.fiscal_year = fdp2.fiscal_year
+        AND    fdp2.period_name = #{PERIOD_NAME}
+        GROUP  BY fdp1.book_type_code) fdp_min,
+       fa_asset_keywords_kfv fak, 
+       fa_category_books    fcb,
+       gl_code_combinations gcc1,
+       gl_code_combinations gcc2,
+       gl_code_combinations gcc3
+WHERE  fak.code_combination_id = fa.asset_key_ccid
+AND    fbc.book_type_code = fdp.book_type_code
+AND    fa.asset_id = fb.asset_id
+AND    fa.asset_id = fat.asset_id
+AND    gcc1.code_combination_id = fcb.asset_cost_account_ccid
+AND    gcc2.code_combination_id = fdh.code_combination_id
+AND    gcc3.code_combination_id = fcb.reserve_account_ccid
+AND    fcb.category_id = fc.category_id
+AND    t.category_id = fc.category_id
+AND    t.language = 'ZHS'
+AND    fat.language = 'ZHS'
+AND    fa.asset_id = fah.asset_id
+AND    nvl(fdp.period_close_date, SYSDATE) BETWEEN fah.date_effective AND
+       nvl(fah.date_ineffective, SYSDATE + 1)
+AND    fds.period_counter =
+       (SELECT MAX(period_counter)
+         FROM   fa_deprn_summary
+         WHERE  book_type_code = fb.book_type_code
+         AND    asset_id = fb.asset_id
+         AND    period_counter <= fdp.period_counter)
+AND    fds.asset_id = fb.asset_id
+AND    fds.book_type_code = fb.book_type_code
+AND    fdp.book_type_code = fb.book_type_code
+AND    fdp.period_name = #{PERIOD_NAME}
+AND    fdp_min.book_type_code = fb.book_type_code
+AND    fdh.location_id = fl.location_id
+AND    fdh.book_type_code = fb.book_type_code
+AND    fdh.asset_id = fb.asset_id
+AND    fdh.distribution_id =
+       (SELECT MAX(distribution_id)
+         FROM   fa_distribution_history
+         WHERE  book_type_code = fb.book_type_code
+         AND    asset_id = fb.asset_id
+         AND    date_effective <= nvl(fdp.period_close_date, SYSDATE))
+AND    fb.date_effective <= nvl(fdp.period_close_date, SYSDATE)
+AND    nvl(fb.date_ineffective, SYSDATE + 1) >
+       nvl(fdp.period_close_date, SYSDATE)
+AND    fah.category_id = fc.category_id
+AND    fcb.book_type_code = fbc.book_type_code
+AND    gcc1.summary_flag = 'N'
+AND    gcc1.enabled_flag = 'Y'
+AND    gcc2.summary_flag = 'N'
+AND    gcc2.enabled_flag = 'Y'
+AND    gcc3.summary_flag = 'N'
+AND    gcc3.enabled_flag = 'Y'
+AND    fa.tag_number like #{tag_number}
+AND    fcb.book_type_code = #{book_type_code}
+AND    NOT EXISTS
+ (SELECT 1
+        FROM   fa_transaction_headers th
+        WHERE  th.book_type_code = fb.book_type_code
+        AND    th.asset_id = fb.asset_id
+        AND    th.date_effective < nvl(fdp.period_open_date, SYSDATE)
+        AND    th.transaction_type_code = 'FULL RETIREMENT'
+        AND    th.transaction_header_id =
+               (SELECT MAX(th2.transaction_header_id)
+                 FROM   fa_transaction_headers th2
+                 WHERE  th2.book_type_code = fb.book_type_code
+                 AND    th2.asset_id = fb.asset_id))
+	 ]]>
+	</select>
+	
+	
+	
+	<select id="查询资产地点信息" parameterType="Map" resultType="Map" >
+	  <!--{
+		 "db":"system",
+     desc:"查询资产地点信息",
+		 in:[
+		    {id:"company_code",name:"公司编码",datatype:"varchar"}
+	          ],
+		 out:[
+			 {id:"value_set_name",name:"地点弹性域编码",datatype:"varchar"},
+		     {id:"flex_value",name:"地点编码",datatype:"varchar"},
+			 {id:"flex_value_dis",name:"地点名称",datatype:"varchar"},
+		     {id:"enabled_flag",name:"启用标识",datatype:"varchar"},
+			 {id:"start_date_active",name:"启用日期",datatype:"varchar"},
+		     {id:"creation_date",name:"创建日期",datatype:"varchar"},
+		     {id:"create_em",name:"创建人",datatype:"varchar"}
+		       ]
+	    }
+	 -->
+	  
+	  <![CDATA[
+	SELECT b.flex_value_set_name value_set_name,
+       a.flex_value flex_value,
+       a.description flex_value_dis,
+       a.enabled_flag enabled_flag,
+       to_char(a.start_date_active,'yyyy-mm-dd') start_date_active,
+       to_char(a.CREATION_DATE,'yyyy-mm-dd')  CREATION_DATE,
+       (SELECT f.last_name
+        FROM   fnd_user fu, per_all_people_f f
+        WHERE  fu.user_id = a.LAST_UPDATED_BY
+        AND    fu.employee_id = f.person_id
+        AND    SYSDATE BETWEEN nvl(f.effective_start_date, SYSDATE) AND
+               nvl(f.effective_end_date, SYSDATE + 1)) create_em
+FROM   apps.fnd_flex_values_vl a, apps.fnd_flex_value_sets b
+WHERE  (('' IS NULL) OR
+       (structured_hierarchy_level IN
+       (SELECT hierarchy_id
+          FROM   apps.fnd_flex_hierarchies_vl h
+          WHERE  h.flex_value_set_id = b.flex_value_set_id
+          AND    h.hierarchy_name LIKE '')))
+AND    a.FLEX_VALUE LIKE #{company_code}
+AND    a.enabled_flag = 'Y'
+AND    SYSDATE BETWEEN nvl(a.START_DATE_ACTIVE, SYSDATE) AND
+       nvl(a.END_DATE_ACTIVE, SYSDATE + 1)
+AND    (a.flex_value_set_id = b.flex_value_set_id)
+AND    b.flex_value_set_name = 'CMCC_FA_LOC_2'
+ORDER  BY b.flex_value_set_name, a.flex_value
+	 ]]>
+	</select>
+	
+	
+</mapper>
+
